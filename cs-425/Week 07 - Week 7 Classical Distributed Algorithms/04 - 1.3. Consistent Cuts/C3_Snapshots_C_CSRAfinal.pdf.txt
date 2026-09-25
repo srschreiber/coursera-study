@@ -1,0 +1,91 @@
+Cuts
+• Cut = time frontier at each process and at each channel
+• Events at the process/channel that happen before the cut are “in
+  the cut”
+   – And happening after the cut are “out of the cut”
+
+Consistent Cuts
+Consistent Cut: a cut that obeys causality
+• A cut C is a consistent cut if and only if:
+    for (each pair of events e, f in the system)
+   – Such that event e is in the cut C, and if f → e (f happens-before e)
+        • Then: Event f is also in the cut C
+
+     Example
+       A   B                    C             D      E
+P1
+                                                         Time
+               E        F                G
+P2
+
+           H                    I                           J
+P3
+
+               Consistent Cut       Inconsistent Cut
+                                    G  D, but only D is in cut
+
+Our Global Snapshot Example …                 C21 = <message GD >
+                  S1                     C31 = < >
+      A   B                     C               D      E
+P1
+                                                           Time
+              E        F                 G
+P2
+
+          H                     I                                 J
+P3
+                                             • S2
+                           • S3
+                                             • C32 = < >   C12 = < >
+                           • C13 = < >
+                                                    • C23 = < >
+
+… is causally correct                              C21 = <message GD >
+                         S1                   C31 = < >
+          A    B                       C             D      E
+P1
+                                                                Time
+                     E        F               G
+P2
+
+                 H                     I                           J
+P3
+                                                  • S2
+                                  • S3
+                                                  • C32 = < > C12 = < >
+                                  • C13 = < >
+Consistent Cut captured by our Global Snapshot Example • C23 = < >
+
+In fact…
+
+• Any run of the Chandy-Lamport Global Snapshot algorithm creates a
+  consistent cut
+
+Chandy-Lamport Global Snapshot
+algorithm creates a consistent cut
+Let’s quickly look at the proof
+•Let ei and ej be events occurring at Pi and Pj,
+respectively, such that
+    – ei  ej (ei happens before ej)
+•The snapshot algorithm ensures that
+           if ej is in the cut then ei is also in the cut.
+• That is: if ej  <Pj records its state>, then
+     – It must be true that ei  <Pi records its state>.
+
+    Chandy-Lamport Global Snapshot
+    algorithm creates a consistent cut
+•   If ej  <Pj records its state>, then it must be true
+    that ei  <Pi records its state>.
+     •   By contradiction, suppose ej  <Pj records its state> and
+         <Pi records its state>  ei
+     •   Consider the path of app messages (through other
+         processes) that go from ei  ej
+     •   Due to FIFO ordering, markers on each link in above
+         path will precede regular app messages
+     •   Thus, since <Pi records its state>  ei , it must be true
+         that Pj received a marker before ej
+     •   Thus ej is not in the cut => contradiction
+
+Next
+
+• What is the Chandy-Lamport algorithm used for?

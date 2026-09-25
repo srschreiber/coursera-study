@@ -1,0 +1,60 @@
+Let’s Try to Solve Consensus!
+• Uh, what’s the system model?
+  (assumptions!)
+• Synchronous system: bounds on
+   – Message delays
+   – Upper bound on clock drift rates
+   – Max time for each process step
+   e.g., multiprocessor (common clock across
+      processors)
+• Processes can fail by stopping (crash-stop
+  or crash failures)
+
+Consensus in Synchronous Systems
+- For a system with at most f processes crashing
+    - All processes are synchronized and operate in “rounds” of
+         time
+     -   the algorithm proceeds in f+1 rounds (with timeout), using
+         reliable communication to all members
+     -   Valuesri: the set of proposed values known to pi at the
+         beginning of round r.
+
+             Round 1                 Round 2               Round 3
+
+Consensus in Synchronous System
+                                                                            Possible to achieve!
+- For a system with at most f processes crashing
+    - All processes are synchronized and operate in “rounds” of time
+    - The algorithm proceeds in f+1 rounds (with timeout), using reliable communication
+          to all members
+       - Valuesri: the set of proposed values known to pi at the beginning of round r.
+- Initially Values0i = {} ; Values1i = {vi}
+     for round = 1 to f+1 do
+             multicast (Values ri – Valuesr-1i) // iterate through processes, send each a message
+             Values r+1i  Valuesri
+             for each Vj received
+                  Values r+1i = Values r+1i ∪ Vj
+             end
+     end
+    di = minimum(Values f+1i)
+
+    Why does the Algorithm work?
+•   After f+1 rounds, all non-faulty processes would have received the same
+    set of values. Proof by contradiction.
+•   Assume that two non-faulty processes, say pi and pj , differ in their final
+    set of values (i.e., after f+1 rounds)
+•   Assume that pi possesses a value v that pj does not possess.
+      pi must have received v in the very last round
+             Else, pi would have sent v to pj in that last round
+      So, in the last round: a third process, pk, must have sent v to pi, but then crashed
+        before sending v to pj.
+      Similarly, a fourth process sending v in the last-but-one round must have
+        crashed; otherwise, both pk and pj should have received v.
+      Proceeding in this way, we infer at least one (unique) crash in each of the
+        preceding rounds.
+      This means a total of f+1 crashes, while we have assumed at most f crashes can
+        occur => contradiction.
+
+  Next
+• Let’s be braver and solve Consensus in the
+  Asynchronous System Model

@@ -1,0 +1,198 @@
+​CS425 Fall 2026 – Homework 2​
+   ​(a.k.a. “Once upon a time in Distributed Hollywood”)​
+         ​Out: Sep 21, 2026. Due: Oct 4, 2026 (Sunday,​​11:59​​pm US Central​)​
+                    ​Topics​: P2P Systems, Key-value Stores, Time and Ordering​
+
+​Instructions​:​
+
+    ​1.​ ​Please​ ​double-check​ ​that​ ​the​​top​​of​​this​​page​​mentions​​the​​correct​​semester​​you​
+                         ​are​​taking​​the​​course​​in​​(otherwise,​​you​​are​​looking​​at​​an​​old​​version​​and​​we​​will​
+                  ​not accept your submitted solutions).​
+     ​2.​ ​Attempt​ ​any​ ​8​ ​out​ ​of​ ​the​ ​10​ ​problems​ ​in​ ​this​ ​homework.​​If​​you​​attempt​​more,​
+                          ​we​ ​will​ ​grade​ ​only​ ​the​ ​first​ ​8​ ​solutions​ ​that​ ​appear​ ​in​ ​your​ ​homework.​ ​Each​
+                   ​problem has the same grade value (10 points each).​
+      ​3.​ ​Your​​solutions​​must​​be​​typed​​and​​not​​handwritten​.​​Figures​​(e.g.,​​timelines)​​and​
+                    ​equations (if any) may be hand-drawn (and scanned).​
+       ​4.​ ​Submit PDF only.​​Start each problem on a fresh page​.​
+        ​5.​ ​Please​ ​submit​ ​on​ ​Gradescope.​ ​[​https://www.gradescope.com/​]​ ​Self-signup​
+                     ​using the code on the website.​
+         ​6.​ ​Important:​​On Gradescope, please tag each page with​​the problem number!​
+          ​7.​ ​Homework is​​due on the date and time noted above.​ ​No extensions.​
+                           ​For​ ​DRES​ ​students​ ​only:​ ​once​ ​the​ ​solutions​ ​are​ ​posted​ ​(typically​ ​a​ ​few​ ​hours​
+                      ​after the HW is due), subsequent submissions will get a zero​.​
+           ​8.​ ​Always justify all your answers, and show your work.​
+            ​9.​ ​Unless​​otherwise​​specified​​in​​the​​question,​​the​​only​​resources​​you​​can​​avail​​of​​in​
+                            ​your​ ​HW​ ​are​ ​the​ ​provided​ ​course​ ​materials​ ​(slides,​ ​textbooks,​ ​etc.)​ ​and​
+                       ​communication with instructors/TA via the discussion forum.​
+             ​10.​​You​ ​can​ ​discuss​ ​lecture​ ​concepts​ ​and​ ​the​ ​questions​ ​on​ ​Piazza​ ​and​ ​with​ ​your​
+                        ​friends, but do not discuss solutions or ideas on Piazza.​
+
+​Prologue​:​​You​​have​​just​​been​​made​​the​​technical​​head​​in​​a​​production​​company​​that​​is​
+ ​producing​​a​​new​​Hollywood​​movie.​​The​​movie​​is​​sure​​to​​be​​a​​blockbuster,​​with​​a​​lot​​of​
+  ​well-known​ ​actors​ ​and​ ​actresses​ ​hired​ ​to​ ​star​ ​in​ ​it.​ ​Amazingly,​ ​many​ ​of​ ​them​ ​know​
+   ​distributed​ ​systems!​ ​You​ ​run​ ​into​ ​them​ ​every​ ​day​​on​​the​​set.​​Here​​is​​what​​ensues.​​All​
+    ​characters​ ​and​ ​their​ ​actions​ ​in​ ​this​ ​homework​ ​are​ ​meant​ ​to​ ​make​ ​the​ ​homework​ ​fun!​
+     ​Any​ ​resemblance​ ​of​ ​their​ ​actions​ ​or​ ​opinions​ ​to​ ​real​ ​events​ ​or​ ​places​ ​is​ ​purely​
+      ​coincidental. All these stories are fictional.​
+
+                                                                                                                              ​1​
+
+​Problems​:​
+
+​1.​ ​Walt​ ​Disney​ ​and​ ​Pokemon​ ​want​ ​to​ ​build​ ​a​ ​virtual​ ​theme​ ​park​ ​where​ ​young​
+ ​customers​​will​​all​​wear​​VR​​goggles​​and​​be​​connected​​via​​a​​Gnutella​​P2P​​system.​ ​At​​one​
+  ​point​ ​in​ ​time,​ ​the​ ​Gnutella​ ​topology​ ​is​ ​a​ ​perfectly​ ​balanced​ ​binary​ ​tree​ ​with​ ​N=2​​m​-​ 1​
+   ​processes (for a large m). All leaves are at the same level.​
+               ​a.​ ​How​​many​​processes​​(apart​​from​​the​​sender)​​receive​​the​​query​​if​​a​​child​​of​​the​
+            ​root is the querying node, and the TTL=m-2?​
+                ​b.​ ​What​ ​is​ ​the​ ​minimum​ ​TTL​ ​required​ ​so​ ​that​ ​all​​processes​​receive​​a​​query,​​no​
+             ​matter who its sender is​?​
+                 ​c.​​Now​​suppose​​that,​​in​​addition​​to​​the​​tree​​edges,​​every​​process​​is​​connected​​to​
+                  ​its​ ​immediate​ ​left​ ​and​ ​right​ ​neighbors​ ​at​ ​the​ ​same​ ​tree​ ​level.​ ​These​ ​links​ ​are​
+                   ​bidirectional​ ​and​ ​are​ ​present​ ​at​ ​every​ ​level.​ ​The​ ​links​ ​do​ ​not​ ​wrap​ ​around:​​the​
+                    ​leftmost​​and​​rightmost​​processes​​at​​a​​level​​are​​not​​connected​​to​​each​​other.​​In​​this​
+                     ​topology,​ ​what​ ​is​ ​the​ ​minimum​ ​TTL​ ​required​ ​for​ ​a​ ​query​ ​originating​ ​at​ ​the​
+              ​leftmost leaf to reach all processes?​
+
+​We​​recommend​​that​​you​​try​​to​​solve​​the​​question​​with​​small​​values​​of​​m​​first,​​and​​then​
+ ​generalize. We need answers to the above questions in terms of the variable m.​
+
+​2.​ ​Three​ ​wealthy​ ​industrialists​ ​want​ ​to​ ​make​ ​a​​movie​​aboard​​a​​very​​unsafe​​spaceship​
+ ​called​ ​“Solargate”​ ​that​ ​travels​​to​​all​​8​​planets.​​Lo​​and​​behold,​​the​​different​​planets​​use​
+  ​BitTorrent!​ ​While​ ​working​ ​through​ ​an​ ​example,​ ​you​ ​find​ ​a​ ​case​ ​where​ ​a​ ​file​ ​has​ ​7​
+   ​shards:​ ​A,​ ​B,​ ​C,​ ​D,​ ​E,​ ​F,​ ​G.​ ​The​ ​querying​ ​node​ ​(peer,​ ​leecher)​ ​is​ ​on​ ​a​ ​spacecraft,​
+    ​connected​ ​to​ ​all​ ​the​ ​planets​ ​directly.​ ​The​ ​planet​ ​servers​ ​at​ ​the​ ​8​​planets​​each​​have​​the​
+     ​following​ ​shards:​ ​Mercury​ ​(ACEG),​ ​Venus​ ​(DF),​ ​Earth​ ​(ABCDEFG),​ ​Mars(BCDEF),​
+      ​Jupiter (ABCDE), Saturn (ABCD), Uranus (ABC), Neptune (AB).​
+          ​a.​ ​Which shard will be fetched first?​
+           ​b.​ ​Say​ ​we​ ​introduce​ ​a​ ​9th​ ​renegade​ ​planet.​ ​Can​ ​you​​assign​​a​​set​​consisting​​of​​just​
+                 ​one​​shard​​to​​this​​9th​​planet​​that​​changes​​the​​first​​fetched​​shard​​by​​the​​spacecraft​
+                ​(ties broken by lower letter)?​
+
+                                                                                                                          ​2​
+
+    ​c.​ ​Suppose​ ​the​ ​industrialists​ ​use​ ​a​ ​modified​ ​version​ ​of​ ​BitTorrent​ ​that​ ​always​
+            ​downloads​​the​​most​​common​​block​​first​​instead​​of​​the​​rarest​​block​​first.​​What​​is​
+          ​one problem this could cause?​
+     ​d.​ ​Suppose​​they​​design​​a​​modified​​version​​of​​BitTorrent​​where​​a​​file​​is​​not​​split​​into​
+             ​blocks​ ​and​ ​a​ ​peer​ ​downloads​ ​the​ ​entire​ ​file​ ​from​ ​a​ ​single​ ​peer​.​ ​What​ ​is​ ​one​
+           ​problem this could cause compared with BitTorrent's block-based design?​
+
+​3.​​You​​want​​to​​make​​a​​movie​​on​​US​​Presidential​​elections.​​You​​are​​putting​​together​​the​
+ ​movie’s​​cast.​​To​​facilitate​​the​​search,​​you​​decide​​to​​use​​a​​Chord-like​​peer-to-peer​​system​
+  ​to​​connect​​the​​mobile​​phones​​of​​aspiring​​artists​​with​​each​​other.​​The​​Chord​​ring​​has​​m​​=​
+   ​12.​ ​Nodes​ ​with​ ​the​ ​following​ ​peer​ ​IDs​ ​(or​ ​node​​IDs)​​join​​the​​system:​​1992,​​1996,​​2000,​
+    ​2004,​​2008,​​2012,​​2016,​​2020,​​2024,​​2028​​(those​​are​​all​​years​​that​​the​​Presidential​​Elections​
+     ​are/will be held). Then, answer the following questions:​
+             ​a.​ ​Show or list all finger table entries for node​​2012.​
+                ​b.​ ​When​​all​​finger​​tables​​and​​successors​​have​​converged,​​show​​the​​path​​taken​​by​
+                 ​a​ ​search​ ​(or​ ​query)​ ​message​ ​originating​ ​from​ ​node​ ​2016​ ​intended​ ​for​ ​the​ ​key​
+              ​1999.​
+               ​c.​ ​Node 2020 fails. List all nodes whose finger​​tables need to be updated.​
+
+​4.​ ​A​ ​producer,​ ​Leo​ ​Bloom,​ ​likes​ ​Bloom​ ​filters.​ ​He​ ​uses​ ​his​ ​spare​ ​time​ ​to​​create​​a​​new​
+ ​Bloom filter-like data structure. A (regular) Bloom filter’s false positive rate is given as:​
+
+​where​​k​​is​​the​​number​​of​​hash​​functions,​​n​​is​​the​​size​​of​​the​​input​​set,​​and​​m​​is​​the​​size​
+ ​of​ ​the​ ​Bloom​ ​filter​ ​in​ ​bits.​ ​Leo​ ​says​ ​that​ ​instead​ ​of​ ​using​ ​a​ ​single​ ​Bloom​ ​filter​ ​B​ ​with​
+  ​1024​ ​bits​ ​and​ ​4​ ​hash​ ​functions,​ ​his​ ​new​ ​data​ ​structure,​ ​called​ ​Leo​ ​Bloom​ ​filter,​​uses​​4​
+   ​Bloom​​filters​​B1,​​B2,​​B3,​​and​​B4,​​each​​with​​256​​bits,​​and​​each​​using​​1​​hash​​function​​(each​
+    ​hash​ ​function​ ​is​ ​different​ ​from​ ​the​ ​others,​ ​and​ ​different​ ​from​ ​the​ ​above​ ​4​ ​hash​
+     ​functions).​​There​​are​​two​​variants:​​When​​checking​​for​​an​​item,​​it​​returns​​true​​only​​if​​the​
+      ​item​​is​​present​​in​​{Variant​​A:​​all​,​​Variant​​B:​​any​}​​of​​B1,​​B2,​​B3,​​and​​B4.​​When​​inserting​​an​
+       ​item, for both variants A and B, it is inserted into​​all​​of B1, B2, B3, and B4.​
+           ​a.​ ​Which​​of​​the​​above​​three​​approaches—original​​using​​Bloom​​filter​​B​​vs.​​Leo–any​
+                 ​vs.​ ​Leo–all​ ​—gives​ ​the​ ​best​ ​(lowest)​ ​false​ ​positive​ ​rates?​ ​Answer​ ​this​ ​for​ ​two​
+                  ​cases:​​(1)​​when​​there​​are​​typically​​10​​elements​​inserted​​into​​the​​data​​structure,​​(2)​
+                   ​when​ ​there​ ​are​ ​typically​ ​1000​ ​elements​ ​inserted​ ​into​ ​the​ ​data​ ​structure.​ ​(We​
+                    ​recommend​ ​that​ ​you​ ​solve​​the​​problem​​with​​the​​variables​​k,​​n,​​m,​​etc.,​​and​​then​
+                     ​apply​​these​​values.​​But​​solving​​with​​only​​these​​two​​values​​of​​10,​​1000,​​would​​be​
+                ​ok as well.)​
+
+                                                                                                                          ​3​
+
+    ​b.​ ​Compare​ ​the​ ​performance​ ​(think​ ​about​ ​both​ ​performance​ ​to​​look​​up​​a​​key​​and​
+         ​performance to insert a key) of the three approaches.​
+
+​5.​ ​A​​big-budget​​movie​​is​​being​​directed​​by​​N​​directors.​​The​​N​​directors​​never​​seem​​to​
+ ​agree​ ​on​ ​anything.​ ​To​ ​solve​ ​this,​ ​the​ ​producer​ ​decides​ ​to​ ​implement​ ​a​ ​quorum​
+  ​approach.​ ​In​ ​a​ ​system​ ​of​ ​N​ ​processes​ ​(N​ ​large​ ​enough),​ ​THREE​ ​quorum​ ​sets​ ​Q1,​​Q2,​
+   ​and Q3 are selected in an arbitrary manner, all of the same size M.​
+            ​a.​ ​What​​should​​this​​minimum​​value​​of​​M​​be​​so​​that​​at​​least​​r​​processes​​belong​
+             ​to​​ALL​​three​​of​​Q1,​​Q2,​​and​​Q3​​(that​​is,​​the​​intersection​​of​​all​​three​​sets​​is​​r​)?​​r​​is​​a​
+          ​constant, much smaller than N.​
+              ​b.​ ​Solve​​the​​problem​​again​​instead​​now​​with​​k​​quorum​​sets​​Q1,​​Q2,​​Q3,​​…,​​Qk,​
+           ​where k is a constant that is much smaller than N.​
+
+    ​(Hint:​ ​start​ ​with​ ​2​ ​sets​ ​intersecting​ ​at​ ​one​ ​process,​ ​i.e.,​ ​k=2​ ​and​ ​r=1,​ ​and​
+     ​quantitatively reason/think about why it has to be N/2+1).​
+
+​6.​ ​The​​director​​C.​​Nolan​​likes​​to​​deal​​with​​time​​travel,​​which​​means​​he​​proposes​​a​​lot​​of​
+ ​“What​​if?”​​proposals.​​He​​asks​​you​​several​​questions​​about​​Cassandra’s​​design.​​For​​each​
+  ​of the “what if” questions, give at least one reason arguing against his proposal.​
+              ​a.​ ​What​​if​​Cassandra​​uses​​finger​​tables​​from​​Chord​​instead​​of​​full​​membership​
+          ​lists?​
+               ​b.​ ​What​ ​if​ ​Cassandra​ ​didn’t​ ​use​ ​tombstones​ ​for​ ​deletes​ ​and​ ​instead​ ​deleted​
+                ​records​ ​directly​ ​from​​Memtables​​and​​SSTables​​(but​​the​​rest​​of​​the​​system​​works​
+           ​the same way)?​
+                 ​c.​ ​What​​if​​there​​were​​no​​Bloom​​filters​​(but​​the​​rest​​of​​the​​system​​works​​the​​same​
+            ​way)?​
+                  ​d.​ ​What​ ​if,​ ​for​ ​an​ ​update,​ ​a​ ​replica​ ​first​ ​checked​ ​whether​ ​the​ ​key​ ​exists​ ​in​ ​an​
+                   ​SSTable​​on​​disk​​and​​modified​​the​​SSTable​​directly​​if​​it​​did;​​only​​if​​the​​key​​did​​not​
+                    ​exist​​in​​any​​SSTable​​would​​the​​replica​​insert​​the​​update​​into​​the​​Memtable?​​(but​
+             ​the rest of the system works the same way)?​
+
+​7.​ ​Katherine​​Johnson​​was​​a​​Black​​computer​​mathematician​​and​​scientist​​who​​worked​​at​
+ ​NASA.​​Being​​one​​of​​the​​first​​to​​write​​computer​​programs​​involving​​space​​and​​time,​​the​
+  ​director​ ​of​ ​a​ ​movie​ ​about​ ​her​ ​is​ ​looking​ ​into​ ​Cristian’s​ ​algorithm.​ ​They​ ​find​ ​that​ ​the​
+   ​round-trip​ ​time​ ​for​ ​one​ ​round​ ​of​ ​synchronization​ ​messages​ ​between​ ​a​ ​client​ ​and​ ​a​
+    ​server​ ​is​ ​exactly​ ​1.01​ ​ms.​ ​They​ ​are​ ​trying​ ​to​ ​calculate​ ​the​ ​error​ ​for​ ​this​ ​run,​ ​so​ ​they​
+     ​calculate​​some​​minimum​​delays.​​On​​the​​server​​side,​​they​​find​​that​​there​​is​​a​​delay​​of​​at​
+      ​least​​15.7​​microseconds​​for​​a​​packet​​to​​get​​from​​an​​application​​to​​the​​network​​interface,​
+
+                                                                                                                              ​4​
+
+​and​​the​​delay​​in​​the​​opposite​​path​​(network​​interface​​to​​application​​buffer)​​is​​at​​least​​0.4​
+ ​ms.​ ​On​ ​the​ ​client​ ​side,​ ​they​ ​measure​ ​that​ ​the​ ​minimum​ ​time​ ​to​ ​get​ ​from​​the​​network​
+  ​interface​ ​to​ ​the​ ​application​ ​buffer​ ​to​ ​be​ ​at​ ​least​ ​100​ ​microseconds,​ ​and​ ​the​ ​minimum​
+   ​time​ ​on​ ​the​ ​reverse​ ​path​​as​​X​​microseconds.​​But​​they​​forget​​to​​measure​​X.​​What​​is​​the​
+    ​error, given the data just presented?​
+
+​8.​ ​Spiderman​ ​and​ ​his​ ​doppelgangers​ ​in​ ​the​ ​metaverse​ ​are​ ​trying​ ​to​ ​figure​ ​out​ ​the​
+ ​communication​ ​among​ ​the​ ​different​ ​metaverses.​ ​They​ ​have​ ​the​ ​following​ ​timeline​ ​of​
+  ​messages​ ​exchanged,​ ​where​ ​each​​dot​​represents​​an​​instruction.​​Can​​you​​mark​​Lamport​
+   ​timestamps​​on​​each​​event?​​It​​is​​ok​​to​​print​​this​​out​​and​​hand-draw/write​​the​​timestamps​
+    ​then scan or photograph your solution, and insert it into your solution doc.​
+
+​9.​ ​Whoops,​​the​​simultaneous​​and​​sudden​​arrival​​of​​all​​the​​concurrent​​villains​​(Doc​​Ock,​
+ ​Green​ ​Goblin,​ ​Electro,​ ​Sandman,​ ​and​ ​the​ ​others)​ ​means​ ​Lamport​ ​timestamps​ ​are​
+  ​unusable​​for​​distinguishing​​concurrent​​events​​from​​causal​​events.​​Can​​you​​mark​​vector​
+   ​timestamps​ ​for​ ​the​ ​timeline​ ​from​ ​the​ ​previous​ ​question?​ ​It​ ​is​ ​ok​ ​to​ ​print​ ​this​ ​out​ ​and​
+    ​hand-draw/write​ ​the​ ​timestamps​ ​then​ ​scan​​or​​photograph​​your​​solution,​​and​​insert​​it​
+     ​into your solution doc.​
+
+​10.​ ​The​​movie​​is​​a​​hit!​​The​​breakout​​star​​of​​the​​movie,​​Kristen,​​was​​so​​happy​​with​​your​
+ ​work​ ​that​ ​she​ ​has​ ​asked​ ​the​ ​production​ ​company​​to​​give​​you​​one​​last​​puzzle​​to​​solve​
+  ​before you can be paid the millions of $ you are owed.​
+   ​The puzzle concerns timestamps.​
+          ​a.​​Consider​ ​a​ ​modified​ ​version​ ​of​ ​the​ ​Lamport​ ​timestamp​ ​algorithm.​ ​Instead​ ​of​
+           ​initializing​ ​every​ ​process’s​ ​local​ ​counter​​(clocks)​​to​​0,​​each​​process​​initializes​​its​
+            ​counter​ ​to​ ​a​ ​random​ ​positive​ ​integer​ ​(randomly​ ​selected​ ​for​ ​each​ ​process).​ ​The​
+             ​rest​ ​of​ ​the​ ​algorithm​ ​remains​ ​unchanged.​ ​Would​ ​these​ ​new​ ​timestamps​ ​still​
+
+                                                                                                                      ​5​
+
+  ​preserve​ ​(obey)​ ​causality,​ ​i.e.,​ ​guarantee​ ​that​ ​E1​ ​→​ ​E2​ ​=>​ ​timestamp(E1)​ ​<​
+​timestamp (E2)? Explain why or why not.​
+   ​b.​ ​Consider​ ​a​ ​modified​ ​version​ ​of​ ​the​ ​Vector​ ​timestamp​ ​algorithm.​ ​Instead​ ​of​
+    ​initializing​ ​every​ ​process’s​ ​local​ ​clocks​ ​to​ ​a​ ​vector​ ​of​ ​all​ ​0s​ ​(i.e.,​ ​[0,0,..0]),​ ​each​
+     ​process​ ​initializes​ ​its​ ​clocks​ ​to​ ​a​​vector​​of​​random​​positive​​integers​​(each​​integer​
+      ​for​ ​each​ ​process​ ​independently​ ​selected).​ ​The​ ​rest​ ​of​ ​the​ ​algorithm​ ​remains​
+       ​unchanged.​ ​Would​ ​these​ ​new​ ​timestamps​ ​still​ ​preserve​ ​(obey)​ ​causality,​ ​i.e.,​
+        ​guarantee​ ​that​ ​E1​ ​→​ ​E2​ ​=>​ ​timestamp(E1)​ ​<​ ​timestamp​ ​(E2)?​ ​Explain​ ​why​ ​or​
+ ​why not.​
+
+ ​c.​ ​Would​ ​the​ ​algorithm​ ​in​ ​(b)​ ​still​ ​preserve​ ​all​ ​the​ ​properties​ ​of​ ​vector​
+​timestamps? Explain why or why not.​
+
+                                                                                                                    ​6​

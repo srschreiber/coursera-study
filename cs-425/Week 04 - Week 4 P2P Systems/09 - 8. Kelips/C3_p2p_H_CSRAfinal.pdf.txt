@@ -1,0 +1,100 @@
+Kelips – A 1 hop Lookup DHT
+
+• k “affinity groups”                           15
+    •   k~√N                                                76
+
+• Each node hashed to
+  a group (hash mod k)                                     18
+                                                160
+• Node’s neighbors                  129
+    •   (Almost) all other nodes                           167
+        in its own affinity group
+    •   One contact node per
+                                       30
+        foreign affinity group
+
+                                                      …
+                                    Affinity              # k-1
+                                                #1
+                                    Group # 0
+
+    Kelips Files and Metadata
+                                           •   PennyLane.mp3 hashes to k-1
+•   File can be stored at any              •   Everyone in this group stores
+                                           <PennyLane.mp3, who-has-file>
+    (few) node(s)
+•   Decouple file                                             15
+    replication/location                                                         76
+    (outside Kelips) from
+    file querying (in Kelips)                                                   18
+•   Each filename hashed to                                  160
+    a group                              129
+     •   All nodes in the group                                                 167
+         replicate pointer
+         information, i.e., <filename,
+         file location>
+     •   Affinity group does not            30
+         store files
+                                                                           …
+                                  Affinity Group # 0        #1                 # k-1
+
+    Kelips Lookup
+•   Lookup                                     •   PennyLane.mp3 hashes to k-1
+                                               •   Everyone in this group stores
+     •   Find file affinity group              <PennyLane.mp3, who-has-file>
+     •   Go to your contact for
+         the file affinity group                              15
+     •   Failing that try another                                                     76
+         of your neighbors to find
+         a contact
+•   Lookup = 1 hop (or a few)
+                                                                                     18
+     • Memory cost O(√ N)                                    160
+    • 1.93 MB for 100K                   129
+      nodes, 10M files
+                                                                                     167
+    • Fits in RAM of most
+      workstations/laptops
+      today (COTS                           30
+      machines)
+                                                                            …
+                                     Affinity Group # 0      #1                    # k-1
+
+    Kelips Soft State
+                                           •   PennyLane.mp3 hashes to k-1
+•   Membership lists                       •   Everyone in this group stores
+                                           <PennyLane.mp3, who-has-file>
+     •   Gossip-based
+         membership                                        15
+     •   Within each affinity                                                    76
+         group
+     •   And also across affinity
+         groups                                                                 18
+     •   O(log(N))                                        160
+         dissemination time            129
+•   File metadata                                                               167
+     •   Needs to be
+         periodically refreshed           30
+         from source node
+     •   Times out
+                                                                         …
+                                    Affinity Group # 0
+                                                          #1                   # k-1
+
+Chord vs. Pastry vs. Kelips
+
+•   Range of tradeoffs available
+     • Memory vs. lookup cost vs. background
+       bandwidth (to keep neighbors fresh)
+
+What We Have Studied
+
+• Widely-deployed P2P systems
+   1.   Napster
+   2.   Gnutella
+   3.   Fasttrack (Kazaa, Kazaalite, Grokster)
+   4.   BitTorrent
+•   P2P systems with provable properties
+   1.   Chord
+   2.   Pastry
+   3.   Kelips

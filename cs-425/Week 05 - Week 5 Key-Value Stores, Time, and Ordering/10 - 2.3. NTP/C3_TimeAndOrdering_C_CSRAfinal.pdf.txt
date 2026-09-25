@@ -1,0 +1,66 @@
+NTP = Network Time Protocol
+
+• NTP servers organized in a tree
+• Each client = a leaf of tree
+• Each node synchronizes with its tree parent
+                         Primary servers
+
+                                 Secondary servers
+
+                                           Tertiary servers
+
+           Client
+
+   NTP Protocol
+         Message 1 recv time tr1
+                                   Message 2 send time ts2
+                                                             Time
+ Child
+   Let’s start protocol
+                                          Message 2          ts1, tr2
+                     Message 1
+Parent
+                                      Message 2 recv time tr2
+                  Message 1 send time ts1
+
+What the Child Does
+
+• Child calculates offset between its
+  clock and parent’s clock
+• Uses ts1, tr1, ts2, tr2
+• Offset is calculated as
+   o = (tr1 – tr2 + ts2 – ts1)/2
+
+Why o = (tr1 - tr2 +
+ts2 - ts1)/2?
+•   Offset o = (tr1 – tr2 + ts2 – ts1)/2
+•   Let’s calculate the error
+•   Suppose real offset is oreal
+     – Child is ahead of parent by oreal
+     – Parent is ahead of child by -oreal
+•   Suppose one-way latency of Message 1 is L1
+    (L2 for Message 2)
+•   No one knows L1 or L2!
+•   Then
+     tr1 = ts1 + L1 + oreal
+     tr2 = ts2 + L2 – oreal
+
+Why o = (tr1 - tr2 +
+ts2 - ts1)/2?
+•   Then
+     tr1 = ts1 + L1 + oreal
+     tr2 = ts2 + L2 – oreal
+•   Subtracting second equation from the first
+     oreal = (tr1 – tr2 + ts2 – ts1)/2 + (L2 – L1)/2
+     => oreal = o + (L2 – L1)/2
+     => |oreal – o| < |(L2 – L1)/2| < |(L2 + L1)/2|
+     – Thus, the error is bounded by the round-trip-
+     time
+
+And yet…
+
+• We still have a non-zero error!
+• We just can’t seem to get rid of error
+   – Can’t, as long as message latencies are non-zero
+• Can we avoid synchronizing clocks altogether and still be able to
+  order events?

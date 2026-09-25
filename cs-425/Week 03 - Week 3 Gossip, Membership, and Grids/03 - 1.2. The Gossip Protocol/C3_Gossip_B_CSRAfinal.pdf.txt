@@ -1,0 +1,13 @@
+•   So that was “Push” gossip
+     • Once you have a multicast message, you start
+         gossiping about it
+     • Multiple messages? Gossip a random subset
+         of them, or recently-received ones, or higher
+         priority ones
+•   There’s also “Pull” gossip
+     • Periodically poll a few randomly selected
+         processes for new multicast messages that you
+         haven’t received
+     • Get those messages
+•   Hybrid variant: Push-Pull
+     • As the name suggests

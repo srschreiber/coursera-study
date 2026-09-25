@@ -1866,7 +1866,3 @@ to standardize, um, but yeah. Once you have that knowledge, then it's time
 to standardize and move on. Well, um, that's the last
 question I have for you. Thank you for, uh, taking
 time to talk with us. It's my pleasure. Thanks, Bill.
-
-## Quizzes
-
-_No transcript available._

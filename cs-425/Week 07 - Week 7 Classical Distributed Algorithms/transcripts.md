@@ -2531,7 +2531,3 @@ continuously changing. So I invite you to continue this,
 journey with me as we move forward and continue our journey,
 through the landscape. I'm looking forward to seeing you again
 in Cloud computing concepts Part 2. [MUSIC]
-
-## Quizzes
-
-_No transcript available._

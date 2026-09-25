@@ -1,0 +1,74 @@
+•   External time synchronization
+•   All processes P synchronize with a time server S
+
+                                 Set clock to t           Time
+    P
+    What’s the time?
+                          Here’s the time t!
+    S
+                       Check local clock to find time t
+
+• By the time response message is received at P,
+  time has moved on
+• P’s time set to t is inaccurate!
+• Inaccuracy a function of message latencies
+• Since latencies unbounded in an asynchronous
+  system, the inaccuracy cannot be bounded
+
+• P measures the round-trip-time RTT of message exchange
+
+                               Set clock to t   Time
+    P
+     What’s the time?
+                        Here’s the time t!
+     S
+                   Check local clock to find time t
+
+•   P measures the round-trip-time RTT of message exchange
+•   Suppose we know the minimum P  S latency min1
+•   And the minimum S  P latency min2
+     – min1 and min2 depend on operating system overhead to buffer messages, TCP time
+        to queue messages, etc.
+
+              RTT
+                             Set clock to t
+                                                    Time
+P What’s the time?
+                     Here’s the time t!
+S                Check local clock to find time t
+
+•       P measures the round-trip-time RTT of message exchange
+•       Suppose we know the minimum P  S latency min1
+•       And the minimum S  P latency min2
+         – min1 and min2 depend on Operating system overhead to buffer messages, TCP
+            time to queue messages, etc.
+•       The actual time at P when it receives response is between [t+min2, t+RTT-min1]
+                   RTT
+                                 Set clock to t
+                                                        Time
+    P What’s the time?
+                         Here’s the time t!
+    S                Check local clock to find time t
+
+•       The actual time at P when it receives response is between [t+min2, t+RTT-
+        min1]
+•       P sets its time to halfway through this interval
+         – To: t + (RTT+min2-min1)/2
+•       Error is at most (RTT-min2-min1)/2
+         – Bounded!
+                   RTT
+                                 Set clock to t
+                                                        Time
+    P What’s the time?
+                         Here’s the time t!
+    S                Check local clock to find time t
+
+•   Allowed to increase clock value but should never
+    decrease clock value
+     – May violate ordering of events within the same
+        process
+
+•   Allowed to increase or decrease speed of clock
+
+•   If error is too high, take multiple readings and
+    average them

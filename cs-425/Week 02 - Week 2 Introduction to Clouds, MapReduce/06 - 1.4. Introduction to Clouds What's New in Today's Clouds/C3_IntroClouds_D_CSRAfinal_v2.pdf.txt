@@ -1,0 +1,107 @@
+Four Features New in Today’s Clouds
+
+I.         Massive scale.
+
+II.        On-demand access: Pay-as-you-go, no upfront commitment.
+       •      Anyone can access it
+
+III.       Data-intensive Nature: What was MBs has now become TBs,
+           PBs and XBs.
+       •      Daily logs, forensics, Web data, etc.
+       •      Humans have data numbness: Wikipedia (large) compress is only about 10 GB!
+
+IV.        New Cloud Programming Paradigms: MapReduce/Hadoop,
+           NoSQL/Cassandra/MongoDB and many others.
+       •      High in accessibility and ease of programmability
+       •      Lots of open-source
+
+Combination of one or more of these gives rise to novel and unsolved
+         distributed computing problems in cloud computing.
+
+I. Massive Scale
+
+•   Facebook [GigaOm, 2012]
+    •    30K in 2009 -> 60K in 2010 -> 180K in 2012
+•   Microsoft [NYTimes, 2008]
+     •   150Kmachines
+     •   Growth rate of 10K per month
+     •   80K total running Bing
+•   Yahoo! [2009]:
+     •   100K
+     •   Split into clusters of 4000
+•   AWS EC2 [Randy Bias, 2009]
+     •   40,000 machines
+     •   8 cores/machine
+•   eBay [2012]: 50K machines
+•   HP [2012]: 380K in 180 DCs
+•   Google: A lot
+
+What does a datacenter look like from inside?
+
+•   A virtual walk through a datacenter
+
+• Additional reference:
+http://gigaom.com/cleantech/a-rare-look-inside-
+facebooks-oregon-data-center-photos-video/
+
+Servers
+
+           Front
+
+          Seeweb | CC BY-SA 2.0
+
+Servers
+
+           Back
+
+          Robert Scoble | CC BY 2.0
+
+Servers
+
+           Inside
+
+          Intel Free Press | CC BY 2.0
+
+Servers
+
+           Some highly secure
+           (e.g., financial info)
+
+          ChrisDag | CC BY 2.0
+
+         POWER
+
+                             •    WUE = Annual Water Usage / IT Equipment Energy (L/kWh)
+                                  (low is good)
+
+U.S. Army | CC BY 2.0
+                             •    PUE = Total Facility Power / IT Equipment Power
+                                  (low is good - e.g., Google = 1.11)
+
+                             Off-site
+
+Greg Goebel | CC BY-SA 2.0
+
+                                 On-site
+David Goehring | CC BY 2.0
+
+       COOLING
+
+                                                           • Air sucked in
+                                                           • Combined with purified water
+                                                           • Moves cool air through system
+
+                                 Tim Dorr | CC BY-SA 2.0
+
+Leslie Hawthorn | CC BY-SA 2.0   ChrisDag| CC BY 2.0
+
+Extra - Fun Videos to Watch
+
+•   Microsoft GFS Datacenter Tour (Youtube)
+     • http://www.youtube.com/watch?v=hOx
+       A1l1pQIw
+
+•   Timelapse of a Datacenter Construction on
+    the Inside (Fortune 500 company)
+     • http://www.youtube.com/watch?v=ujO-
+        xNvXj3g

@@ -1,0 +1,144 @@
+Can use Consensus to solve Election
+
+• One approach
+   • Each process proposes a value
+   • Everyone in group reaches consensus on
+     some process Pi’s value
+   • That lucky Pi is the new leader!
+
+Election in Industry
+
+•   Several systems in industry use Paxos-like
+    approaches for election
+     • Paxos is a consensus protocol (safe, but
+        eventually live): elsewhere in this course
+•   Google’s Chubby system
+•   Apache Zookeeper
+
+     Election in Google Chubby
+
+   • A system for locking
+   • Essential part of Google’s stack                       Server A
+         • Many of Google’s internal systems
+           rely on Chubby                                   Server B
+         • BigTable, Megastore, etc.
+   • Group of replicas                                      Server C
+         • Need to have a master server elected
+           at all times                                     Server D
+
+Reference: http://research.google.com/archive/chubby.html   Server E
+
+Election in Google Chubby (2)
+
+•   Group of replicas
+                                                    Server A
+     •   Need to have a master (i.e., leader)
+•   Election protocol
+                                                    Server B
+     •   Potential leader tries to get votes from
+         other servers
+     •   Each server votes for at most one          Server C
+         leader
+     •   Server with majority of votes becomes      Server D   Master
+         new leader, informs everyone
+                                                    Server E
+
+    Election in Google Chubby (3)
+
+•    Why safe?
+      • Essentially, each potential leader tries to
+                                                       Server A    Quorum
+        reach a quorum (should sound familiar!)
+      • Since any two quorums intersect, and each      Server B
+        server votes at most once, cannot have two
+        leaders elected simultaneously
+                                                       Server C
+•    Why live?
+      • Only eventually live! Failures may keep        Server D   Master
+        happening so that no leader is ever elected
+      •   In practice: elections take a few seconds.   Server E
+          Worst-case noticed by Google: 30 s
+
+    Election in Google Chubby (4)
+
+•   After election finishes, other servers promise
+    not to run election again for “a while”            Server A    Quorum
+     • “While” = time duration called “Master lease”
+     • Set to a few seconds                            Server B
+
+•   Master lease can be renewed by the master          Server C
+    as long as it continues to win a majority each
+    time                                               Server D   Master
+•   Lease technique ensures automatic re-
+                                                       Server E
+    election on master failure
+
+Election in Zookeeper
+
+•   Centralized service for maintaining
+    configuration information
+•   Uses a variant of Paxos called Zab (Zookeeper
+    Atomic Broadcast)
+•   Needs to keep a leader elected at all times
+
+•   http://zookeeper.apache.org/
+
+  Election in Zookeeper (2)
+
+• Each server creates a new sequence
+                                                     N12       N3
+  number for itself
+    • Let’s say the sequence numbers are ids
+    • Gets highest id so far (from ZK file         N6
+      system), creates next-higher id, writes                       N32
+      it into ZK file system
+• Elect the highest-id server as leader
+                                                         N80   N5
+                                                Master
+
+  Election in Zookeeper (3)
+
+Failures:
+                                               N12     N3
+• One option: everyone monitors
+   current master (directly or via a
+   failure detector)                       N6
+    • On failure, initiate election                         N32
+    • Leads to a flood of elections
+                                       Crash
+    • Too many messages
+                                                 N80   N5
+                                        Master
+
+    Election in Zookeeper (4)
+
+•   Second option (implemented
+                                              N80                    N3
+    in Zookeeper)
+     •   Each process monitors its next-
+         higher id process
+     •   if that successor was the leader   N32         (Monitors)
+         and it has failed                                                N5
+            • Become the new leader
+     •   else
+            • wait for a timeout, and
+               check your successor               N12                N6
+               again
+
+Election in Zookeeper (5)
+•   What about id conflicts? What if leader fails during
+    election?
+•   To address this, Zookeeper uses a two-phase commit (run
+    after the sequence/id) protocol to commit the leader
+     • Leader sends NEW_LEADER message to all
+     • Each process responds with ACK to at most one leader, i.e.,
+       one with highest process id
+     • Leader waits for a majority of ACKs, and then sends COMMIT
+       to all
+     • On receiving COMMIT, process updates its leader variable
+•   Ensures that safety is still maintained
+
+Next
+
+•   Another classical algorithm: Bully
+    algorithm

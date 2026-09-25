@@ -1,0 +1,186 @@
+Search under peer failures
+                                              Lookup fails
+      Say m=7                  0         (N16 does not know N45)
+
+                      N112                    N16
+
+                   N96                    X
+Who has cnn.com/index.html?
+  (hashes to K42)                         X
+                                                    X
+                                                    N32
+
+                         N80                  N45
+
+                                   File cnn.com/index.html with
+                                   key K42 stored here
+
+      Search under peer failures
+
+                               One solution: maintain r multiple successor entries
+      Say m=7                            0 In case of failure, use successor entries
+                      N112                               N16
+
+                   N96
+Who has cnn.com/index.html?
+  (hashes to K42)
+                                                              X
+                                                              N32
+
+                         N80                            N45
+                                                 File cnn.com/index.html with
+                                                 key K42 stored here
+
+Search under peer failures
+
+•   Choosing r=2log(N) suffices to maintain lookup
+    correctness w.h.p. (i.e., ring connected)
+     • Say 50% of nodes fail
+     • Pr(at given node, at least one successor alive)=
+                                        1 2 log N      1
+                                    1− ( )        = 1− 2
+                                        2             N
+     • Pr(above is true at all alive nodes)=
+
+                                                   1
+                                        1 N /2 −
+                                   (1 − 2 ) = e 2 N ≈ 1
+                                       N
+
+      Search under peer failures (2)
+
+      Say m=7                  0                      Lookup fails
+                      N112                   N16      (N45 is dead)
+
+                   N96
+Who has cnn.com/index.html?                      N32
+  (hashes to K42)                        X
+
+                         N80               X
+                                           N45
+                                   File cnn.com/index.html with
+                                   key K42 stored here
+
+      Search under peer failures (2)
+
+                              One solution: replicate file/key at r successors and predecessors
+      Say m=7                                     0
+                      N112                                           N16
+
+                   N96
+Who has cnn.com/index.html?                                               N32
+  (hashes to K42)
+                                                                           K42 replicated
+
+                         N80                                       X
+                                                                   N45
+                                                          File cnn.com/index.html with
+                                           K42 replicated key K42 stored here
+
+Need to deal with dynamic changes
+
+    Peers fail
+•    New peers join
+•    Peers leave
+       •    P2P systems have a high rate of churn (node join, leave and failure)
+               •   25% per hour in Overnet (eDonkey)
+               •   100% per hour in Gnutella
+               •   Lower in managed clusters
+               •   Common feature in all distributed systems, including wide-area (e.g.,
+                   PlanetLab), clusters (e.g., Emulab), clouds (e.g., AWS), etc.
+
+So, all the time, need to:
+ update successors and fingers, and copy keys
+
+ New peers joining
+          Introducer directs N40 to N45 (and N32)
+          N32 updates successor to N40
+          N40 initializes successor to N45, and inits fingers from it
+          N40 periodically talks to neighbors to update finger table
+Say m=7                             0
+             N112                                    N16      Stabilization
+                                                              Protocol
+                                                              (followed by
+                                                              all nodes)
+          N96
+                                                          N32
+
+                                                               N40
+                N80                                 N45
+
+ New peers joining (2)
+
+       N40 may need to copy some files/keys from N45
+            (files with fileid between 32 and 40)
+Say m=7                       0
+            N112                      N16
+
+         N96
+                                            N32
+
+                                              N40
+               N80                    N45
+                                                  K34,K38
+
+New peers joining (3)
+
+•   A new peer affects O(log(N)) other finger
+    entries in the system, on average [Why?]
+•   Number of messages per peer join=
+    O(log(N)*log(N))
+
+•   Similar set of operations for dealing with
+    peers leaving
+     •   For dealing with failures, also need failure
+         detectors (we’ll see these later in the course!)
+
+Stabilization Protocol
+
+•   Concurrent peer joins, leaves, failures might cause
+    loopiness of pointers and failure of lookups
+     •   Chord peers periodically run a stabilization algorithm
+         that checks and updates pointers and keys
+     •   Ensures non-loopiness of fingers, eventual success of
+         lookups and O(log(N)) lookups w.h.p.
+     •   Each stabilization round at a peer involves a constant
+         number of messages
+     •   Strong stability takes O ( N 2 ) stabilization rounds
+     •   For more see [TechReport on Chord webpage]
+
+Churn
+
+•   When nodes are constantly joining, leaving, failing
+     •   Significant effect to consider: traces from the Overnet system
+         show hourly peer turnover rates (churn) could be 25–100% of
+         total number of nodes in system
+     •   Leads to excessive (unnecessary) key copying (remember that
+         keys are replicated)
+     •   Stabilization algorithm may need to consume more bandwidth
+         to keep up
+     •   Main issue is that files are replicated, while it might be
+         sufficient to replicate only meta information about files
+     •   Alternatives
+           •   Introduce a level of indirection (any p2p system)
+           •   Replicate metadata more, e.g., Kelips (later in this lecture series)
+
+Virtual Nodes
+
+•   Hash can get non-uniform  Bad load balancing
+     • Treat each node as multiple virtual nodes
+        behaving independently
+     • Each joins the system
+     • Reduces variance of load imbalance
+
+Wrap-up Notes
+
+•   Virtual Ring and Consistent Hashing used in Cassandra,
+    Riak, Voldemort, DynamoDB, and other key-value stores
+
+•   Current status of Chord project:
+     •   File systems (CFS, Ivy) built on top of Chord
+     •   DNS lookup service built on top of Chord
+     •   Internet Indirection Infrastructure (I3) project at UC Berkeley
+     •   Spawned research on many interesting issues about
+         p2p systems
+
+     http://www.pdos.lcs.mit.edu/chord/

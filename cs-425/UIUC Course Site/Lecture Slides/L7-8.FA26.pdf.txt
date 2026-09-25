@@ -1,0 +1,1332 @@
+CS 425 / ECE 428
+  Distributed Systems
+        Fall 2026
+Aishwarya Ganesan w/ Ram Kesavan
+  Lecture 7: Peer-to-peer Systems I
+        Ack: Indranil Gupta
+                                      All slides © IG
+
+Announcements
+
+•   MP2 Released (due Sep 27)
+•   You will be implementing
+     • Failure detector
+     • Membership protocol
+•   Stage 2 (of 4) in building a fully-working distributed system from scratch
+     • Stage 3 will be a distributed storage system
+     • Stage 4 will be a full distributed system
+
+•   Pushed clarifications (in red) to HW1 (refresh the latest pdf)
+•   HW1 due Sun 9/20
+                                                                                 2
+
+Why Study Peer to Peer Systems?
+
+•   First distributed systems that seriously focused
+    on scalability with respect to number of nodes
+
+•   P2P techniques abound in cloud computing
+    systems
+
+     • Key-value stores (e.g., Cassandra, Riak,
+       Voldemort) use Chord p2p hashing
+
+                                                       3
+
+Napster UI
+
+             4
+
+A Brief History
+
+•   [6/99] Shawn Fanning (freshman Northeastern U.) releases Napster
+    online music service
+•   [12/99] RIAA sues Napster, asking $100K per download
+•   [3/00] 25% UWisc traffic Napster, many universities ban it
+•   [00] 60M users
+•   [2/01] US Federal Appeals Court: users violating copyright laws,
+    Napster is abetting this
+•   [9/01] Napster decides to run paid service, pay % to songwriters and
+    music companies
+•   [Today] Napster protocol is open, people free to develop opennap
+    clients and servers http://opennap.sourceforge.net
+      • Gnutella: http://www.limewire.com (deprecated)
+      • Peer to peer working groups: http://p2p.internet2.edu
+
+                                                                           5
+
+What We Will Study
+
+•   Widely-deployed P2P Systems (This Lecture)
+     1. Napster
+     2.   Gnutella
+     3.   BitTorrent
+
+•     P2P Systems with Provable Properties (Next
+      Lecture)
+     1.   Chord
+     2. Kelips
+                                                   6
+
+    Napster Structure
+
+                                       Filename Info about
+
+           Store a directory, i.e.,   PennyLane.mp3 Beatles, @
+                                                    128.84.92.23:1006
+
+       filenames with peer pointers                    …..
+
+   napster.com
+   Servers            S       S
+Client machines           S
+   (“Peers”)
+           P                                  P
+
+                  P                   P Store their own
+                      P           P
+                                              files
+                                                                        7
+
+    Napster Search
+
+              2. All servers search their lists (ternary tree algorithm)
+
+                                                Store peer pointers
+   napster.com                                      for all files
+
+   Servers
+                          S       S
+Client machines                             1. Query
+   (“Peers”)                  S
+
+          P                   3. Response             P     4. ping candidates
+
+                  P                            P
+                      P      P                             Store their own
+                                                                 files
+              5. download from best host
+                                                                                 8
+
+Napster Operations
+
+Client
+• Connect to a Napster server
+     • Upload list of music files that you want to share
+     • Server maintains list of <filename, ip_address, portnum> tuples.
+     • Server stores no files.
+
+                                                                          9
+
+Napster Operations
+
+Client (contd.)
+• Search
+     •   Send server keywords to search with
+     •   (Server searches its list with the keywords)
+     •   Server returns a list of hosts - <ip_address, portnum> tuples - to client
+     •   Client pings each host in the list to find transfer rates
+     •   Client fetches file from best host
+•   All communication uses TCP (Transmission Control Protocol)
+     •   Reliable and ordered networking protocol
+
+                                                                                     10
+
+                                                        Whose IP addresses will
+Joining a P2P system                                    napster.com domain map to?
+
+• Can be used for any p2p system
+   • Send an http request to well-known url for that
+     P2P service - http://www.myp2pservice.com
+   • Message routed (after lookup in DNS=Domain
+     Name system) to introducer
+       • a well-known server that keeps track of
+         some recently joined nodes in p2p system
+   • Introducer initializes new peers’ neighbor table
+
+                                                                                 11
+
+                                                        Why did centralized server
+Problems                                                design work well in YARN’s
+                                                        RM or HDFS’ NameNode?
+
+•   Centralized server a source of congestion
+•   Centralized server single point of failure
+•   No security: plaintext messages and passwds
+•   napster.com declared to be responsible for users’
+    copyright violation
+     • “Indirect infringement”
+     • Next system: Gnutella
+
+                                                                                     12
+
+   CS 425 / ECE 428
+  Distributed Systems
+        Fall 2026
+Aishwarya Ganesan w/ Ram Kesavan
+  Lecture 7-8: Peer-to-peer Systems
+         Ack: Indranil Gupta
+                                      All slides © IG
+
+Peer to Peer Systems
+
+•   First distributed systems to seriously focus on scalability with respect to number of nodes
+     • Massive scale
+     • Anyone with a computer can run a process that joins the p2p system
+     • Churn high – nodes joining and leaving
+
+•   P2P techniques abound in cloud computing systems
+
+                                                                                             14
+
+What We Will Study
+
+•   Widely-deployed P2P Systems
+     1. Napster
+     2.   Gnutella
+     3.   BitTorrent
+
+•     P2P Systems with Provable Properties
+     1.   Chord
+     2.   Kelips
+
+                                             15
+
+https://pe.app/aishwaryaganesa
+
+https://pe.app/aishwaryaganesa
+
+Gnutella
+
+•   Eliminate the servers
+•   Client machines search and retrieve amongst themselves
+•   Clients act as servers too, called servents
+
+•   [3/00] release by AOL, immediately withdrawn, but 88K users by 3/03
+
+•   Original design underwent several modifications
+
+                                                                          19
+
+ Gnutella
+
+                                   Store their own
+                                         files
+
+ Servents (“Peers”)
+      P                              P
+                    P
+                                        Also store
+                                      “peer pointers”
+                                       P
+           P                 P
+                                         P
+Connected in an overlay graph
+      (== each link is an implicit Internet path)       20
+
+How do I search for my Beatles file?
+
+• Gnutella routes different messages within the overlay graph
+• Gnutella protocol has 5 main message types
+   •   Query (search)
+   •   QueryHit (response to query)
+   •   Ping (to probe network for other peers)
+   •   Pong (reply to ping, contains address of another peer)
+   •   Push (used to initiate file transfer)
+
+                                                                21
+
+    Message Structure
+
+Descriptor Header                                               Payload
+
+Descriptor ID Payload descriptor TTL Hops Payload length
+0                15         16                 17          18                      22
+
+                                                                   Number of bytes of
+                 Type of payload
+ID of this                                                         message following
+                 0x00 Ping
+search                                                             this header          All fields except IP address are in
+                 0x01 Pong
+transaction                                                                             little-endian format
+                 0x40 Push         Decremented at                                              Ox12345678 stored as 0x78 in
+                 0x80 Query        each hop,                                                   lowest address byte, then 0x56 in
+                 0x81 Queryhit     Message dropped                                             next higher address, and so on.
+                                   when ttl=0               Incremented at each hop
+Gnutella Message Header Format     ttl_initial usually 7
+                                   to 10                                                                                      22
+
+ How do I search for my Beatles file?
+
+      Query (0x80)
+          Minimum Speed Search criteria (keywords)
+      0                  1   …..
+
+Payload Format in Gnutella Query Message
+
+                                                     23
+
+Gnutella Search
+    Query’s flooded out, ttl-restricted, forwarded only once
+                                                 P
+   P
+                      P TTL=0
+                                                        × Query forwarded to all neighbors except
+                                                          peer from which received
+                              TTL=1                     × Duplicates with same DescriptorID are
+                                                          dropped
+                                                   P
+             TTL=2
+                                        TTL=1
+         P                         P
+                                                  P    TTL=0
+             Who has PennyLane.mp3?
+                                                                                                  24
+
+     Gnutella Search
+
+QueryHit (0x81) : successful result to a query
+Num. hits port ip_address speed (fileindex,filename,fsize) servent_id
+0          1   3            7    11                               n           n+16
+                                      Results
+               Info about
+               responder                        Unique identifier of responder;
+                                                a function of its IP address
+
+    Payload Format in Gnutella QueryHit Message
+
+                                                                                     25
+
+     Gnutella Search
+
+      Successful results QueryHit’s routed on reverse path
+                                                        P         Has PennyLane.mp3
+          P
+                               P
+Has
+PennyLane.mp3
+                                                             Route back to peer from which it
+                                                             received query (same DescriptorID)
+
+                                                             P
+
+                 P                         P
+                                                             P
+                     Who has PennyLane.mp3?
+                                                                                                  26
+
+After receiving QueryHit messages
+
+•   Requestor chooses “best” QueryHit responder
+     •   Initiates HTTP request directly to responder’s ip+port
+           •      (transfers not routed through Gnutella network)
+
+           GET /get/<File Index>/<File Name>/HTTP/1.0\r\n
+           Connection: Keep-Alive\r\n
+           Range: bytes=0-\r\n
+           User-Agent: Gnutella\r\n
+           \r\n
+
+•   Responder then replies with file packets after this message:
+           HTTP 200 OK\r\n
+           Server: Gnutella\r\n
+           Content-type:application/binary\r\n
+           Content-length: 1024 \r\n
+           \r\n
+                                                                    27
+
+After receiving QueryHit messages (2)
+
+•   HTTP is the file transfer protocol. Why?
+     • Because it’s standard, well-debugged, and widely used.
+
+•   The “range” field in the GET request supports partial file transfers.
+
+•   What if responder is behind firewall that disallows incoming
+    connections?
+
+                                                                            28
+
+https://pe.app/aishwaryaganesa
+
+Dealing with Firewalls
+
+Requestor sends Push to responder asking for file transfer
+                                                   P
+    P
+                          P
+                                                Has PennyLane.mp3
+                                                But behind firewall
+
+                                                       P
+
+           P                         P
+                                                       P
+                                                                      31
+
+Dealing with Firewalls
+
+  Push (0x40)
+
+  servent_id fileindex ip_address port
+
+       same as in
+   received QueryHit      Address at which
+                        requestor can accept
+                       incoming connections
+                                               32
+
+Dealing with Firewalls
+
+• Responder establishes a TCP connection at
+  ip_address, port specified. Sends
+        GIV <File Index>:<Servent Identifier>/<File Name>\n\n
+
+• Requestor then sends GET to responder (as before)
+  and file is transferred as explained earlier
+
+• What if requestor is behind firewall too?
+
+                                                                33
+
+ Ping-Pong
+
+    Ping (0x00)                                        Pong (0x01)
+             no payload                                 Port ip_address Num. files shared Num. KB shared
+
+Goal: keep neighbor lists fresh despite peers joining, leaving and failing
+Peers initiate Ping’s periodically
+Pings flooded out like Querys
+Pongs routed along reverse path like QueryHits
+Pong replies used to update set of neighboring peers
+List size specified by user at peer
+      •   Heterogeneity: some peers may have more neighbors
+      •   Gnutella found to follow power law distribution                                                  34
+
+                                                                      On Queryhit, what if peer
+Design choices: Avoiding excessive traffic                            that sent the query is no
+                                                                      longer your neighbor?
+
+  To avoid duplicate transmissions, each peer maintains a list of recently received messages
+  • Query:
+       • forwarded to all neighbors except peer from which received
+       • same DescriptorID forwarded only once
+  • QueryHit:
+       • routed back only to peer from which Query received with same DescriptorID
+       • QueryHit with DescriptorID for which Query not seen is dropped
+
+  Duplicates with same DescriptorID, Message type are dropped
+                                                                                               35
+
+Gnutella Summary
+
+• No servers
+• Peers/servents maintain “neighbors”, this forms
+  an overlay graph
+• Peers store their own files
+• Search through flooding queries to neighbors
+• Periodic Ping-pong to continuously refresh
+  neighbor lists
+                                                    36
+
+Gnutella Problems
+
+• Ping/Pong constituted 50% traffic
+   • Solution: Multiplex, cache and reduce frequency of pings/pongs
+
+• Repeated searches with same keywords
+   • Solution: Cache Query, QueryHit messages
+
+• Modem-connected hosts do not have enough bandwidth
+   • Solution: use a central server to act as proxy for such peers
+   • Another solution: FastTrack System (see Additional slides)
+                                                                      37
+
+Gnutella Problems (contd.)
+
+• Large number of freeloaders
+   • 70% of users in 2000 were freeloaders
+   • Only download files, never upload own files
+• Flooding causes excessive traffic
+   • Is there some way of maintaining meta-information
+     about peers that leads to more intelligent routing?
+      ➔ Structured Peer-to-peer systems (e.g., Chord)
+                                                           38
+
+                                                                                   Advantages of splitting
+    BitTorrent                                                                     files into blocks?
+
+Website links to              Tracker, per file   (keeps track of peers;
+.torrent                                          receives heartbeats, joins and
+                                                  leaves from peers)
+
+ 1. Get tracker
+                    2. Get peers
+                                                  Peer (seed,
+                                                        has full file)
+     Peer                 3. Get file blocks
+
+   (new, leecher)             Peer        Peer
+                        (leecher,
+                        has some blocks) (seed)
+
+                                                                                                             39
+
+ BitTorrent: Policies
+
+File split into blocks (32 KB – 256 KB)
+Download Local Rarest First block policy:
+      Prefer early download of blocks that are least replicated among neighbors
+      Exception: New node allowed to pick one random neighbor: helps in bootstrapping
+      Local and not global – decentralized
+Tit for tat bandwidth usage:
+      Provide blocks to neighbors that provided it the best download rates
+      Incentive for nodes to provide good upload rates
+      Discourages freeloading
+Choking: Limit number of neighbors to which concurrent uploads (e.g., 5) i.e., the “best” neighbors
+       Everyone else choked
+       Periodically re-evaluate this set (e.g., every 10 s) to see if the best peers have changed
+Optimistic unchoking
+       periodically (e.g., ~30 s), unchoke a random choked neighbor (need not be best)
+       helps discover better peers                                                                    40
+
+Announcements
+
+•   MP1 reports being graded
+•   MP2 out already, due 9/27 (demos on 9/28)
+•   HW1 due Sun 9/20
+•   HW2 will be out then
+
+                                                41
+
+What We Are Studying
+
+•   Widely-deployed P2P Systems
+     1. Napster
+     2.   Gnutella
+     3.   BitTorrent
+
+•     P2P Systems with Provable Properties
+     1.   Chord
+     2.   Kelips
+
+                                             42
+
+                                                 When is lookup latency
+Comparative Performance                          O(N) in Gnutella?
+
+          Memory        Lookup    #Messages
+                        Latency   for a lookup
+Napster   O(1)          O(1)      O(1)
+          (O(N)@server)
+
+Gnutella O(N)           O(N)      O(N)
+
+                                                                          43
+
+ Comparative Performance
+
+          Memory          Lookup    #Messages
+                          Latency   for a lookup
+Napster   O(1)            O(1)      O(1)
+          (O(N)@server)
+
+Gnutella O(N)             O(N)      O(N)
+
+Chord     O(log(N))       O(log(N)) O(log(N))
+                                                   44
+
+Chord
+
+•   Developers: I. Stoica, D. Karger, F. Kaashoek, H.
+    Balakrishnan, R. Morris, Berkeley and MIT
+•   Intelligent choice of neighbors to reduce latency and message
+    cost of routing (lookups/inserts)
+
+                                                                    45
+
+DHT=Distributed Hash Table
+
+• A hash table allows you to insert, lookup and delete
+  objects with keys
+• A distributed hash table allows you to do the same in a
+  distributed setting (objects=files)
+• Performance Concerns:
+    •   Load balancing
+    •   Fault-tolerance
+    •   Efficiency of lookups and inserts
+    •   Locality
+• Napster, Gnutella are all DHTs (sort of)
+                                                            46
+
+Chord Uses Consistent Hashing
+
+Say m=7               0               Uses Consistent Hashing on node’s
+6 nodes     N112          N16         address
+                                           SHA-1(ip_address,port) →160 bit string
+
+          N96                         Truncated to m bits
+                                      Called peer id (number between 0 and 2 m − 1 )
+                                N32
+                                            Not unique but id conflicts very unlikely
+
+                                      Can then map peers to one of 2 m logical points
+                N80       N45         on a circle
+
+                                                                                    47
+
+Peer pointers (1): successors
+
+Say m=7               0
+6 nodes     N112          N16
+
+          N96
+                                N32
+
+                N80       N45
+
+                                      48
+
+                                                     Each peer forwards a
+Peer pointers (1): successors                        search query to its
+                                                     successor. Does this work?
+
+Say m=7               0
+            N112               N16
+
+          N96
+                                    N32
+
+                N80           N45
+
+                          (similarly predecessors)
+                                                                             49
+
+Peer pointers (2): finger tables
+
+                                                              Say m=7
+                                       0
+                     N112                          N16
+
+                  N96
+                                                        N32
+                                                                   At or to the clockwise of
+
+                        N80                       N45
+
+ith entry at peer with id n is the first peer with id >= (n+2i) mod 2m
+                                                                                               50
+
+Peer pointers (2): finger tables
+
+                                                                   At or to the clockwise of
+
+ith entry at peer with id n is the first peer with id >= (n+2i) mod 2m
+                                                                                               51
+
+                                                                         If node N112 doesn’t exist,
+Peer pointers (2): finger tables                                         what’s N80’s 5th finger
+                                                                         table entry?
+
+                                                                   At or to the clockwise of
+
+ith entry at peer with id n is the first peer with id >= (n+2i) mod 2m
+                                                                                                  52
+
+What about the files?
+
+•   Filenames also mapped using same consistent hash function
+     •   SHA-1(filename) →160 bit string (key)
+     •   File is stored at first peer with id greater than or equal to its key mod 2m
+
+                                                                                        53
+
+  Mapping Files
+
+Say m=7               0
+            N112          N16
+
+          N96
+                                N32
+                                      File cnn.com/index.html that maps to key K42
+
+                N80       N45
+
+                                                                                     54
+
+  Mapping Files
+
+Say m=7               0
+            N112          N16
+
+          N96
+                                N32
+
+                N80       N45
+                                File cnn.com/index.html with
+                                key K42 stored here            55
+
+What about the files?
+
+     File is stored at first peer with id at or to the clockwise of K42
+     •   cooperative web caching
+
+•   Consistent Hashing => with K keys and N peers, each peer stores O(K/N)
+    keys. (i.e., < c.K/N, for some constant c)
+
+                                                                             56
+
+      Search
+
+      Say m=7                  0
+                      N112         N16
+
+                   N96
+Who has cnn.com/index.html?              N32
+  (hashes to K42)
+
+                         N80       N45
+                                          File cnn.com/index.html with
+                                          key K42 stored here            57
+
+ Search
+
+          At node n, send query for key k to largest successor/finger entry <= k
+                         if none exist, send query to successor(n)                  At or to the anti-clockwise of k
+                                            0
+                                                                                    (it wraps around the ring)
+                  N112                                        N16
+Say m=7
+
+             N96
+                                                                    N32
+
+                     N80                                     N45
+                                                              File cnn.com/index.html with
+                                                              key K42 stored here                                      58
+
+ Search
+
+          At node n, send query for key k to largest successor/finger entry <= k
+                         if none exist, send query to successor(n)                  At or to the anti-clockwise of k
+                                            0
+                                                                                    (it wraps around the ring)
+                  N112                                        N16
+Say m=7
+
+             N96
+                                                                    N32
+
+                     N80                                     N45
+                                                              File cnn.com/index.html with
+                                                              key K42 stored here                                      59
+
+ Search
+
+          At node n, send query for key k to largest successor/finger entry <= k
+                         if none exist, send query to successor(n)                  At or to the anti-clockwise of k
+                                            0
+                                                                                    (it wraps around the ring)
+                  N112                                        N16
+Say m=7
+                                                                                               All finger table entries
+                                                                                               overshoots query key
+             N96
+                                                                                               k42
+                                                                    N32
+                                                                                               So, route to successor
+
+                     N80                                     N45
+                                                              File cnn.com/index.html with
+                                                              key K42 stored here                                         60
+
+      Search
+
+               At node n, send query for key k to largest successor/finger entry <= k
+                              if none exist, send query to successor(n)                    At or to the anti-clockwise of k
+                                                  0
+                        N112                                        N16                    (it wraps around the ring)
+   Say m=7
+                                                                       All “arrows” are RPCs
+                                                                       (remote procedure calls)
+                   N96
+Who has cnn.com/index.html?                                               N32
+  (hashes to K42)
+
+                           N80                                     N45
+                                                                 File cnn.com/index.html with
+                                                                 key K42 stored here                                          61
+
+   CS 425 / ECE 428
+  Distributed Systems
+        Fall 2026
+Aishwarya Ganesan w/ Ram Kesavan
+  Lecture 7-8: Peer-to-peer Systems
+         Ack: Indranil Gupta
+                                      All slides © IG
+
+What We Are Studying
+
+•   Widely-deployed P2P Systems
+     1. Napster
+     2.   Gnutella
+     3.   BitTorrent
+
+•     P2P Systems with Provable Properties
+     1.   Chord
+     2.   Kelips
+
+                                             63
+
+ Comparative Performance
+
+          Memory          Lookup    #Messages
+                          Latency   for a lookup
+Napster   O(1)            O(1)      O(1)
+          (O(N)@server)
+
+Gnutella O(N)             O(N)      O(N)
+
+Chord     O(log(N))       O(log(N)) O(log(N))
+                                                   64
+
+Chord Recap…
+
+Consistent hashing                               Say m=7
+Map peer → m-bit nodeid
+   maps to one of 2 m logical points in a ring
+File is stored at successor of key mod 2m
+
+                                                           File cnn.com/index.html with
+                                                           key K42 stored here
+                                                                                 65
+
+Chord Recap…
+
+Two kinds of peer pointers or neighbor info per peer
+1. Successor
+2. Finger-table entries
+
+                                                       ith entry at peer with id n is the first
+                                                       peer with id >= (n+2i) mod 2m
+                                                           At or to the clockwise of
+                                                                                                  66
+
+https://pe.app/aishwaryaganesa
+
+    Chord Recap…
+
+ Search for key k:
+• At node n, send query to largest finger entry <= k
+     i.e., largest finger entry between n and k (don’t overshoot k)
+     Query(K42) at N80: N80 forwards to N16
+     Query(K42) at N16: N16 forwards to N32
+
+•   if none exist, send query to successor(n)
+     Query(K42) at N32: N32 forwards to successor (N45)
+                                                                      K42 stored here
+
+                                                                                        68
+
+   Analysis
+
+Search takes O(log(N)) time                                               Here
+   Proof                                                                         Halfway point
+   •   (intuition): at each step, distance between query and                      Next hop
+       peer-with-file reduces by a factor of at least 2
+   •   (intuition): after log(N) forwardings, distance to key is          Key
+       at most       m
+                  2 /2           =2 /N
+                            log(N )   m
+
+   We will prove that the next hop of the query to key from node (here)
+   is in the second half.
+
+                                                                                                 69
+
+   Analysis (contd.)
+
+Search takes O(log(N)) time
+   Proof
+   • After log(N) forwardings, distance to key is at most 2m / 2log(N ) = 2m / N
+
+   • Number of node identifiers in that range is O(log(N)) with high probability
+       • (why? SHA-1! and “Balls and Bins”)
+   • So, using successors in that range will be ok, using another O(log(N)) hops
+
+                                                                                   70
+
+Analysis (contd.)
+
+• O(log(N)) search time holds for file insertions too
+• In general, for routing to any key
+   • “Routing” can thus be used as a building block for all operations: insert,
+     lookup, delete
+
+• O(log(N)) time true only if finger and successor entries correct
+   • When might these entries be wrong?
+   • When you have failures
+                                                                                  71
+
+Search under peer failures - I
+
+Say m=7
+                      0                                  Lookup fails
+            N112              N16                  (N16 does not know N45)
+
+          N96             X
+
+                          X
+                                 XN32
+
+                N80           N45
+ Search for K42                  key K42 stored here
+                                                                         72
+
+Search under peer failures – I (solution)
+
+                                 One solution:
+Say m=7               0          Maintain r multiple successor entries
+            N112           N16   In case of failure, use successor entries
+
+          N96
+                             XN32
+
+                N80       N45
+Search for K42               key K42 stored here
+                                                                             73
+
+Search under peer failures – I (solution)
+
+•   Choosing r=2log(N) suffices to maintain lookup
+    correctness w.h.p.(i.e., ring connected)
+     • Say 50% of nodes fail
+     • Pr(at given node, at least one successor alive)=
+                                        1 2 log N      1
+                                    1− ( )        = 1− 2
+                                        2             N
+     • Pr(above is true at all alive nodes)=
+
+                                                   1
+                                        1 N /2 −
+                                   (1 − 2 ) = e 2 N  1
+                                       N
+                                                           74
+
+Search under peer failures - 2
+
+Say m=7               0             Lookup fails
+            N112              N16   (N45 is dead)
+
+          N96
+                                N32
+                          X
+
+                N80       X
+                          N45
+                             key K42 stored here
+Search for K42
+                                                    75
+
+Search under peer failures -2: solution
+                                                                     One solution:
+Say m=7                      0                   replicate file/key at r successors and predecessors
+            N112                       N16
+
+          N96
+                                           N32
+
+                                                    K42 replicated
+
+                N80                    X
+                                       N45
+                                          key K42 stored here
+Search for K42
+                      K42 replicated                                                                   76
+
+                                                                                   How did Gnutella deal with
+Need to deal with dynamic changes                                                  churn?
+
+✓    Peers fail
+•    New peers join
+•    Peers leave
+       •    P2P systems have a high rate of churn (node join, leave and failure)
+               •   25% per hour in Overnet (eDonkey)
+               •   100% per hour in Gnutella
+               •   Lower in managed clusters
+
+So, all the time, need to:
+→ Need to update successors and fingers, and copy keys
+
+                                                                                                                77
+
+Stabilization Protocol
+
+   Chord peers periodically run a stabilization algorithm that checks and updates
+   pointers and keys
+   •   Ensures non-loopiness of fingers, eventual success of lookups and
+       O(log(N)) lookups w.h.p.
+
+   Periodically, ask your successor for its predecessor.
+         • If that node lies between you and your successor, make it your new
+           successor
+
+   How to update fingertable entries?
+         • Route a query to (n+2i) mod 2m
+
+                                                                                    78
+
+                                                              What should a peer (say N96)
+ New peers joining                                            do when a new node N40
+                                                              contacts it to join the system?
+
+                            Introducer points to random peer
+                            directs N40 to N45 (and N32)
+                            N32 updates successor to N40
+                            N40 initializes successor to N45, and inits fingers from it
+Say m=7                     N40 periodically talks to neighbors to update finger table
+                      0
+            N112          N16
+                                                                     Stabilization Protocol
+                                                                     (followed by all nodes)
+
+          N96
+                                N32
+
+                                   N40
+                N80       N45
+                                                                                                79
+
+https://pe.app/aishwaryaganesa
+
+ New peers joining (2)
+
+       N40 may need to copy some files/keys from N45
+            (files with fileid between 32 and 40)
+Say m=7                       0
+            N112                      N16
+                                                            Advantage of consistent hashing
+
+         N96
+                                            N32
+
+                                              N40
+               N80                    N45
+                                                  K34,K38                                     81
+
+New peers joining (3)
+
+•   A new peer affects O(log(N)) other finger
+    entries in the system, on average [Why?]
+•   Number of messages per peer join=
+    O(log(N)*log(N))
+
+•   Similar set of operations for dealing with
+    peers leaving
+     •   For dealing with failures, also need failure
+         detectors (you’ve seen them!)
+
+                                                        82
+
+Virtual Nodes
+
+•   Hash can get non-uniform ➔ Bad load balancing
+     • Treat each node as multiple virtual nodes
+        behaving independently (typically O(log N))
+
+     • Each virtual node maps to a point in the ring
+
+     • Reduces variance of load imbalance
+
+                                                       83
+
+Churn
+
+•   When nodes are constantly joining, leaving, failing
+     •   Leads to excessive (unnecessary) key copying
+     •   Stabilization algorithm may need to consume more bandwidth to keep up
+           • Strong stability takes O(N^2) stabilization rounds
+           • For more see [Extended paper on Chord webpage]
+
+     •   Main issue is that files are replicated, while it might be sufficient to replicate only
+         meta information about files
+     •   Alternatives
+           •   Introduce a level of indirection, i.e., store only pointers to files (any p2p system)
+           •   Replicate metadata more, e.g., Kelips (later in this lecture)
+
+                                                                                                       84
+
+Summary of Chord
+
+   O(log(N)) lookup hops may be high:
+       • Topology-aware neighbor selection
+           • Choose log N neighbors intelligently
+           • You could modify Chord to do this
+
+       • Can we reduce the number of hops? – Kelips.
+
+                                                       85
+
+Chord Wrap-up Notes
+
+More structured than Gnutella
+Black box lookup algorithms
+Churn handling can get complex
+O(log(N)) memory and lookup cost
+
+Virtual Ring and Consistent Hashing used in Cassandra, Riak, Voldemort, DynamoDB, and other key-value stores
+
+Current status of Chord project:
+      • File systems (CFS,Ivy) built on top of Chord
+      • DNS lookup service built on top of Chord
+      • Internet Indirection Infrastructure (I3) project at UCB
+      • Spawned research on many interesting issues about p2p systems
+      https://github.com/sit/dht/wiki
+      (Old: http://www.pdos.lcs.mit.edu/chord/)
+                                                                                                               86
+
+   Kelips – A 1 hop Lookup DHT
+
+• k “affinity groups”                           15
+    •   k~√N                                                76
+
+• Each node hashed to
+  a group (hash mod k)                                     18
+                                                160
+• Node’s neighbors                  129
+    •   (Almost) all other nodes                           167
+        in its own affinity group
+    •   One contact node per
+                                       30
+        foreign affinity group
+    •   Gossip-style heartbeating
+                                                      …
+                                    Affinity              # k-1
+                                                #1                87
+                                    Group # 0
+
+    Kelips Files and Metadata
+                                           •   PennyLane.mp3 hashes to k-1
+•   File can be stored at any              •   Everyone in this group stores
+    (few) node(s)                          <PennyLane.mp3, who-has-file>
+
+•   Decouple file                                             15
+    replication/location                                                         76
+    (outside Kelips) from
+    file querying (in Kelips)
+•   Each filename hashed to                                                     18
+    a group                                                  160
+     •   All nodes in the group          129
+         replicate pointer
+         information, i.e., <filename,                                          167
+         file location>
+     •   Spread using gossip
+     •   Affinity group does not            30
+         store files
+
+                                                                           …           88
+                                  Affinity Group # 0        #1                 # k-1
+
+    Kelips Lookup
+
+•   Lookup                                     •   PennyLane.mp3 hashes to k-1
+                                               •   Everyone in this group stores
+     •   Find file affinity group              <PennyLane.mp3, who-has-file>
+     •   Go to your contact for
+         the file affinity group                              15
+     •   Failing that try another                                                     76
+         of your neighbors to find
+         a contact
+•   Lookup = 1 hop (or a few)
+                                                                                     18
+     • Memory cost O(√ N)                                    160
+    • 1.93 MB for 100K                   129
+      nodes, 10M files
+                                                                                     167
+    • Fits in RAM of most
+      workstations/laptops
+      today (COTS                           30
+      machines)
+                                                                            …              89
+                                     Affinity Group # 0      #1                    # k-1
+
+    Kelips Soft State
+                                           •   PennyLane.mp3 hashes to k-1
+•   Membership lists                       •   Everyone in this group stores
+                                           <PennyLane.mp3, who-has-file>
+     •   Gossip-based
+         membership                                        15
+     •   Within each affinity                                                    76
+         group
+     •   And also across affinity
+         groups                                                                 18
+     •   O(log(N))                                        160
+         dissemination time            129
+•   File metadata                                                               167
+     •   Needs to be
+         periodically refreshed           30
+         from source node
+     •   Times out
+                                                                         …
+                                    Affinity Group # 0
+                                                          #1                   # k-1   90
+
+Chord vs. Kelips
+
+•   Range of tradeoffs available
+     • Memory vs. lookup cost vs. background
+       bandwidth (to keep neighbors fresh)
+
+                                               91
+
+What We Have Studied
+
+• Widely-deployed P2P Systems
+   1. Napster
+   2.   Gnutella
+   3.   BitTorrent
+•   P2P Systems with Provable Properties
+   1.   Chord
+   2.   Kelips
+
+                                           92
+
+Announcements
+
+•   MP2 out already, due 9/27 (demos on 9/28)
+•   HW2 due 10/4
+•   Both 11:59 pm on Sunday
+
+                                                93
+
+Additional slides (not in syllabus)
+
+• Other widely-deployed P2P Systems
+   1. Fasttrack
+•   Other P2P Systems with Provable Properties
+   1.   Pastry
+
+                                                 94
+
+FastTrack
+
+•   Hybrid between Gnutella and Napster
+•   Takes advantage of “healthier” participants in
+    the system
+•   Underlying technology in Kazaa, KazaaLite,
+    Grokster
+•   Proprietary protocol, but some details available
+•   Like Gnutella, but with some peers designated as
+    supernodes
+
+                                                       95
+
+  A FastTrack-like System
+
+Peers
+                                  P
+        P
+                  P
+
+                                      S
+
+            P                 S
+                                      P
+                 Supernodes
+                                          96
+
+FastTrack (contd.)
+
+•   A supernode stores a directory listing a subset of nearby
+    (<filename,peer pointer>), similar to Napster servers
+•   Supernode membership changes over time
+•   Any peer can become (and stay) a supernode, provided it has
+    earned enough reputation
+     •   Kazaalite: participation level (=reputation) of a user between 0
+         and 1000, initially 10, then affected by length of periods of
+         connectivity and total number of uploads
+     •   More sophisticated Reputation schemes invented, especially
+         based on economics (See P2PEcon workshop)
+•   A peer searches by contacting a nearby supernode
+
+                                                                            97
+
+Additional slides (not in syllabus)
+
+• Other widely-deployed P2P Systems
+   1. Fasttrack
+•   Other P2P Systems with Provable Properties
+   1.   Pastry
+
+                                                 98
+
+Pastry
+
+•   Designed by Anthony Rowstron (Microsoft
+    Research) and Peter Druschel (Rice University)
+•   Assigns ids to nodes, just like Chord (using a
+    virtual ring)
+•   Leaf Set - Each node knows its successor(s) and
+    predecessor(s)
+
+                                                      99
+
+Pastry Neighbors
+
+•   Routing tables based on prefix matching
+     • Think of a hypercube
+•   Routing is thus based on prefix matching, and is
+    thus log(N)
+     • And hops are short (in the underlying
+        network)
+
+                                                       10
+
+Pastry Neighbors
+
+•   Consider a peer with id 01110100101.
+•   Peer maintains a neighbor peer with an id matching each of the
+    following prefixes (* = starting bit differing from this peer’s
+    corresponding bit):
+      • *
+      • 0*
+      • 01*
+      • 011*
+      • … 0111010010*
+
+                                                                      10
+
+Pastry Routing
+
+•   Consider a peer with id 01110100101.
+•   Peer maintains a neighbor peer with an id matching each of the
+    following prefixes (* = starting bit differing from this peer’s
+    corresponding bit):
+      • *
+      • 0*
+      • 01*
+      • 011*
+      • … 0111010010*
+•   When it needs to route to a peer, say 01110111001, it starts by
+    forwarding to a neighbor with the largest matching prefix, i.e.,
+    011101*
+      • Hypercube routing
+
+                                                                       10
+
+Pastry Locality
+
+•   For each prefix, say 011*, among all potential
+    neighbors with the matching prefix, the neighbor
+    with the shortest round-trip-time is selected
+•   Since shorter prefixes have many more
+    candidates (spread out throughout the Internet),
+    the neighbors for shorter prefixes are likely to be
+    closer than the neighbors for longer prefixes
+•   Thus, in the prefix routing, early hops are short
+    and later hops are longer
+•   Yet overall “stretch”, compared to direct Internet
+    path, stays short
+
+                                                          10

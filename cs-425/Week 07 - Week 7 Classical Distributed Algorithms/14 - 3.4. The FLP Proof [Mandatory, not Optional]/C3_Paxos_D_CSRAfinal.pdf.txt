@@ -1,0 +1,247 @@
+Consensus in an Asynchronous System
+
+• Impossible to achieve!
+
+• Proved in a now-famous result by
+  Fischer, Lynch, and Patterson, 1983
+  (FLP)
+   – Stopped many distributed system designers
+     dead in their tracks
+   – A lot of claims of “reliability” vanished
+     overnight
+
+  Recall
+Asynchronous system: All message delays and processing delays can
+be arbitrarily long or short.
+Consensus:
+•Each process p has a state
+     –   Program counter, registers, stack, local variables
+     –   Input register xp : initially either 0 or 1
+     –   Output register yp : initially b (undecided)
+•Consensus Problem: design a protocol so that either
+     –   All processes set their output variables to 0 (all-0’s)
+     –   Or all processes set their output variables to 1 (all-1’s)
+     –   Non-triviality: at least one initial system state leads to each of the
+         above two outcomes
+
+  Proof Setup
+• For impossibility proof, OK to consider
+1. More restrictive system model, and
+2. Easier problem
+    – Why is this ok?
+
+Network
+p                                         p’
+    send(p’,m)
+                                     receive(p’)
+                                            may return null
+             Global Message Buffer
+
+             “Network”
+
+States
+• State of a process
+• Configuration=global state. Collection of
+  states, one for each process; alongside state of
+  the global buffer.
+• Each event (different from Lamport events)
+   – Receipt of a message by a process (say p)
+   – Processing of message (may change recipient’s state)
+   – Sending out of all necessary messages by p
+• Schedule: sequence of events
+
+C      Configuration C
+                                          C
+     Event e’=(p’,m’)
+
+C’                       Schedule s=(e’,e’’)
+                                         C’’
+     Event e’’=(p’’,m’’)
+
+C’’
+
+          Equivalent
+
+   Lemma 1
+                           Disjoint schedules are
+                              commutative
+                                     C
+                                                    s2
+                               Schedule s1
+s1 and s2 involve         C’
+disjoint sets of
+receiving processes,           Schedule s2
+and are each applicable
+on C
+                                                    s1
+                                    C’’
+
+Easier Consensus Problem
+
+Easier Consensus Problem:
+    some process eventually
+    sets yp to be 0 or 1
+Only one process crashes –
+    we’re free to choose
+    which one
+
+Easier Consensus Problem
+• Let config. C have a set of decision
+  values V reachable from it
+   – If |V| = 2, config. C is bivalent
+   – If |V| = 1, config. C is 0-valent or 1-
+     valent, as is the case
+
+• Bivalent means outcome is
+  unpredictable
+
+What the FLP proof shows
+1. There exists an initial
+   configuration that is bivalent
+
+2. Starting from a bivalent
+   config., there is always
+   another bivalent config. that
+   is reachable
+
+  Lemma 2               Some initial configuration is bivalent
+
+•Suppose all initial configurations were either 0-valent or 1-valent.
+•If there are N processes, there are 2N possible initial configurations
+•Place all configurations side-by-side (in a lattice), where adjacent
+  configurations differ in initial xp value for exactly one process.
+
+    1      1       0      1     0      1
+
+•There has to be some adjacent pair of
+    1-valent and 0-valent configs.
+
+   Lemma 2               Some initial configuration is bivalent
+
+•There has to be some adjacent pair of 1-valent and 0-valent configs.
+•Let the process p, that has a different state across these two configs., be
+  the process that has crashed (i.e., is silent throughout)
+                                             Both initial configs. will lead to
+                                             the same config. for the same
+     1      1       0     1      0      1    sequence of events
+
+                                             Therefore, both these initial
+                                             configs. are bivalent when there
+                                             is such a failure
+
+What we’ll show
+1. There exists an initial
+   configuration that is bivalent
+
+2. Starting from a bivalent
+   config., there is always
+   another bivalent config. that
+   is reachable
+
+Lemma 3   Starting from a bivalent config., there is always
+             another bivalent config. that is reachable
+
+Lemma 3
+
+          A bivalent initial config.
+                            let e=(p,m) be some event
+                              applicable to the initial config.
+                     Let C be the set of configs. reachable
+                      without applying e
+
+Lemma 3
+
+            A bivalent initial config.
+                              let e=(p,m) be some event
+                                applicable to the initial config.
+                      Let C be the set of configs. reachable
+                        without applying e
+e   e   e     e      e Let D be the set of configs.
+                        obtained by applying e to some
+                        config. in C
+
+Lemma 3
+
+                      bivalent
+
+                              C [don’t apply
+                                 event e=(p,m)]
+          e   e   e       e      e
+
+                  D
+
+Claim. Set D contains a bivalent config.
+Proof. By contradiction. That is,
+  suppose D has only 0- and 1- valent
+  states (and no bivalent ones)                    bivalent
+• There are states D0 and D1 in D, and
+  C0 and C1 in C such that                              C [don’t apply
+                                                           event e=(p,m)]
+   – D0 is 0-valent, D1 is 1-valent
+                                      e    e   e         e    e
+   – D0=C0 foll. by e=(p,m)
+   – D1=C1 foll. by e=(p,m)
+   – And C1 = C0 followed by some event        D
+     e’=(p’,m’)
+  (why?)
+
+Proof. (contd.)                                             C0
+                                                     e             e’
+•   Case I: p’ is not p                        D0                       C1
+
+•   Case II: p’ same as p                           e’      D1     e
+                                                         Why? (Lemma 1)
+                                                         But D0 is then bivalent!
+                                        bivalent
+
+                                             C [don’t apply
+                                                event e=(p,m)]
+                            e   e       e       e     e
+
+                                    D
+
+Proof. (contd.)                                            C0
+                                                       e             e’
+•   Case I: p’ is not p                                                   C1
+                                              D0                                e
+                                                            sch. s
+•   Case II: p’ same as p                                                           D1
+
+                                         sch. s            A               sch. s
+                      bivalent                         e
+                                                                (e’,e)     E1
+                                                  E0
+                          C [don’t apply                 sch. s
+                             event e=(p,m)]              • finite
+    e       e         e      e     e                     • deciding run from C0
+                  D              But A is then bivalent! • p takes no steps
+
+Lemma 3   Starting from a bivalent config., there is always
+             another bivalent config. that is reachable
+
+ Putting it all Together
+• Lemma 2: There exists an initial configuration that is
+  bivalent
+• Lemma 3: Starting from a bivalent config., there is
+  always another bivalent config. that is reachable
+
+• Theorem (Impossibility of Consensus): There is
+  always a run of events in an asynchronous
+  distributed system such that the group of processes
+  never reaches consensus (i.e., stays bivalent all the
+  time)
+
+Summary
+• Consensus problem
+    – Agreement in distributed systems
+    – Solution exists in synchronous system model (e.g.,
+      supercomputer)
+    – Impossible to solve in an asynchronous system
+      (e.g., Internet, Web)
+         • Key idea: with even one (adversarial) crash-stop process
+           failure, there are always sequences of events for the
+           system to decide any which way
+         • Holds true regardless of whatever algorithm you choose!
+    – FLP impossibility proof
+• One of the most fundamental results in
+  distributed systems

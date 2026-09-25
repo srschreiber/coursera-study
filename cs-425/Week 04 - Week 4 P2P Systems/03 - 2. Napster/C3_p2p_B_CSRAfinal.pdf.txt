@@ -1,0 +1,81 @@
+Napster Structure
+
+                                       Filename Info about
+
+           Store a directory, i.e.,   PennyLane.mp3 Beatles, @
+                                                    128.84.92.23:1006
+                                                       …..
+       filenames with peer pointers
+   napster.com
+   Servers            S       S
+Client machines           S
+   (“Peers”)
+           P                                  P
+
+                  P                   P Store their own
+                      P           P
+                                              files
+
+Napster Operations
+
+Client
+• Connect to a Napster server
+     • Upload list of music files that you want to
+       share
+     • Server maintains list of <filename,
+       ip_address, portnum> tuples. Server stores
+       no files.
+
+Napster Operations
+
+Client (contd.)
+• Search
+     •   Send server keywords to search with
+     •   (Server searches its list with the keywords)
+     •   Server returns a list of hosts – <ip_address, portnum>
+         tuples – to client
+     •   Client pings each host in the list to find transfer rates
+     •   Client fetches file from best host
+•   All communication uses TCP (Transmission
+    Control Protocol)
+     •   Reliable and ordered networking protocol
+
+    Napster Search
+
+              2. All servers search their lists (ternary tree algorithm)
+
+                                                Store peer pointers
+   napster.com                                      for all files
+
+   Servers
+                          S       S
+Client machines                             1. Query
+   (“Peers”)                  S
+
+          P                   3. Response             P     4. Ping candidates
+
+                  P                            P
+                                                           Store their own
+                      P      P                                  files
+              5. Download from best host
+
+Joining a P2P system
+
+•   Can be used for any p2p system
+     •   Send an http request to well-known url for that
+         P2P service - http://www.myp2pservice.com
+     •   Message routed (after lookup in DNS=Domain
+         Name System) to introducer, a well known
+         server that keeps track of some recently joined
+         nodes in p2p system
+     •   Introducer initializes new peers’ neighbor table
+
+Problems
+
+•   Centralized server a source of congestion
+•   Centralized server single point of failure
+•   No security: plaintext messages and passwds
+•   Napster.com declared to be responsible for
+    users’ copyright violation
+     • “Indirect infringement”
+     • Next system: Gnutella

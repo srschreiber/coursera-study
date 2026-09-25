@@ -1,0 +1,50 @@
+Cloud Computing Concepts
+
+         Indranil Gupta (Indy)
+   Topic: Introduction to C3 – Part 1
+
+What this Course is about
+
+• This course is about the internals of cloud computing
+    – Not how to use cloud systems or write cloud applications (separate
+      course in Cloud Specialization: Cloud Applications)
+    – Not about networking (separate course in Cloud Specialization:
+      Cloud Networking)
+• We’ll go underneath the hood and look at distributed
+  systems that underlie today’s cloud computing
+  technologies
+
+What this Course is about (2)
+
+• We’ll discuss
+    – Concepts
+    – Techniques
+    – Industry systems, including open source (from the inside)
+• The course is a mix of
+    – Distributed systems
+    – Distributed algorithms
+    – As applied to cloud computing
+
+Syllabus for Part 1
+
+• Introduction: Clouds, MapReduce, Key-value stores
+• Classical precursors: Peer-to-peer systems, Grids
+• Widely-used algorithms: Gossip, Membership, Paxos
+• Classical algorithms: Time and Ordering, Snapshots,
+  Multicast
+• Fun: Interviews with leading managers and researchers,
+  from both industry and academia
+
+Exercises
+
+• 5 Homeworks
+• 1 Programming Assignment (C++)
+   – Implement a membership protocol inside an emulator
+• 1 Exam
+
+Onward!
+
+• Cloud computing is an exciting area to be studying, very
+  dynamic and continuously changing
+• I’m looking forward to working with you!
+• Come, let’s tour the landscape.

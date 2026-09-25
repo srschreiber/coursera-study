@@ -1,0 +1,118 @@
+•
+•
+•
+
+From old mathematical branch of Epidemiology [Bailey 75]
+• Population of (n+1) individuals mixing homogeneously
+• Contact rate between any individual pair is 
+• At any time, each individual is either uninfected
+  (numbering x) or infected (numbering y)
+• Then, x0  n, y0  1
+    and at all times   x  y  n 1
+• Infected–uninfected contact turns latter infected, and it
+  stays infected
+                                                              3
+
+•
+•
+    dx
+         xy
+    dt
+
+           n(n  1)               (n  1)
+       x      ( n 1) t
+                          ,y
+          ne                 1  ne   ( n1)t
+
+   b
+
+   n
+
+                    1
+y  (n  1)        cb  2
+                n
+
+•
+•
+
+    •
+           1
+        n cb  2
+
+    •
+
+•
+•
+
+•
+    •
+    •
+    •
+    •
+
+•
+    •
+
+    •
+
+•
+    •
+
+    •
+
+•
+
+•
+    •
+
+    •
+
+•
+
+•   In all forms of gossip, it takes O(log(N)) rounds
+    before about N/2 gets the gossip
+      • Why? Because that’s the fastest you can
+         spread a message – a spanning tree with
+         fanout (degree) of constant degree has
+         O(log(N)) total nodes
+•   Thereafter, pull gossip is faster than push gossip
+•   After the ith, round let p i be the fraction of non-
+    infected processes. Then
+
+                 p  p 
+                                k 1
+
+                   i 1     i
+•   This is super-exponential
+•   Second half of pull gossip finishes in time
+    O(log(log(N))
+
+•Network topology is                          N/2 nodes in a subnet
+hierarchical
+•Random gossip target
+selection => core routers
+face O(N) load (Why?)
+•Fix: In subnet i, which
+contains ni nodes, pick
+gossip target in your subnet
+with probability 1/ni
+•Router load=O(1)
+•Dissemination
+time=O(log(N))                 N/2 nodes in a subnet
+     •Why?
+
+          b
+       
+          n
+
+            n 1                  n 1
+y         b
+                              
+           ( n 1) c log(n )         1
+   1  ne  n                    1  cb 1
+                                    n         1
+                               (n  1)(1  cb 1 )
+                                            n
+                                            1
+                               (n  1)  cb 2
+                                          n

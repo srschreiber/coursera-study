@@ -1,0 +1,160 @@
+Causal Ordering
+• Multicasts whose send events are
+  causally related, must be received in
+  the same causality-obeying order at
+  all receivers
+• Formally
+   – If multicast(g,m)  multicast(g,m’)
+     then any correct process that
+     delivers m’ would already have
+     delivered m.
+   – ( is Lamport’s happens-before)
+
+ Causal Multicast: Datastructures
+• Each receiver maintains a vector of
+  per-sender sequence numbers
+  (integers)
+   – Similar to FIFO Multicast,
+     but updating rules are different
+   – Processes P1 through PN
+   – Pi maintains a vector Pi[1…N]
+     (initially all zeroes)
+   – Pi[j] is the latest sequence number Pi
+     has received from Pj
+
+   Causal Multicast: Updating Rules
+• Send multicast at process Pj:
+   – Set Pj[j] = Pj[j] + 1
+   – Include new entire vector Pj[1…N] in multicast message as its sequence number
+• Receive multicast: If Pi receives a multicast from Pj with vector
+                     M[1…N] (= Pj[1…N]) in message, buffer it until both:
+   1. This message is the next one Pi is expecting from Pj, i.e.,
+       •    M[j] = Pi[j] + 1
+   2. All multicasts, anywhere in the group, which happened-before M have been
+      received at Pi, i.e.,
+       •    For all k ≠ j: M[k] ≤ Pi[k]
+       •    i.e., Receiver satisfies causality
+   3. When above two conditions satisfied, deliver M to application and set Pi[j] = M[j]
+
+            [1,0,0,0]
+P1
+[0,0,0,0]       [1,0,0,0]   Time
+
+P2
+[0,0,0,0]
+
+P3
+[0,0,0,0]
+
+P4
+[0,0,0,0]
+Causal Ordering: Example
+
+            [1,0,0,0]
+P1
+[0,0,0,0]                           Time
+                        [1,1,0,0]
+P2
+[0,0,0,0]   [1,0,0,0]
+            Deliver!
+P3
+[0,0,0,0]
+
+P4
+[0,0,0,0]          [1,0,0,0]
+                   Deliver!
+Causal Ordering: Example
+
+                               [1,1,0,0]
+            [1,0,0,0]
+P1                             Deliver!
+[0,0,0,0]                                   Time
+                          [1,1,0,0]
+P2
+[0,0,0,0]   [1,0,0,0]
+            Deliver!
+P3
+[0,0,0,0]               Missing 1 from P1
+                             Buffer!
+P4
+[0,0,0,0]          [1,0,0,0]
+                   Deliver!
+Causal Ordering: Example
+
+                               [1,1,0,0]    Deliver!
+            [1,0,0,0]          Deliver!     Receiver satisfies causality
+P1
+[0,0,0,0]                                     Deliver!         Time
+                          [1,1,0,0]           Receiver satisfies causality
+P2
+[0,0,0,0]   [1,0,0,0]
+            Deliver!
+P3
+[0,0,0,0]               Missing 1 from P1
+                             Buffer!
+P4
+                   [1,0,0,0]    [1,0,0,1]
+[0,0,0,0]
+                   Deliver!
+Causal Ordering: Example
+
+                               [1,1,0,0]    Deliver!
+            [1,0,0,0]          Deliver!     Receiver satisfies causality
+P1
+[0,0,0,0]                                     Deliver!         Time
+                          [1,1,0,0]           Receiver satisfies causality
+P2
+[0,0,0,0]   [1,0,0,0]
+            Deliver!
+P3
+[0,0,0,0]               Missing 1 from P1 Missing 1 from P1
+                             Buffer!           Buffer!
+P4
+                   [1,0,0,0]    [1,0,0,1]
+[0,0,0,0]
+                   Deliver!
+Causal Ordering: Example
+
+                               [1,1,0,0]        Deliver!
+            [1,0,0,0]          Deliver!         Receiver satisfies causality
+P1
+[0,0,0,0]                                           Deliver!         Time
+                          [1,1,0,0]                 Receiver satisfies causality
+P2
+[0,0,0,0]   [1,0,0,0]
+            Deliver!
+P3
+[0,0,0,0]               Missing 1 from P1 Missing 1 from P1
+                             Buffer!           Buffer!
+P4
+                   [1,0,0,0]    [1,0,0,1]           Deliver P1’s multicast
+[0,0,0,0]                             Receiver satisfies causality for buffered multicasts
+                   Deliver!                    Deliver P2’s buffered multicast
+Causal Ordering: Example                       Deliver P4’s buffered multicast
+
+                               [1,1,0,0]        Deliver!
+            [1,0,0,0]          Deliver!         Receiver satisfies causality
+P1
+[0,0,0,0]                                           Deliver!         Time
+                          [1,1,0,0]                 Receiver satisfies causality
+P2
+[0,0,0,0]   [1,0,0,0]
+            Deliver!                                                  Deliver!
+P3
+[0,0,0,0]               Missing 1 from P1 Missing 1 from P1
+                             Buffer!           Buffer!
+P4
+                   [1,0,0,0]    [1,0,0,1]           Deliver P1’s multicast
+[0,0,0,0]                             Receiver satisfies causality for buffered multicasts
+                   Deliver!                    Deliver P2’s buffered multicast
+Causal Ordering: Example                       Deliver P4’s buffered multicast
+
+ Summary: Multicast Ordering
+• Ordering of multicasts affects correctness
+  of distributed systems using multicasts
+• Three popular ways of implementing
+  ordering
+   – FIFO, Causal, Total
+• And their implementations
+• What about reliability of multicasts?
+• What about failures?

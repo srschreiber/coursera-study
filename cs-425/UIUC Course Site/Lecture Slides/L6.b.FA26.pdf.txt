@@ -1,0 +1,210 @@
+CS 425 / ECE 428
+Distributed Systems
+     Fall 2026
+   Aishwarya Ganesan
+     w/ Ram Kesavan
+ Ack: Indranil Gupta (Indy)
+                              All slides © IG
+       Lecture: Grids
+
+          “A Cloudy History of Time”
+              The first datacenters!
+                                          Timesharing Companies                Clouds and datacenters
+1940
+                                         & Data Processing Industry
+       1950                                                               Clusters
+                    1960
+                                                                       Grids
+                                     1970
+                                                   1980
+                                    PCs                        1990
+                        (not distributed!)
+                                                                            2000
+                                                                      Peer to peer systems 2012
+
+                                                                                                   2
+
+                “A Cloudy History of Time”
+                                            First large datacenters: ENIAC, ORDVAC, ILLIAC
+                                            Many used vacuum tubes and mechanical relays
+                                                                                 Berkeley NOW Project
+                                                                                 Supercomputers
+ 1940
+                                                                                 Server Farms (e.g., Oceano)
+            1950
+                        1960                                                           P2P Systems (90s-00s)
+                                                                                       •Many Millions of users
+                                     1970                                              •Many GB per day
+                                                   1980
+Data Processing Industry
+- 1968: $70 M. 1978: $3.15 Billion                               1990
+Timesharing Industry (1975):                                                  2000
+•Market Share: Honeywell 34%, IBM 15%,
+                                                     Grids (1980s-2000s):                    2012   Clouds
+•Xerox 10%, CDC 10%, DEC 10%, UNIVAC 10%
+                                                     •GriPhyN (1970s-80s)
+•Honeywell 6000 & 635, IBM 370/168,
+                                                     •Open Science Grid and Lambda Rail (2000s)
+  Xerox 940 & Sigma 9, DEC PDP-10, UNIVAC 1108                                                          3
+                                                     •Globus & other standards (1990s-2000s)
+
+    Example: Rapid Atmospheric Modeling System,
+                    ColoState U
+• Hurricane Georges, 17 days in Sept 1998
+   – “RAMS modeled the mesoscale convective complex that
+     dropped so much rain, in good agreement with recorded data”
+   – Used 5 km spacing instead of the usual 10 km
+   – Ran on 256+ processors
+• Computation-intenstive computing (or HPC = high
+  performance computing)
+• Can one run such a program without access to a
+  supercomputer?
+
+                                                                   4
+
+ Distributed Computing Resources
+             Wisconsin
+
+MIT             NCSA
+
+                                   5
+
+An Application Coded by a Physicist
+                  Job 0              Output files of Job 0
+                                     Input to Job 2
+
+Job 1
+        Jobs 1 and 2 can                        Job 2
+        be concurrent
+
+                               Output files of Job 2
+                       Job 3 Input to Job 3                  6
+
+   An Application Coded by a Physicist
+                               Output files of Job 0
+                               Input to Job 2
+       Several GBs
+
+May take several hours/days
+4 stages of a job
+     Init                               Job 2
+     Stage in
+     Execute
+     Stage out
+     Publish
+Computation Intensive,
+    so Massively Parallel     Output files of Job 2    7
+                              Input to Job 3
+
+      Scheduling Problem
+      Wisconsin   Job 0
+          Job 1       Job 2
+
+                    Job 3
+MIT          NCSA
+
+                              8
+
+ 2-level Scheduling Infrastructure
+            Wisconsin
+      HTCondor Protocol           Job 0
+                  Job 1               Job 2
+
+                                   Job 3
+             Globus Protocol
+                      NCSA
+MIT
+
+ Some other intra-site protocol
+                           9
+                                              9
+
+               Intra-site Protocol
+HTCondor Protocol
+                    Wisconsin Job 3
+
+                           Job 0
+
+    Internal Allocation & Scheduling
+    Monitoring
+    Distribution and Publishing of Files
+                                           10
+
+            Condor (now HTCondor)
+• High-throughput computing system from U. Wisconsin Madison
+• Belongs to a class of “Cycle-scavenging” systems
+    – SETI@Home and Folding@Home are other systems in this category
+Such systems
+• Run on a lot of workstations
+• When workstation is free, ask site’s central server (or Globus) for tasks
+• If user hits a keystroke or mouse click, stop task
+    – Either kill task or ask server to reschedule task
+• Can also run on dedicated machines
+
+                                                                              11
+
+                                  Inter-site Protocol
+                                   Wisconsin
+                                            Job 3
+                                         Job 0
+Internal structure of different
+
+                             Job 1 Globus Protocol
+   sites invisible to Globus
+
+             MIT                              NCSA   Job 2
+
+                                    External Allocation & Scheduling
+                                    Stage in & Stage out of Files      12
+
+                                         Globus
+• Globus Alliance involves universities, national US research labs, and some
+  companies
+• Standardized several things, especially software tools
+• Separately, but related: Open Grid Forum
+• Globus Alliance has developed the Globus Toolkit
+
+    http://toolkit.globus.org/toolkit/
+
+                                                                           13
+
+                            Globus Toolkit
+• Open-source
+• Consists of several components
+    – GridFTP: Wide-area transfer of bulk data
+    – GRAM5 (Grid Resource Allocation Manager): submit, locate, cancel, and
+      manage jobs
+         • Not a scheduler
+         • Globus communicates with the schedulers in intra-site protocols like HTCondor
+           or Portable Batch System (PBS)
+    – RLS (Replica Location Service): Naming service that translates from a
+      file/dir name to a target location (or another file/dir name)
+    – Libraries like XIO to provide a standard API for all Grid IO functionalities
+    – Grid Security Infrastructure (GSI)
+                                                                                           14
+
+                          Security Issues
+•   Important in Grids because they are federated, i.e., no single entity controls the
+    entire infrastructure
+
+•   Single sign-on: collective job set should require once-only user authentication
+•   Mapping to local security mechanisms: some sites use Kerberos, others using Unix
+•   Delegation: credentials to access resources inherited by subcomputations, e.g., job 0
+    to job 1
+•   Community authorization: e.g., third-party authentication
+
+•   These are also important in clouds, but less so because clouds are typically run
+    under a central control
+•   In clouds the focus is on failures, scale, on-demand nature
+
+                                                                                         15
+
+                        Summary
+• Grid computing focuses on computation-intensive computing
+  (HPC)
+• Though often federated, architecture and key concepts have a
+  lot in common with that of clouds
+• Are Grids/HPC converging towards clouds?
+   – E.g., Compare OpenStack and Globus
+
+                                                                 16

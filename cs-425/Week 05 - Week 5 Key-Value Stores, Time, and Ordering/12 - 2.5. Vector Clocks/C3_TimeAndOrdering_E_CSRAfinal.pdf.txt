@@ -1,0 +1,154 @@
+•   Used in key-value stores like Riak
+•   Each process uses a vector of integer clocks
+•   Suppose there are N processes in the group 1…N
+•   Each vector has N elements
+•   Process i maintains vector Vi[1…N]
+•   jth element of vector clock at process i, Vi[j], is i’s
+    knowledge of latest events at process j
+
+•   Incrementing vector clocks
+     1. On an instruction or send event at process i, it increments only its ith
+        element of its vector clock
+     2. Each message carries the send-event’s vector timestamp Vmessage[1…N]
+     3. On receiving a message at process i:
+     Vi[i] = Vi[i] + 1
+     Vi[j] = max(Vmessage[j], Vi[j]) for j ≠ i
+
+     A       B   C              D    E
+P1
+                                           Time
+             E       F      G
+P2
+
+         H           I                         J
+P3
+                         Instruction or step
+                          Message
+
+P1(0,0,0)
+                            Time
+
+P2
+  (0,0,0)
+
+P3
+  (0,0,0)
+Initial counters (clocks)
+
+P1(0,0,0) (1,0,0)
+                                Time
+
+P2
+  (0,0,0)
+
+               Message(0,0,1)
+P3
+  (0,0,0)      (0,0,1)
+
+P1(0,0,0) (1,0,0)
+                                Time
+
+P2
+  (0,0,0)           (0,1,1)
+
+               Message(0,0,1)
+P3
+  (0,0,0)      (0,0,1)
+
+P1(0,0,0) (1,0,0)        (2,0,0)
+                             Message(2,0,0)   Time
+
+P2
+  (0,0,0)           (0,1,1)         (2,2,1)
+
+P3
+  (0,0,0)      (0,0,1)
+
+P1(0,0,0) (1,0,0)        (2,0,0)   (3,0,0)      (4,3,1)   (5,3,1)
+                                                              Time
+
+P2
+  (0,0,0)           (0,1,1)        (2,2,1)     (2,3,1)
+
+P3
+  (0,0,0)      (0,0,1)               (0,0,2)              (5,3,3)
+
+•   VT1 = VT2,
+         iff (if and only if)
+              VT1[i] = VT2[i], for all i = 1, … , N
+•   VT1 ≤ VT2,
+         iff VT1[i] ≤ VT2[i], for all i = 1, … , N
+•   Two events are causally related iff
+       VT1 < VT2, i.e.,
+         iff VT1 ≤ VT2 &
+                there exists j such that
+                    1 ≤ j ≤ N & VT1[j] < VT2 [j]
+
+• Two events VT1 and VT2 are concurrent
+  iff
+      NOT (VT1 ≤ VT2) AND NOT (VT2 ≤ VT1)
+
+     We’ll denote this as VT2 ||| VT1
+
+         A                      B         C              D     E
+P1(0,0,0) (1,0,0)              (2,0,0)   (3,0,0)       (4,3,1)   (5,3,1)
+                                                                     Time
+                              E             F         G
+P2
+  (0,0,0)               (0,1,1)          (2,2,1)     (2,3,1)
+
+                    H                       I                             J
+P3
+  (0,0,0)           (0,0,1)                (0,0,2)              (5,3,3)
+  •   A  B :: (1,0,0) < (2,0,0)
+  •   B  F :: (2,0,0) < (2,2,1)
+  •   A  F :: (1,0,0) < (2,2,1)
+
+         A                     B         C              D     E
+P1(0,0,0) (1,0,0)             (2,0,0)   (3,0,0)       (4,3,1)   (5,3,1)
+                                                                    Time
+                              E            F         G
+P2
+  (0,0,0)               (0,1,1)         (2,2,1)     (2,3,1)
+
+                    H                      I                             J
+P3
+  (0,0,0)           (0,0,1)               (0,0,2)              (5,3,3)
+  •   H  G :: (0,0,1) < (2,3,1)
+  •   F  J :: (2,2,1) < (5,3,3)
+  •   H  J :: (0,0,1) < (5,3,3)
+  •   C  J :: (3,0,0) < (5,3,3)
+
+         A                      B             C               D     E
+P1(0,0,0) (1,0,0)              (2,0,0)       (3,0,0)        (4,3,1)   (5,3,1)
+                                                                          Time
+                              E                  F         G
+P2
+  (0,0,0)               (0,1,1)               (2,2,1)     (2,3,1)
+
+                    H                            I                             J
+P3
+  (0,0,0)           (0,0,1)                     (0,0,2)              (5,3,3)
+  •   C & F :: (3,0,0) ||| (2,2,1)
+  •   H & C :: (0,0,1) ||| (3,0,0)
+  •   (C, F) and (H, C) are pairs of concurrent events
+
+•   Lamport timestamps
+     – Integer clocks assigned to events
+     – Obey causality
+     – Cannot distinguish concurrent events
+•   Vector timestamps
+     – Obey causality
+     – By using more space, can also identify
+       concurrent events
+
+•   Clocks are unsynchronized in an asynchronous distributed system
+•   But need to order events, across processes!
+•   Time synchronization
+     – Cristian’s algorithm
+     – NTP
+     – Berkeley algorithm
+     – But error a function of round-trip-time
+
+•   Can avoid time sync altogether by instead
+    assigning logical timestamps to events

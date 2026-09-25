@@ -1661,7 +1661,3 @@ in order to do these simulations. So what we have is very, very tightly coupled 
 thousands of cores. And that's how the programs are written on this system with some specialized
 communication protocols. And this all happens very, very quickly. So that we can make progress and be very
 efficient.
-
-## Quizzes
-
-_No transcript available._

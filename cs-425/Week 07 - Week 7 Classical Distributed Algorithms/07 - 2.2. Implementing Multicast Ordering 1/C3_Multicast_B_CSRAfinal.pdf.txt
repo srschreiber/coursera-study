@@ -1,0 +1,158 @@
+Multicast Ordering
+• How do we implement each of
+  the ordering schemes we’ve seen
+  1. FIFO ordering (this lecture)
+  2. Causal ordering (next lecture)
+  3. Total ordering (this lecture)
+
+ FIFO Multicast: Data Structures
+• Each receiver maintains a per-sender
+  sequence number (integers)
+   – Processes P1 through PN
+   – Pi maintains a vector of sequence
+     numbers Pi[1…N] (initially all
+     zeroes)
+   – Pi[j] is the latest sequence number
+     Pi has received from Pj
+
+ FIFO Multicast: Updating Rules
+• Send multicast at process Pj:
+   – Set Pj[j] = Pj[j] + 1
+   – Include new Pj[j] in multicast message as
+     its sequence number
+• Receive multicast: If Pi receives a multicast
+  from Pj with sequence number S in message
+   – if (S == Pi[j] + 1) then
+        • deliver message to application
+        • Set Pi[j] = Pi[j] + 1
+    – else buffer this multicast until above
+      condition is true
+
+            FIFO Ordering: Example
+P1
+[0,0,0,0]                            Time
+
+P2
+[0,0,0,0]
+
+P3
+[0,0,0,0]
+
+P4
+[0,0,0,0]
+
+            [1,0,0,0]
+P1
+[0,0,0,0]        P1, seq: 1                   Time
+
+P2
+[0,0,0,0]        [1,0,0,0]
+                 Deliver!
+P3
+[0,0,0,0]                                 ?
+
+P4
+                              [1,0,0,0]
+[0,0,0,0]
+                              Deliver!
+FIFO Ordering: Example
+
+            [1,0,0,0]            [2,0,0,0]
+P1
+[0,0,0,0]        P1, seq: 1        P1, seq: 2                    Time
+
+P2
+[0,0,0,0]        [1,0,0,0]
+                 Deliver!
+P3
+[0,0,0,0]                           [0,0,0,0]
+                                    Buffer!
+P4                                              [1,0,0,0]
+                              [1,0,0,0]
+[0,0,0,0]                                       Deliver this!
+                              Deliver!
+                                                Deliver buffered <P1, seq:2>
+FIFO Ordering: Example                          Update [2,0,0,0]
+
+            [1,0,0,0]            [2,0,0,0]
+P1
+[0,0,0,0]        P1, seq: 1        P1, seq: 2       [2,0,0,0]   Time
+                                                    Deliver!
+P2
+[0,0,0,0]        [1,0,0,0]
+                 Deliver!
+P3
+[0,0,0,0]                           [0,0,0,0]
+                                    Buffer!
+P4                                              [1,0,0,0]
+                              [1,0,0,0]
+[0,0,0,0]                                       Deliver this!
+                              Deliver!
+                                                Deliver buffered <P1, seq:2>
+FIFO Ordering: Example                          Update [2,0,0,0]
+
+            [1,0,0,0]            [2,0,0,0]                          [2,0,1,0]
+P1                                                                  Deliver!
+[0,0,0,0]        P1, seq: 1        P1, seq: 2       [2,0,0,0]        Time
+                                                    Deliver!        [2,0,1,0]
+P2
+[0,0,0,0]        [1,0,0,0]                                          Deliver!
+                 Deliver!
+                                                     P3, seq: 1
+P3
+[0,0,0,0]                           [0,0,0,0]            [2,0,1,0]
+                                    Buffer!                     ?
+P4                                              [1,0,0,0]
+                              [1,0,0,0]
+[0,0,0,0]                                       Deliver this!
+                              Deliver!
+                                                Deliver buffered <P1, seq:2>
+FIFO Ordering: Example                          Update [2,0,0,0]
+
+            [1,0,0,0]            [2,0,0,0]                         [2,0,1,0]
+P1                                                                 Deliver!
+[0,0,0,0]        P1, seq: 1        P1, seq: 2       [2,0,0,0]      Time
+                                                    Deliver!      [2,0,1,0]
+P2                                                                Deliver!
+[0,0,0,0]        [1,0,0,0]
+                 Deliver!                                          [1,0,1,0]
+P3                                                    P3, seq: 1 Deliver!
+[0,0,0,0]                           [0,0,0,0]             [2,0,1,0]
+                                                                   [2,0,1,0]
+                                    Buffer!
+                                                                   Deliver!
+P4                                              [1,0,0,0]
+                              [1,0,0,0]
+[0,0,0,0]                                       Deliver this!
+                              Deliver!
+                                                Deliver buffered <P1, seq:2>
+FIFO Ordering: Example                          Update [2,0,0,0]
+
+Total Ordering
+• Ensures all receivers receive all
+  multicasts in the same order
+• Formally
+   – If a correct process P delivers
+     message m before m’
+     (independent of the senders),
+     then any other correct process
+     P’ that delivers m’ would
+     already have delivered m.
+
+    Sequencer-based Approach
+• Special process elected as leader or sequencer
+• Send multicast at process Pi:
+    – Send multicast message M to group and sequencer
+• Sequencer:
+    – Maintains a global sequence number S (initially 0)
+    – When it receives a multicast message M, it sets S = S + 1, and
+      multicasts <M, S>
+• Receive multicast at process Pi:
+    – Pi maintains a local received global sequence number Si (initially 0)
+    – If Pi receives a multicast M from Pj, it buffers it until it both
+         1. Pi receives <M, S(M)> from sequencer, and
+         2. Si + 1 = S(M)
+         • Then deliver it message to application and set Si = Si + 1
+
+   Next
+• Implementing causal ordering

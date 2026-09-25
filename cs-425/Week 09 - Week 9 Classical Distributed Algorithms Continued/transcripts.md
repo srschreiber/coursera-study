@@ -1570,7 +1570,3 @@ Chubby at Google which is used for locking and also to maintain
 small configuration files. And also Apache Zookeeper which is
 an open-sourced system that is used for coordination, and I encourage you to
 look up Apache Zookeeper on the web. [MUSIC]
-
-## Quizzes
-
-_No transcript available._

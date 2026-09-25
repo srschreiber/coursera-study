@@ -1,0 +1,135 @@
+•
+
+•               ‘
+    •
+
+•           ‘
+    •
+    •
+
+•       ’
+    •               ’
+
+•
+
+                                   Key    Value
+
+                                  Welcome 1
+        Welcome Everyone
+                                  Everyone 1
+        Hello Everyone
+                                  Hello    1
+                                  Everyone 1
+    Input <filename, file text>
+
+•
+
+                                               MAP TASK 1
+                                       Welcome 1
+       Welcome Everyone
+                                       Everyone 1
+       Hello Everyone
+                                       Hello    1
+    Input <filename, file text>
+                                       Everyone 1
+
+                                  MAP TASK 2
+
+•
+
+                                                   Welcome 1
+        Welcome Everyone                           Everyone 1
+        Hello Everyone
+                                                   Hello 1
+        Why are you here
+                                                   Everyone 1
+        I am also here
+        They are also here
+                                                   Why 1
+
+        Yes, it’s THEM!                            Are       1
+        The same people we were thinking of        You   1
+        …….                                        Here 1
+
+    Input <filename, file text>                    …….
+
+                                              MAP TASKS
+
+•
+
+                   Key    Value
+
+    Welcome 1
+                 Everyone 2
+    Everyone 1   Hello    1
+    Hello    1   Welcome 1
+    Everyone 1
+
+•
+•
+
+    Welcome 1
+                 REDUCE   Everyone 2
+    Everyone 1   TASK 1
+                          Hello    1
+    Hello    1
+                 REDUCE
+                          Welcome 1
+    Everyone 1   TASK 2
+•
+
+public static class MapClass extends MapReduceBase
+            implements Mapper<LongWritable, Text, Text,
+              IntWritable> {
+  private final static IntWritable one =
+    new IntWritable(1);
+  private Text word = new Text();
+
+   public void map( LongWritable key, Text value,
+             OutputCollector<Text, IntWritable> output,
+             Reporter reporter)
+     throws IOException {
+     String line = value.toString();
+     StringTokenizer itr = new StringTokenizer(line);
+     while (itr.hasMoreTokens()) {
+             word.set(itr.nextToken());
+             output.collect(word, one);
+     }
+   }
+} // Source: http://developer.yahoo.com/hadoop/tutorial/module4.html#wordcount
+
+public static class ReduceClass extends MapReduceBase
+                     implements Reducer<Text, IntWritable, Text,
+                     IntWritable> {
+   public void reduce(
+                     Text key,
+                     Iterator<IntWritable> values,
+                     OutputCollector<Text, IntWritable> output,
+                     Reporter reporter)
+       throws IOException {
+                     int sum = 0;
+                     while (values.hasNext()) {
+                         sum += values.next().get();
+                     }
+                     output.collect(key, new IntWritable(sum));
+   }
+} // Source: http://developer.yahoo.com/hadoop/tutorial/module4.html#wordcount
+
+// Tells Hadoop how to run your Map-Reduce job
+public void run (String inputPath, String outputPath)
+                     throws Exception {
+  // The job. WordCount contains MapClass and Reduce.
+  JobConf conf = new JobConf(WordCount.class);
+  conf.setJobName(”mywordcount");
+  // The keys are words
+  (strings) conf.setOutputKeyClass(Text.class);
+  // The values are counts (ints)
+  conf.setOutputValueClass(IntWritable.class);
+  conf.setMapperClass(MapClass.class);
+  conf.setReducerClass(ReduceClass.class);
+  FileInputFormat.addInputPath(
+                     conf, newPath(inputPath));
+  FileOutputFormat.setOutputPath(
+                     conf, new Path(outputPath));
+  JobClient.runJob(conf);
+} // Source: http://developer.yahoo.com/hadoop/tutorial/module4.html#wordcount

@@ -1,0 +1,222 @@
+CS 425 / ECE 428
+Distributed Systems
+      Fall 2024
+     Aishwarya Ganesan
+   w/ Indranil Gupta (Indy)
+  The Consistency Spectrum
+                              All slides © IG/AG
+
+Consistency Models
+
+Contract between distributed system and application
+Dictates what results can the system return for operations              clients
+     Concurrent reads and writes by clients on replicas
+     Depending on how operations are performed, guarantees offered by
+     the distributed system differ
+     Consistency model dictates what is permissible
+System developers – design/optimize system to meet contract
+                                                                         system
+Application developers – need to understand what contract is
+for application correctness
+
+                                                                              2
+
+Consistency Spectrum
+
+                Faster reads and writes
+
+                  More consistency               Strong
+     Eventual                             (e.g., Linearizability,
+                                               Sequential)
+
+                                                                    3
+
+Spectrum Ends: Eventual Consistency
+
+Cassandra offers Eventual Consistency
+     originally from Amazon’s Dynamo and LinkedIn’s Voldemort    req        resp
+                                                                     W(x=1)
+If writes to a key stop, all replicas of key will converge      C1
+Reads might see any previous write                                            W(x=2)
+                                                                C2
+    weak guarantee
+                                                                                   R(x)=0
+More performant – allows concurrent writes                      C3
+More availability – disconnected operation
+                                                                                            R(x)=0
+Need to resolve conflicts between multiple object versions      C4
+     Cassandra – latest timestamp wins
+
+                                                                                                4
+
+Spectrum Ends: Strong Consistency
+
+Linearizability [Herlihy and Wing]
+                                                                                  W(x=1)
+Strong consistency (the C in CAP)                                  C1
+Intuitively, each operation by a client is visible instantaneously                           W(x=2)
+to other clients
+                                                                   C2
+     instantaneously in real time                                                          R(x) 12
+                                                                             C3
+All operations are totally ordered in a way that respects
+real-time order of operations                                                                         R(x) ?1 2
+                                                                             C4
+     if A completes before B begins, A ordered before B
+     what if A and B are concurrent?
+            order in a way such that total order is a valid sequential one
+Appears to be a single machine (one-copy semantics)
+Trades off performance and availability                                                                    5
+
+Spectrum Ends: Strong Consistency Models II
+
+Sequential Consistency (Lamport):
+                                                                                           W(x=1)
+    "... the result of any execution is the same as if the operations of all the   C1
+    processors were executed in some sequential order, and the operations of
+    each individual processor appear in this sequence in the order specified                               W(x=2)
+    by its program."                                                               C2
+All operations are totally ordered                                                                     R(x) 2
+    total order respects local order of operations at clients                      C3
+                                                                                                                       0/1/2
+Sequential vs linearizability?                                                                                      R(x) ?
+                                                                                   C4
+    sequential is weaker than linearizability (can have stale reads)
+    but strong compared to many models                                                  W(x=1)   R(y)1 0
+                                                                                   C1
+                                                                                        W(y=1)   R(x) 1? Must be 1 and
+                                                                                   C2                      never 0
+                                                                                                                         6
+
+                             Question
+Which of the following is a STRONGER consistency model?
+(a) Eventual
+(b) Sequential
+
+                                Question
+Which of the following is a STRONGER consistency model?
+(a) Eventual
+(b) Sequential
+
+Answer: (b)
+Explanation: Sequential is stronger – it provides a total ordering of
+operations and respects client’s local order
+
+ Consistency Spectrum
+
+                             Faster reads and writes
+
+          Eventual                                            Sequential       Linearizable
+                                     More consistency
+
+Linearizability is easy to program against, but can lead to low performance/availability
+Eventual consistency is performant and leads to high availability, but hard to program against
+There is a variety of options in-between
+                                                                                                 7
+
+Causal Consistency
+
+No total order of operations
+Available under partitions                                                                  Causality, not messages
+                                                                        W(x=1)
+Avoids many inconsistencies that happen with eventual              C1
+Operations must respect partial order based on                                      R(x)1      W(y=1)
+information flow or causality                                      C2
+     Operations from same client are causally related                                R(x)                     R(y)1   R(x)
+     If client C1 does a write and a read at client C2 sees it,    C3
+     then these ops are causally related                                         may return 0 or 1                    must
+     Transitive                                                                                                       return 1
+
+           Eventual                                           Causal        Sequential               Linearizable        8
+
+ Session-based Consistency Models [Terry et al. 1994]
+
+Monotonic reads (MR) – intuitively, reads cannot go back in time
+        if a client issues read R1 and then R2, R2 must at least observe the state as of R1
+Monotonic writes (MW) – if a client issues write W1 and then W2, clients must see W1 before W2
+Read my writes (RMW) – if a client issues W1 and then R1, R1 must see the effects of W1
+
+All these models are available in the presence of partitions
+
+                         MR
+
+          Eventual      MW                    Causal           Sequential   Linearizable
+                      RMW                                                                   9
+
+                              Question
+Which of the following is TRUE?
+(a) Causal consistency implies monotonic reads
+(b) Causal consistency implies read-my-writes
+(c) Both (a) and (b) are true
+(d) Both (a) and (b) are false
+
+                                 Question
+Which of the following is TRUE?
+(a) Causal consistency implies monotonic reads
+(b) Causal consistency implies read-my-writes
+(c) Both (a) and (b) are true
+(d) Both (a) and (b) are false
+
+Answer: (c)
+Explanation: Causal consistency respects client’s local order, which ensures
+that reads do not go back in time and clients always see their own writes.
+
+Newer Consistency Models
+
+CRDTs (Commutative Replicated Data Types): Data structures for which
+commutated writes give same result [INRIA, France]
+    E.g., value == int, and only op allowed is +1
+    Guaranteed to eventually converge
+    Effectively, servers don’t need to worry about consistency and
+    conflict resolution
+
+Red-blue Consistency: Rewrite client transactions to separate ops into red
+ops vs. blue ops [MPI-SWS Germany and others]
+      Blue ops can be executed (commutated) in any order across DCs
+      Red ops need to be executed in the same order at each DC
+      Composite model: blue ops are eventually consistent and red ops are
+      strongly consistent
+
+                                                                             10
+
+Newer Consistency Models (Contd.)
+
+Bounded staleness
+    Guarantees that data lags at most by K versions or T time units
+    User or app can set K or T on reads
+
+Probabilistically Bounded Staleness (PBS)
+    expected bounds on staleness with respect to both versions and time
+    SLA-style consistency predictions
+
+                                                                          11
+
+                               Question
+Which of the following is a CRDT?
+(a) A value of type integer with the only operations allowed being
+    additions and subtractions
+(b) A value of type string that supports appending additional
+    characters to the end of the string
+
+                              Question
+Which of the following is a CRDT?
+(a) A value of type integer with the only operations allowed being
+    additions and subtractions
+(b) A value of type string that supports appending additional
+    characters to the end of the string
+
+Answer: (a)
+Explanation: Additions and subtractions to an integer commute with
+each other. Appends to a string do not commute.
+
+   The Consistency Spectrum
+
+[1] Viotti and Vukolic 2016   12
+
+Which Consistency Model should you use?
+
+•   Use the lowest consistency model that is
+    “correct” for your application
+     • Gets you fastest availability
+
+                                               13

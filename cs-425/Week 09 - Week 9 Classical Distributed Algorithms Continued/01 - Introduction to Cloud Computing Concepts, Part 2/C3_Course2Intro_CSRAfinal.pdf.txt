@@ -1,0 +1,47 @@
+Goal of C3 - Part 2
+
+• Course about the internals of cloud computing
+• Distributed systems and algorithms that underlie today’s
+  cloud computing technologies
+• We’ll discuss
+    – Concepts
+    – Techniques
+    – Industry systems, including open-source (from the inside)
+• Builds on “Cloud Computing Concepts (C3) – Part 1”
+    – C3 – Part 1 is a prerequisite for C3 – Part 2
+    – We’ll be reusing and relying on many concepts you learnt in Part 1
+      throughout Part 2
+
+Syllabus for C3 – Part 2
+
+• Classical algorithms: Leader Election, Mutual Exclusion,
+  Scheduling
+• Scalability: Concurrency control, Replication Control
+• Trending Areas: Stream processing, Graph processing,
+  Structure of Networks, Sensor Networks
+• Miscellaneous: Distributed File systems, Distributed
+  shared memory, Security, Datacenter outage studies
+• Fun: Interviews with leading managers and researchers,
+  from both industry and academia
+
+What We’ll be Relying on from C3 – Part 1
+
+•   Introduction: Clouds, Mapreduce, Key-value stores
+•   Classical Precursors: Peer-to-peer systems, Grids
+•   Widely-used algorithms: Gossip, Membership, Paxos
+•   Classical algorithms: Time and Ordering, Snapshots,
+    Multicast
+
+Exercises
+
+• 5 Homeworks
+• 1 Programming Assignment (C++)
+   – Implement a fault-tolerant key-value store inside an emulator
+   – Builds on Programming Assignment from C3 – Part 1
+• 1 Exam
+
+Onward!
+
+• Cloud computing is an exciting area to be studying, very
+  dynamic and continuously changing
+• Come, let’s complete our journey through the landscape.

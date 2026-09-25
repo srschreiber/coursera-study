@@ -1,0 +1,15 @@
+•   Build a spanning tree among the processes of the
+    multicast group
+•   Use spanning tree to disseminate multicasts
+•   Use either acknowledgments (ACKs) or negative
+    acknowledgements (NAKs) to repair multicasts not
+    received
+•   SRM (Scalable Reliable Multicast)
+      • Uses NAKs
+      • But adds random delays, and uses exponential
+         backoff to avoid NAK storms
+•   RMTP (Reliable Multicast Transport Protocol)
+      • Uses ACKs
+      • But ACKs only sent to designated receivers, which
+         then re-transmit missing multicasts
+•   These protocols still cause an O(N) ACK/NAK overhead

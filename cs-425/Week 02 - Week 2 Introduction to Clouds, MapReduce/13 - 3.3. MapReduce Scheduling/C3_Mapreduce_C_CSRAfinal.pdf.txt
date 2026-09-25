@@ -1,0 +1,27 @@
+•
+
+•
+
+•
+
+•
+•
+•
+
+•
+
+•   Used in Hadoop 2.x +
+•   YARN = Yet Another Resource Negotiator
+•   Treats each server as a collection of containers
+     • Container = some CPU + some memory
+•   Has 3 main components
+     • Global Resource Manager (RM)
+           • Scheduling
+     • Per-server Node Manager (NM)
+           • Daemon and server-specific functions
+     • Per-application (job) Application Master (AM)
+           • Container negotiation with RM and NMs
+           • Detecting task failures of that job
+
+•
+•

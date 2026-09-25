@@ -321,7 +321,3 @@ as O()notation, which analyzes the worst case performance of any given algorithm
 and then some basic probability. And finally,
 we have seen a few miscellaneous topics. I hope you can keep coming back to this
 as a reference whenever you need it throughout the course. [MUSIC]
-
-## Quizzes
-
-_No transcript available._

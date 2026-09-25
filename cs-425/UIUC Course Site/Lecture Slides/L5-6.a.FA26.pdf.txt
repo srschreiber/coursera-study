@@ -1,0 +1,638 @@
+CS 425 / ECE 428
+       Distributed Systems
+            Fall 2026
+              Aishwarya Ganesan
+               w/ Ram Kesavan
+          Ack: Indranil Gupta (Indy)
+Lecture 5-6: Failure Detection and Membership
+                                        All slides © IG
+
+                       Announcements
+• MP1: Due Sunday 9/13, demos Monday 9/14
+   – VMs distributed last week: see Piazza
+   – GitHub course repo: see Piazza
+       • IT does not handle requests on weekends
+   – MP1 Demo, Signup, and Submission instructions release on Piazza
+       ✓ (Due by Fri Sep 11) [MP Demo Signup Sheet]
+       ✓ (Due by Sun Sep) [a. MP1 Submission Form & b. push MP code to GitHub]
+       ✓ (Due by Sun Sep 13) [MP1 Report Submission on Gradescope]
+       ✓ (On Mon Sep 14) Demos
+
+• HW1: due 9/20
+• Check Piazza often! It’s where all the announcements are at!
+                                                                                 2
+
+             Failures are the Norm
+… not the exception, in datacenters.
+
+Say, the rate of failure of one machine (OS/disk/motherboard/network,
+etc.) is once every 10 years (120 months) on average.
+
+When you have 120 servers in the DC, the mean time to failure (MTTF)
+of the next machine is 1 month.
+
+When you have 12,000 servers in the DC, the MTTF is about once every
+7.2 hours!
+
+Soft crashes and failures are even more frequent!                       3
+
+                Target Settings
+• Process ‘group’-based systems
+  – Clouds/Datacenters
+  – Replicated servers
+  – Distributed databases
+
+• Fail-stop (crash) process failures
+  – (not fail-recover failures)
+                                       4
+
+Group Membership Service
+   Application Queries             Application Process pi
+     e.g., gossip, database,
+          DHT’s, etc.
+              joins, leaves, failures
+                   of members
+                                        Membership
+                                         Protocol
+Membership
+   Group List
+Membership List
+                           Unreliable
+                        Communication                   5
+
+                      Two sub-protocols
+                              Application Process pi
+              Group
+           Membership List
+                                                    •Disseminate node joins, node leaves, failures
+                     pj
+
+•Complete list all the time (Strongly consistent)             Dissemination
+    •Virtual synchrony                                  Failure Detector
+•Almost-Complete list (Weakly consistent)
+    •Gossip-style, SWIM, …
+•Or Partial-random list (other systems)
+    •SCAMP, T-MAN, Cyclon,…                        Unreliable
+          Focus of this series of lecture       Communication                               6
+
+  Large Group: Scalability A Goal
+this is us (pi)                            Process Group
+                                               “Members”
+
+                     1000’s of processes
+
+                  Unreliable Communication
+                           Network
+                                                       7
+
+      Group Membership Protocol
+                                           II Failure Detector
+                                                  Some process
+   pi                                             finds out quickly
+                                pj
+
+III Dissemination
+                           Unreliable Communication
+                                    Network
+ Fail-stop Failures only                                         8
+
+                   Next
+• How do you design a group membership
+  protocol?
+
+                                         9
+
+                I. pj crashes
+• Nothing we can do about it!
+• A frequent occurrence
+• Common case rather than exception
+• Frequency goes up linearly with size of
+  datacenter
+
+                                            10
+
+    II. Distributed Failure Detectors:
+           Desirable Properties
+• Completeness = each failure is detected
+• Accuracy = there is no mistaken detection
+• Speed
+  – Time to first detection of a failure
+• Scale
+  – Equal Load on each member
+  – Network Message Load                      11
+
+          Distributed Failure Detectors:
+                    Properties
+                                  Impossible together in
+• Completeness
+                                  lossy networks [Chandra
+• Accuracy                        and Toueg]
+
+What is a 100% complete
+failure detector? Hint: trivial     If possible, then can
+What is a 100% accurate             solve consensus! (but
+failure detector?                   consensus is known to be
+Which is more important?            unsolvable in
+Completeness or Accuracy?           asynchronous systems)12
+
+   What Real Failure Detectors Prefer
+• Completeness                    Guaranteed
+                                   Partial/Probabilistic
+• Accuracy                                 guarantee
+• Speed
+  – Time to first detection of a failure
+• Scale
+  – Equal Load on each member
+  – Network Message Load                                   13
+
+   What Real Failure Detectors Prefer
+• Completeness                    Guaranteed
+                                   Partial/Probabilistic
+• Accuracy                                 guarantee
+• Speed
+  – Time to first detection of a failure
+                                    Time until some non-faulty
+• Scale
+                                    process detects the failure
+  – Equal Load on each member
+  – Network Message Load                                   14
+
+   What Real Failure Detectors Prefer
+• Completeness                    Guaranteed
+                                   Partial/Probabilistic
+• Accuracy                                 guarantee
+• Speed
+  – Time to first detection of a failure
+                              Time until some non-faulty
+• Scale
+                              process detects the failure
+  – Equal Load on each member No bottlenecks/single
+  – Network Message Load       failure point           15
+
+      Failure Detector Properties
+• Completeness                         In spite of
+                                       arbitrary simultaneous
+• Accuracy                             process failures
+• Speed
+  – Time to first detection of a failure
+• Scale
+  – Equal Load on each member
+  – Network Message Load                                   16
+
+Centralized Heartbeating
+         pi
+
+                    pi, Heartbeat Seq. l++
+        pj               • Heartbeats sent periodically
+              •If heartbeat not received from pi within timeout,
+              mark pi as failed                           17
+
+18
+
+19
+
+Which failure-detector property is violated in
+cases B–D?
+
+                                                 20
+
+                Centralized Heartbeating
+                                                     Hotspot
+                                 pi
+Cannot tolerate Pj failing
+
+Pj cannot distinguish whether
+Pi failed or Pi’s messages are
+dropped/delayed.
+
+For completeness, Pj marks Pi
+as having failed                            pi, Heartbeat Seq. l++
+                                 pj              • Heartbeats sent periodically
+                                      •If heartbeat not received from pi within timeout,
+                                      mark pi as failed                           21
+
+                Ring Heartbeating
+                         pi
+pi, Heartbeat Seq. l++
+
+               pj
+
+                                    22
+
+23
+
+                Ring Heartbeating
+                               Unpredictable on
+                         pi   simultaneous multiple
+pi, Heartbeat Seq. l++
+                                     failures
+               pj
+
+                                                      24
+
+            All-to-All Heartbeating
+                                  ☺ Equal load per member
+pi, Heartbeat Seq. l++   pi        Single hb loss → false
+                                        detection
+                              …
+             pj
+
+Accurate?
+Complete?
+                                                             25
+
+                     Next
+• How do we increase the robustness of all-to-all
+  heartbeating?
+
+                                                26
+
+          Gossip-style Heartbeating
+                                   ☺ Good accuracy
+Array of                    pi     properties; why?
+Heartbeat Seq. l
+for member subset
+
+ Gossip about your heartbeat
+ and other processes’ heartbeats
+                                                      27
+
+     Gossip-Style Failure Detection
+                                                        1   10120                    1       10118    64
+                                                        2   10103                    2       10110    64
+              1     10120       66                      3   10098                    3       10090    58
+              2     10103       62                      4   10111                    4       10111    65
+              3     10098       63                                           2
+              4     10111       65            1
+                                                                                         1    10120    70
+ Address         Time (local)                                                            2    10110    64
+    Heartbeat Counter                                                                    3    10098    70
+Protocol:
+•Nodes periodically gossip their membership
+                                                                         4               4    10111    65
+
+list: pick random nodes, send it list               3                    Current time : 70 at node 2
+•On receipt, it is merged with local                                     (asynchronous clocks)
+membership list                                   Suppose current time is 80 at node 2
+•When an entry times out locally, member is       and timeout is 12 units, which nodes
+                                                  will 2 mark as fail?                                 28
+marked as failed
+
+   Gossip-Style Failure Detection
+• If the heartbeat has not increased for more than
+  Tfail seconds,
+  the member is considered failed
+• And after a further Tcleanup seconds, it will
+  delete the member from the list
+• Why an additional timeout? Why not delete
+  right away?
+                                                29
+
+       Gossip-Style Failure Detection
+• What if an entry pointing to a failed node is
+  deleted right after Tfail (=24) seconds?
+                                        1     10120     66
+                                        2     10110     64
+   1    10120   66                      34    10098
+                                              10111     75
+                                                        65
+                                                        50
+   2    10103   62                      4     10111     65
+   3    10098   55                 2
+   4    10111   65   1
+                                       Current time : 75 at node 2
+
+                               4
+                         3                                       30
+
+How to set Tfail and Tcleanup?
+
+                                 31
+
+                  Analysis/Discussion
+• Well-known result: a gossip takes O(log(N)) time to propagate.
+• So: Given sufficient bandwidth, a single heartbeat takes O(log(N)) time to
+  propagate.
+• So: N heartbeats take:
+    – O(log(N)) time to propagate, if bandwidth allowed per node is allowed to be
+      O(N)
+    – O(N.log(N)) time to propagate, if bandwidth allowed per node is only O(1)
+    – What about O(k) bandwidth?
+
+                                                                                    32
+
+33
+
+34
+
+                   Analysis/Discussion
+• Well-known result: a gossip takes O(log(N)) time to propagate.
+• So: Given sufficient bandwidth, a single heartbeat takes O(log(N)) time to
+  propagate.
+• So: N heartbeats take:
+    – O(log(N)) time to propagate, if bandwidth allowed per node is allowed to be
+      O(N)
+    – O(N.log(N)) time to propagate, if bandwidth allowed per node is only O(1)
+    – What about O(k) bandwidth?
+• What happens if gossip period Tgossip is decreased?
+• What happens to Pmistake (false positive rate) as Tfail and Tcleanup is increased?
+• Tradeoff: False positive rate vs. detection time vs. bandwidth                   35
+
+       CS 425 / ECE 428
+       Distributed Systems
+            Fall 2026
+              Aishwarya Ganesan
+               w/ Ram Kesavan
+          Ack: Indranil Gupta (Indy)
+Lecture 5-6: Failure Detection and Membership
+                                        All slides © IG
+
+    Failure Detector Properties …
+• Completeness
+• Accuracy
+• Speed
+  – Time to first detection of a failure
+• Scale
+  – Equal Load on each member
+  – Network Message Load                   37
+
+ So far (heartbeating protocols)…
+                Accurate?   Complete?
+• Centralized
+• Ring
+• All-to-all
+• Gossip
+
+                                        38
+
+                      Next
+• So, is this the best we can do? What is the best
+  we can do?
+
+                                                 39
+
+…Are application-defined Requirements
+ • Completeness                    Guarantee always
+                                   Probability PM(T)
+ • Accuracy
+                                   T time units
+ • Speed
+   – Time to first detection of a failure
+ • Scale
+   – Equal Load on each member
+   – Network Message Load                              40
+
+…Are application-defined Requirements
+ • Completeness                    Guarantee always
+                                   Probability PM(T)
+ • Accuracy
+                                   T time units
+ • Speed
+   – Time to first detection of a failure
+                          N*L: Compare this across protocols
+ • Scale
+   – Equal Load on each member
+   – Network Message Load                                  41
+
+            All-to-All Heartbeating
+pi, Heartbeat Seq. l++   pi   Every T units
+                                     L=N/T
+
+                                              42
+
+           Gossip-style Heartbeating
+                     pi        T=logN * tg
+ Array of
+ Heartbeat Seq. l              L=N/tg=N*logN/T
+ for member subset
+Every tg units
+=gossip period,
+send O(N) gossip
+message
+
+                                             43
+
+    What’s the Best/Optimal we can do?
+
+• Worst case load L* per member in the group
+  (messages per second)
+    – as a function of T, PM(T), N
+    – Independent Message Loss probability pml
+
+            log( PM (T )) 1
+•    L* =
+              log( p ) T
+                         .
+                    ml
+
+                                                 44
+
+                     Heartbeating
+• Optimal L is independent of N (!)
+• All-to-all and gossip-based: sub-optimal
+      • L=O(N/T)
+      • try to achieve simultaneous detection at all processes
+      • fail to distinguish Failure Detection and Dissemination
+        components
+    Can we reach this bound?
+    Key:
+         Separate the two components
+         Use a non heartbeat-based Failure Detection Component    45
+
+                      Next
+• Is there a better failure detector?
+
+                                        46
+
+        SWIM Failure Detector Protocol
+                  pi             pj
+   •random pj
+         ping                                     K random
+                                  ack             processes
+   •random K
+      ping-req
+                       X
+                                              X
+Protocol period                         ping
+= T’ time units            ack
+                                        ack
+
+                                                          47
+
+                     Detection Time
+
+                                                1 N −1
+• Prob. of being pinged in T’=          1 − (1 − ) = 1 − e −1
+                                                N
+• E[T ] = T'.
+                  e
+                e −1
+• Completeness: Any alive member detects failure
+   – Eventually
+   – By using a trick: within worst case O(N) protocol periods
+                                                                 48
+
+                   Accuracy, Load
+
+• PM(T) is exponential in -K. Also depends on pml (and
+  pf )
+    – See paper
+
+    L             E[ L]
+        28             8
+•   L*             L*        for up to 15 % loss rates
+                                                         49
+
+        SWIM Failure Detector
+         Parameter                             SWIM
+
+First Detection Time               e 
+                       • Expected
+                                   e −1periods
+                       • Constant (independent of group size)
+
+Process Load           • Constant per period
+                       • < 8 L* for 15% loss
+False Positive Rate    • Tunable (via K)
+                       • Falls exponentially as load is scaled
+
+Completeness           • Deterministic time-bounded
+                       • Within O(log(N)) periods w.h.p.         50
+
+    Time-bounded Completeness
+• Key: select each membership element once as a
+  ping target in a traversal
+  – Round-robin pinging
+  – Random permutation of list after each traversal
+• Each failure is detected in worst case 2N-1
+  (local) protocol periods
+• Preserves FD properties                             51
+
+           SWIM versus Heartbeating
+                             Heartbeating
+          O(N)
+
+First Detection
+     Time
+                             SWIM                    Heartbeating
+      Constant
+
+For Fixed :             Constant    Process Load   O(N)
+• False Positive Rate
+• Message Loss Rate                                            52
+
+                      Next
+• How do failure detectors fit into the big picture
+  of a group membership protocol?
+• What are the missing blocks?
+
+                                                 53
+
+      Group Membership Protocol
+                                           II Failure Detector
+                                                  Some process
+   pi                                             finds out quickly
+                                pj
+
+III Dissemination
+                           Unreliable Communication
+                                    Network
+ Fail-stop Failures only                                         54
+
+        Dissemination Options
+• Multicast (Hardware / IP)
+  – unreliable
+  – multiple simultaneous multicasts
+• Point-to-point (TCP / UDP)
+  – expensive
+• Zero extra messages: Piggyback on Failure
+  Detector messages
+  – Infection-style Dissemination             55
+
+          Infection-style Dissemination
+                  pi             pj
+   •random pj
+         ping                                     K random
+                                  ack             processes
+   •random K
+      ping-req
+                       X
+                                              X
+Protocol period                         ping
+= T time units             ack
+                                        ack    Piggybacked
+                                               membership
+                                                information
+                                                          56
+
+       Infection-style Dissemination
+• Epidemic/Gossip style dissemination
+   – After . log( N ) protocol periods, N l processes would not
+                                         -(2 -2)
+
+     have heard about an update
+• Maintain a buffer of recently joined/evicted processes
+   – Piggyback from this buffer
+   – Prefer recent updates
+• Buffer elements are garbage collected after a while
+   – After . log( N ) protocol periods, i.e., once they’ve propagated
+     through the system; this defines weak consistency
+                                                                   57
+
+           Suspicion Mechanism
+• False detections, due to
+  – Perturbed processes
+  – Packet losses, e.g., from congestion
+• Indirect pinging may not solve the problem
+• Key: suspect a process before declaring it as
+  failed in the group
+                                                  58
+
+        Suspicion Mechanism                            pi
+
+                    Dissmn (Suspect pj)                     Dissmn
+                                                            FD59
+                      Suspected
+
+     Alive                                    Failed
+
+Dissmn (Alive pj)                         Dissmn (Failed pj)
+
+            Suspicion Mechanism
+• Distinguish multiple suspicions of a process
+   – Per-process incarnation number
+   – Inc # for pi can be incremented only by pi
+      • e.g., when it receives a (Suspect, pi) message
+   – Somewhat similar to DSDV (routing protocol in ad-hoc nets)
+• Higher inc# notifications over-ride lower inc#’s
+• Within an inc#: (Suspect inc #) > (Alive, inc #)
+• (Failed, inc #) overrides everything else                 60
+
+              SWIM In Industry
+• First used in Oasis/CoralCDN
+• Implemented open-source by Hashicorp Inc.
+   – Called “Serf”
+   – Later “Consul”
+• Today: Uber implemented it, uses it for failure detection
+  in their infrastructure
+   – See “ringpop” system
+                                                       61
+
+                      Wrap Up
+• Failures the norm, not the exception in datacenters
+• Every distributed system uses a failure detector
+• Many distributed systems use a membership service
+
+• Ring failure detection underlies
+   – IBM SP2 and many other similar clusters/machines
+
+• Gossip-style failure detection underlies
+   – Amazon EC2/S3 (rumored!)
+                                                        62
+
+                    Announcements
+• HW1: due 9/20
+• Please view Grid Computing Lecture Video from website!
+   – (We won’t lecture in class)
+
+                                                           63

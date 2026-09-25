@@ -1,0 +1,453 @@
+CS 425 Distributed Systems, Fall 2026, University of Illinois at Urbana-Champaign
+
+                                     Course Information
+
+§ Course Overview (or – What Will I Learn from this Course?)
+
+This course will equip students with foundational basics needed to understand, work with, and build
+distributed systems such as cloud computing systems. Topics include, but are not limited to, MapRe-
+duce, peer-to-peer systems, failure detectors, synchronization, election, consensus, inter-process com-
+munication, gossiping, concurrency control, replication, key-value stores, NoSQL, security, probabilis-
+tic protocols, stream processing, measurements, etc. These topics are discussed in the context of real-
+life and deployed systems such as clouds and datacenters, databases, peer to peer systems, clusters,
+etc. This course assumes knowledge of fundamentals in both OS and networking.
+
+§ Course Essentials
+
+Class Meets: Tuesdays and Thursdays, 2:00 PM - 3:15 PM, 0027/1025 Campus Instructional Facility.
+
+Professors:
+Aishwarya Ganesan           https://aishwaryaganesan.github.io              aganesn2 at illinois
+                                                                            dawt edu
+Ram Kesavan                 https://www.linkedin.com/in/                    rkesavan at illinois dawt
+                            ram-kesavan-32588a1                             edu
+Course Website: https://courses.grainger.illinois.edu/cs425/fa2026/
+
+  All lectures and some announcements will be posted on this website, so please check periodically.
+
+Discussion Forum: We will be using Piazza (link is on the website). Important announcements will be
+posted on this forum, so please check periodically. This is your go-to place to ask clarification questions
+for HWs (Homeworks) and MPs (Machine Programs, or Programming Assignments). Before you post,
+check if someone has already asked that question.
+
+   The course staff will attempt to ensure your questions are looked at within 24-48 hours of it being
+posted. We recommend you start Homeworks and MPs early; posting questions at the last minute,
+e.g., right before a deadline, has no guarantees of being answered in time (spare a thought for the
+TAs!).
+
+Prerequisites:
+
+ • For all students: CS 240/241/340/341 (Systems Programming) or ECE 391, or equivalent course
+   on Operating Systems or Networking (approval of instructor required if you’ve taken only a Net-
+   working course but not an OS course).
+
+ • For 4 cr On-campus and 4cr MCS-Chicago/City Scholars : Prior experience with a major program-
+   ming language (for the MPs), and basic sockets programming experience. In the past, students
+   have used Java, C++, Go, C, Rust, etc. (one of these suffices - you will have a choice).
+
+                                                     1
+
+                                                  CS425 Distributed Systems Fall 2026, A. Ganesan & R. Kesavan
+
+ • For MCS Coursera /DS4 students (Online, via Coursera 4cr): Prior experience with C++ (for the
+   online Coursera MPs).
+
+ • This course assumes knowledge of fundamentals in both OS and networking.              While
+   CS240/241/340/341 are co-requisites, we assume students complete knowledge of OS (and socket
+   programming for on-campus MPs).
+
+ • This course does not deal with details of computer networking and routing and wireless/mobile
+   computing – other courses in the department (e.g., CS 438/439) cover those.
+
+Credits: 3 hours or 4 hours.
+
+ • All On-campus 4 credit students and MCS-Chicago/City Scholars 4 credit students MUST do all
+   the MPs. If are a 3 credit student and you want to do MPs, register/upgrade to 4 credits.
+
+ • We cannot grade MPs for students not in the 4 cr on-campus section. If you want your MPs graded,
+   register/upgrade to 4 credits.
+
+ • We cannot give VMs to students not in the 4 cr on-campus section. If you want VMs, regis-
+   ter/upgrade to 4 credits.
+
+ • All MCS Coursera/DS4 (4cr) students do the online Coursera MPs.
+
+Main Textbook (Recommended, not Required): Coulouris, G., Dollimore, J., Kindberg, T., and Blair,
+G., Distributed Systems: Concepts and Design, Addison-Wesley, Fifth Edition, 2011, ISBN: 0132143011.
+[Recommended purchase – copies available at Illini Book Store. On reserve at Grainger Library]. We
+will refer to chapter, section, and problem numbers ONLY in the Fifth Edition. If you use an older
+edition, correct interpretation/translation of these numbers is solely the students’ responsibility (no
+excuses).
+
+Supplementary materials are listed at the end of this handout.
+
+Course Staff Contact Information and Office Hours: To get the fastest responses, please first post to:
+
+  1. Discussion Forum: All students (3 cr, 4 cr, MCS Coursera/DS3/DS4, MCS-Chicago/City Schol-
+     ars) MUST use Piazza. This is your default go-to place to ask ALL questions. See website for
+     link.
+
+  2. If your question is private or not answerable on the discussion forum, then email the staff mailing
+     list. See website for address. Please DO NOT email individual TAs, as the mailing list will get
+     you the fastest response.
+
+  3. Use office hours of the TA or professor. See website for dates and times.
+
+  4. For private matters, you can contact the professor.
+
+  For more details, please see course website.
+
+                                                   2
+
+                                                    CS425 Distributed Systems Fall 2026, A. Ganesan & R. Kesavan
+
+§ Course Participation
+
+Sections and Assignments:
+
+  There are 3 categories of students (i.e., sections) in this class. They are listed, and their assignments
+summarized in Table 1 below. More description is below.
+
+                                      3 cr (On-campus      4 cr (On-campus        MCS Online DS3/DS4
+                                      & MCS-Chicago)       & MCS-Chicago)           (Coursera only)
+      HWs 1-4 On-campus                      Yes                  Yes             Yes (On Gradescope)
+         MP On-campus                        No                   Yes                     No
+    Coursera Quizzes 5 + 5=10
+  Coursera Finals: Part 1 + Part 2           No                    No                Yes (On Coursera)
+  Coursera Programming Projects
+          Part 1 + Part 2                    No                    No             Yes for DS4, No for DS3
+   On-campus Midterm Exam +
+     On-campus Final Exam                    Yes                   Yes             Yes (On Gradescope)
+
+                         Table 1: Assignments for Sections in CS425/ECE428.
+
+  The three categories (sections) of students and their assignments are:
+
+  1. On-campus Students 3 credits: Homeworks, Midterm Exam, Final Exam. Henceforth referred to
+     as “3 credit students”.
+
+  2. On-campus Students 4 cr: Homeworks, Midterm Exam, Final Exam, On-campus Programming
+     Assignments (MPs). Henceforth referred to as “4 credit students”. These include all 4 credit
+     on-campus students and 4cr MCS-Chicago/City Scholars students, but does not include MCS
+     Coursera/DS3/DS4 students on Coursera.
+
+  3. All MCS Coursera/DS3/DS4 Students: All weekly Quizzes (5+5=10) on Coursera, and 2 final
+     quizzes on Coursera. All homework sets (given to On-campus students), Midterm Exam and
+     Final Exams. 2 Programming Assignments on Coursera for DS4 only; MCS Coursera/DS3/DS4
+     students do not do the MPs given for on-campus students. Each of the 5+5 Coursera quizzes will
+     have a Pass/Fail grade (cutoff is 70% of the quiz points for that quiz). Overall, the work for the
+     MCS Coursera/DS3/DS4 students is equivalent to (though not equal to) the 3/4 credit on-campus
+     version (respectively) of the course.
+
+  4. MCS Coursera DS3 vs. DS4: DS4 students do the 2 Programming Assignments (MPs) on Cours-
+     era, while DS3 students do not need to do those. The rest of the Coursera course and assignments
+     are common for all MCS Coursera DS3/DS4 students.
+
+Assignments - Detail:
+
+                                                    3
+
+                                                 CS425 Distributed Systems Fall 2026, A. Ganesan & R. Kesavan
+
+1. (For All Students) All HW and MP Assignments (except Coursera MPs) will be clearly marked
+   Fall 2026 and have deadlines on them. The deadline time+date printed on the assignment is final
+   – no extensions or late submissions (for whatever reason)! If you see an older version (except
+   Coursera MPs) please let staff know ASAP!
+
+2. (For MCS Coursera/DS3/DS4 Students) Course staff is not responsible if your Coursera account
+   shows you older HWs – please ensure that you are doing the HW version that says “Fall 2026”
+   on the first page (and not some older semester/year). Submitting a solution to an older HW
+   will unfortunately result in a zero grade, and will not be graded.
+
+3. (For MCS Coursera/DS4 Students) The only exception is that Coursera MPs may say “Revised
+   Fall 2020” - that is just the date the MPs were last revised; they are current.
+
+4. (For All Students) There will be four homework sets (HWs) , with about 1-2 weeks turnaround
+   time per homework. Your homework solution submissions are required to be typed (you may
+   use any of your favorite word processors). We will not accept handwritten solutions. Figures and
+   equations (if any) may be drawn by hand. With some exceptions, Homeworks are due Sunday
+   midnight US Central time zone, except for HW4. For Fall 2026, we will use only the highest
+   3 of your 4 individual HW scores. Online students must be mindful of what this time trans-
+   lates to in your local timezone. More details will be available with each HW on how to submit
+   your HW. There are no exceptions to the submission deadline (Medical exceptions will need a
+   doctor’s certificate at least 24 hours before the deadline, and are not approved until an instructor
+   replies positively. Interviews, travel, and other deadlines are not acceptable reasons for seeking
+   extension.).
+
+5. (For all 4 credit Students and MCS-Chicago/City Scholars students, but not MCS Coursera/DS4
+   Students) Four programming assignments (aka MPs) will be given during the semester, each re-
+   quiring 2-4 weeks of effort. All MPs are evaluated via a report, and a live demo (done in-person).
+   Chicago students do the demo on zoom. All groups will receive access to a cluster (on the CS VM
+   Farm cluster). All groups can choose their programming language of choice (past groups have
+   used C++, Java, Go, C, Python, Rust, etc.). There are no exceptions to the submission deadline
+   (Medical exceptions will need a doctor’s certificate at least 24 hours before the deadline, and are
+   not approved until an instructor replies positively. Interviews, travel, and other deadlines are not
+   acceptable reasons for seeking extension.).
+
+6. (For Only MCS Coursera/DS4 Students) 2 Programming Assignments Building Distributed Sys-
+   tems via a C++ Emulator. Prior knowledge of C++ is required and essential. Please be mindful
+   of the deadline times noted in Coursera, especially as there are many deadlines! There are no
+   exceptions to the submission deadlines on Coursera, due to the automated nature of Coursera.
+
+7. (For Only MCS Coursera/DS3/DS4 Students) All weekly quizzes (5+5=10) on Coursera, 2 Final
+   quizzes on Coursera. The 5+5 quizzes will each be pass/fail (cutoff is 70% of points on that quiz).
+   Coursera final quizzes are not pass/fail. There are no exceptions to the submission deadlines on
+   Coursera, due to the automated nature of Coursera.
+
+                                                 4
+
+                                                   CS425 Distributed Systems Fall 2026, A. Ganesan & R. Kesavan
+
+  8. (For All Students) In-class Midterm Exam and Final Exam. Both exams are in-class for all on-
+     campus and MCS-Chicago/City Scholar students, and closed book/closed notes. All MCS Cours-
+     era/DS3/DS4 students will take a timed midterm and final exam online via ProctorU (instructions
+     will be shared closer to the exams). Everyone MUST these two exams. MCS-Chicago/City Schol-
+     ars students must take the exams (midterm, final) at the Chicago location. It will be at the same
+     time and date as the corresponding on-campus exam.
+
+  9. (For On campus students and MCS-Chicago/City Scholars students) We cannot offer a conflict if
+     you have double-booked your timeslot with another course (an instructor has already informed
+     you about this when you emailed them). Exceptions and makeup exams are very rare (due to the
+     size of the course, we keep it streamlined).
+
+10. DRES students must email instructors at least 2 weeks before the exam time (DRES exams are
+    offered at the same time and date, except in and by the DRES office.) DRES students MUST
+    book a slot at the DRES testing center. Please book as early as possible, and for the same date
+    and time as the on-campus exam.
+
+11. If you need an exception, email instructors at least 2 weeks before the due day/exam day—
+    requests are not approved until an instructor replies positively. (Medical exceptions will need a
+    doctor’s certificate, and are not approved until an instructor replies positively. Interviews, travel,
+    and other deadlines are not acceptable reasons for seeking a conflict.).
+
+12. Start your HWs and MPs (and for MCS Coursera/DS3/DS4 students: quizzes, programming
+    assignments, and exams) early. We recommend attempting each HW problem right after the
+    lecture that covered it. DO NOT start the entire HW or MP at the last minute – these assignments
+    involve more time than you think. If you start an assignment a day before the deadline, you may
+    already be too late. Did we say start early?
+
+Grading:
+
+  For grading purposes:
+
+  1. We curve the 3cr undergraduate and 3cr graduate students separately from each other (we realize
+     the two groups have different backgrounds!).
+
+  2. We curve the 4cr undergraduate and 4cr graduate students separately from each other (we realize
+     the two groups have different backgrounds!). Note: 4cr CS425 satisfies the department’s team
+     project/one-term capstone project requirements (which requires the programming project be at
+     least 30% of course grade)
+
+  3. MCS Coursera/DS3 students will be curved and graded separately.
+
+  4. MCS Coursera/DS4 students will be curved and graded separately.
+
+Grading (tentative splits):
+
+ • 4cr On-campus: 5 (participation) + 30 (HW) + 50 (MPs) + 25 (Midterm) + 50 (Finals) = 160.
+
+                                                   5
+
+                                                    CS425 Distributed Systems Fall 2026, A. Ganesan & R. Kesavan
+
+ • 4cr Chicago: 30 (HW) + 50 (MPs) + 25 (Midterm) + 50 (Finals) = 155.
+
+ • 3cr On-campus: 5 (participation) + 30 (HW) + 25 (Midterm) + 50 (Finals) = 110.
+
+ • 3cr Chicago: 30 (HW) + 25 (Midterm) + 50 (Finals) = 105.
+
+ • 4cr Coursera: 31.75 (weekly quizzes) + 15 (final quizzes) + 45 (MPs) + 30 (HWs) + 25 (midterm) +
+   50 (finals) = 196.75.
+
+ • 3cr Coursera: 31.75 (weekly quizzes) + 15 (final quizzes) + 30 (HWs) + 25 (midterm) + 50 (finals) =
+   151.75.
+
+    All grades will be available only on Canvas. Coursera students: Coursera-only assignment
+(quizzes, final quizzes, coursera programming assignments for DS4) grades are NOT available on
+Canvas, and only available on Coursera.
+
+   Grading for undergraduate and graduate students will be separated. Grades will be assigned on
+a curve (relative grading). The fraction of students receiving any grade (e.g., A’s) is not fixed a priori,
+and there are no hard cutoffs (because every semester’s batch and questions are different!), and so
+the curve depends on the overall class performance. In past years, the median grade in each grading
+group in this class has been a B+/B.
+
+On-campus 3 credit vs 4 credit Students: The on-campus MPs are only for 4 credit on-campus stu-
+dents. We will be grading and evaluating only MPs submitted by on-campus 4 credit students (in-
+cludes MCS-Chicago/City Scholars 4cr students).
+
+   We expect all partners on an MP group to contribute equivalent amounts of effort to the MP. There
+are no exceptions to this rule—the best way to learn is to actually do it! Any violations will result
+in a zero for the student deemed to have contributed less than their fair share. (We understand that
+contributions can never be exactly equal from all partners. So we expect partners to do their utmost
+best and share the load fairly and do equivalent amount of efforts as the other partner.)
+
+   If you are a 4 cr student and already found a partner, and subsequently want to drop to 3cr or to
+drop the course, we expect that you will (1) first help your MP partner find another partner (this is
+required), (2) drop only right after an MP deadline (and before the next MP is released) so that your
+(4cr) partner can find a new MP partner. Please be nice to your partner! Before you drop, we expect
+you will contribute your equivalent share to the MP effort. Dropping requires both partners to send
+email to the instructor with all partners (dropping/old and new) cc-ed, and approval from instructor.
+
+MP Groups:
+
+ • All MCS Coursera/DS4 students must do their (Coursera) programming assignments individually
+   (see “Academic Integrity Policy” on the next page of this document).
+
+ • On-campus MPs must be done only in groups of 2. Groups of size 1, 3 (or more), or groups of size
+   zero or negative, are not accepted. Here’s your chance to practice pair programming! Please read
+   the “Academic Integrity Policy” on the next page of this document.
+
+HW Groups: There are no HW groups. All HWs must be done individually. You cannot discuss
+
+                                                    6
+
+                                                  CS425 Distributed Systems Fall 2026, A. Ganesan & R. Kesavan
+
+solutions or ideas with anyone else other than course staff (but you can discuss lecture concepts and
+the HW question itself). Please read the “Academic Integrity Policy” on the next page of this document.
+
+Lecture Participation:
+
+ • For on-campus students: Attending the lectures is important. Some lectures will have an in-class
+   pop quiz. Your score in the pop quiz is ignored, however your participation in the quiz will be
+   recorded, and that participation will add up to 5 points in your final grade. If you miss more than
+   one quizzes, you will lose some of those points.
+
+ • If you can’t attend an occasional lecture, you can see the lecture video (posted a few days after the
+   lecture; links on course website).
+
+ • For MCS Coursera/DS3/DS4 students: viewing all Coursera lectures is a must. Do not attempt
+   quizzes, homeworks, or exams without viewing and studying lecture material carefully.
+
+§ Course Policies
+
+Best 3 of 4 Homeworks Policy Each HW is worth 10 points, and there are 4 HWs. For Fall 2026, we will
+use only the highest 3 of your 4 individual HW scores, which adds up to at most 30 points. Because
+of this policy, you may be tempted to completely neglect one of the HWs but then you risk losing out
+on valuable learning required for the midterm and final exams. This policy is applicable to all students
+in class (on-campus, MCS Coursera, and everyone else).
+
+Academic Integrity Policy We adhere by the CS academic integrity policies outlined at the webpage
+https://siebelschool.illinois.edu/academics/honor-code. It is the course policy that all of the
+work you submit for grading, or in support of graded material, as an individual or project group,
+shall be your own product, from inception to completion. The only resources you can avail of in your
+HWs and MPs are the provided course materials (slides, textbooks, etc.), and communication with
+instructor/TA via newsgroup and email. You cannot use any AI tools like LLMs, ChatGPT, Gemini,
+etc. (trust us, they will give you wrong solutions). Only when a HW question explicitly mentions that
+you can use Web resources can you do so. Please do not reveal solutions on any discussion forums,
+internal to the university or external. Exams are closed-book, closed-notes, unless otherwise specified.
+
+   All homeworks are individual. Other than with course staff, you should discuss, or share, or work
+together on, solutions with no one else (whether in the class or outside). You can however discuss
+with other students lecture concepts or the HW question itself (but not the solution or any ideas for
+the solution).
+
+   For MP groups, other than with the course staff, you can discuss, share the solution (or ideas or
+code or whatever), or work together on, the MP, only with your group partners. You cannot discuss,
+work on, or share, the MP solution with anyone else. You can however discuss with other students
+lecture concepts or the MP spec itself (but not the solution or any ideas for the solution).
+
+   Please use the Piazza discussion forum for all questions/discussion on HWs and MPs. All students,
+on-campus and MCS Coursera/DS3/DS4, must use Piazza for all course-related questions. MCS
+Coursera/DS3/DS4 students – if you use Coursera forums to post questions, your question may be
+answered very late (or never). So please use Piazza. (MCS Coursera/DS3/DS4 students must use
+Salesforce for non-technical issues, e.g., issues related to features on the Coursera platform).
+
+                                                   7
+
+                                                    CS425 Distributed Systems Fall 2026, A. Ganesan & R. Kesavan
+
+   On the Piazza forum, if you post a solution (code or write-up) to the forum, that is a violation
+of academic integrity, and the rules below will apply, i.e., you will lose all points for that particular
+assignment and it is treated as a first violation. Email the staff only when you cannot use the discussion
+forum, e.g., if you have an urgent question, or if you have a personal matter to ask/discuss.
+
+Regrading Policy: This applies to both on-campus and Coursera students:
+
+ • All regrade requests must be submitted back within 1 week of the graded HW/MP being returned.
+   Regrade requests must be submitting in the same system as the original HW was submitted in
+
+    (Gradescope or Coursera). Be sure to clearly indicate the reason for the regrade request.
+
+ • Regrade requests submitted after one week of the HW/MP being returned will not be regraded.
+
+ • All regrading decisions by the TA will be final (i.e., no regrade requests on regrades). Please do
+   not engage in back-and-forth discussion with the TA(s).
+
+Result of Cheating Violations of this academic integrity policy will be treated seriously. A first vi-
+olation of these academic integrity guidelines will result in a zero grade on that HW/MP. A second
+violation will result in an F grade for the entire course. (And yes, in the past, we have caught almost
+all cheating students. And these cheating students have suffered both above types of consequences.)
+
+   Just don’t cheat – your time is not worth it. If you cheat in this course and get away with it miracu-
+lously, later in life, when you are working in a job and need to use these concepts, you will be at a loss
+(Karma comes around).
+
+Policy on Late Submission: Unless otherwise specified, all MP assignments, or components thereof,
+that are to be electronically submitted are usually due at 11:59 PM US Central Time on the due date.
+Similarly, with some exceptions, homework sets, or components thereof, that must be submitted by
+other means are usually due at the beginning of class on the due date (US Central time zone), so
+online students please be mindful of what this time translates to in your local timezone (please watch
+for exceptions to this rule).
+
+   All MP and HW submission deadlines are hard and will not be extended. No late homework
+sets or MPs will be accepted except under extremely rare non-academic circumstances (which usually
+require approval from the Dean’s office). So please ensure you have submitted everything necessary
+by the deadline time.
+
+Conflict Exams Policy: If you need a makeup/conflict exam, please contact instructors at least 2 weeks
+before the posted exam date (midterm/final). Conflict exams are not given for routine reasons (in-
+cludes interviews, trips, etc.). Conflict exams are not given for course conflicts–this is clarified before
+semester starts, when the student requests permission from instructor to double sign-up for another
+course. Conflict request is approved only upon a positive acknowledgement from instructors. We
+will of course accommodate genuine emergencies, including medical emergencies. All medical rea-
+sons must come with a doctor’s letter that is for the patient in question, and the letter is not generic.
+Request is not approved until an instructor responds positively. Instructors’ decision is final on each
+case.
+
+   Midterm date is posted on the course schedule (“Lectures” link”)–plan accordingly. Final exam date
+is decided by campus, so please wait until they announce it–do not book travel, etc., before you know
+
+                                                    8
+
+                                                  CS425 Distributed Systems Fall 2026, A. Ganesan & R. Kesavan
+
+it (we don’t offer conflicts for travel).
+
+DRES On-Campus Student Policy: DRES Students – Please note:
+
+  1. Our lecture videos are on DRES’ list for being closed captioned.
+
+  2. We also release our slides before the lecture (see Course schedule page).
+
+  3. Please plan to take your midterm exam and final exam at the DRES center, as they can accommo-
+     date the quiet environment and the extra time you may need. Please plan to take your (respective)
+     exam on the same day as the on-campus exam (for midterm and for final), anytime is ok. We will
+     send DRES the exam directly. Please schedule the DRES exam request EARLY (at least 3 weeks
+     before exam day), as time slots get filled quickly for exam days!
+
+§ Supplementary Textbooks
+
+We will use many readings off the Web - these will be available under the Lectures link on the course
+website. The following textbooks may be used for supplementary course material. You are not re-
+quired to own these books. They are on reserve at the Grainger Library (if available). You may be able
+to use a prior edition of the textbook if you own one.
+
+  1. Fourth edition of the Coulouris-Dollimore-Kindberg textbook.
+
+  2. “Distributed Systems: An Algorithmic Approach,” Sukumar Ghosh, CRC Press, 2006, ISBN:
+     1584885645. (Available online free at the Illinois Library Catalog).
+
+  3. “Distributed systems: principles and paradigms,” A. Tanenbaum and M. Steen, Prentice Hall,
+     Second Edition, 2005, ISBN: 0132392275.
+
+  4. “Distributed algorithms: concepts and design,” N. Lynch, Morgan-Kaufmann, 1ed, 1996, ISBN:
+     1558603484.
+
+§ Copyright All material used in this version of the course is copyrighted by Indranil Gupta and
+the University of Illinois. This version of the course has evolved based on past lectures given by the
+following professors during the 1990s and 2000s: Jennifer Hou, Mehdi Harandi, Nitin Vaidya, Klara
+Nahrstedt, and Sayan Mitra.
+
+                                                   9

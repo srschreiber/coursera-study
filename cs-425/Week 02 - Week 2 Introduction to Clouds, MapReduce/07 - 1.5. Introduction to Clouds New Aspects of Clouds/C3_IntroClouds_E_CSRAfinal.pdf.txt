@@ -1,0 +1,70 @@
+II. On-demand access: *aaS Classification
+
+On-demand: renting a cab vs. (previously) renting a car, or
+   buying one. Ex.:
+     •   AWS Elastic Compute Cloud (EC2): a few cents to a few
+         $ per CPU hour
+     •   AWS Simple Storage Service (S3): a few cents to a few $
+         per GB-month
+•   HaaS: Hardware as a Service
+     •   You get access to barebones hardware machines, do
+         whatever you want with them, ex: your own cluster
+     •   Not always a good idea because of security risks
+•   IaaS: Infrastructure as a Service
+     •   You get access to flexible computing and storage
+         infrastructure. Virtualization is one way of achieving
+         this (what’s another way, e.g., using Linux). Often said
+         to subsume HaaS.
+     •   Ex: Amazon Web Services (AWS: EC2 and S3),
+         Eucalyptus, Rightscale, Microsoft Azure
+
+II. On-demand access: *aaS Classification
+
+•   PaaS: Platform as a Service
+     • You get access to flexible computing and
+        storage infrastructure, coupled with a
+        software platform (often tightly)
+     • Ex: Google’s AppEngine (Python, Java,
+        Go)
+•   SaaS: Software as a Service
+     • You get access to software services, when
+        you need them. Often said to subsume SOA
+        (Service Oriented Architectures).
+     • Ex: Google docs, MS Office on demand
+
+III. Data-intensive Computing
+
+• Computation-Intensive Computing
+    •   Example areas: MPI-based, high-
+        performance computing, grids
+    •   Typically run on supercomputers (e.g., NCSA
+        Blue Waters)
+• Data-Intensive
+    •   Typically store data at datacenters
+    •   Use compute nodes nearby
+    •   Compute nodes run computation services
+• In data-intensive computing, the focus
+  shifts from computation to the data:
+  CPU utilization no longer the most
+  important resource metric, instead I/O
+  is (disk and/or network)
+
+IV. New Cloud Programming Paradigms
+
+•   Easy to write and run highly parallel programs in new
+    cloud programming paradigms:
+      • Google: MapReduce and Sawzall
+      • Amazon: Elastic MapReduce service (pay-as-you-go)
+      • Google (MapReduce)
+           • Indexing: a chain of 24 MapReduce jobs
+           • ~200K jobs processing 50PB/month (in 2006)
+      • Yahoo! (Hadoop + Pig)
+           • WebMap: a chain of 100 MapReduce jobs
+           • 280 TB of data, 2500 nodes, 73 hours
+      • Facebook (Hadoop + Hive)
+           • ~300TB total, adding 2TB/day (in 2008)
+           • 3K jobs processing 55TB/day
+      • Similar numbers from other companies, e.g.,
+         Yieldex, eharmony.com, etc.
+      • NoSQL: MySQL is an industry standard, but
+         Cassandra is 2400 times faster!

@@ -1,0 +1,89 @@
+Faster reads and writes
+
+             More consistency              Strong
+Eventual                             (e.g., Sequential)
+
+  •    Cassandra offers eventual consistency
+        • If writes to a key stop, all replicas of key
+           will converge
+        • Originally from Amazon’s Dynamo and
+           LinkedIn’s Voldemort systems
+
+                Faster reads and writes
+
+                   More consistency                            Strong
+Eventual                                                 (e.g., Sequential)
+
+  •    Striving towards strong consistency
+  •    While still trying to maintain high availability
+       and partition-tolerance
+
+                     Red-Blue
+      Causal                        Probabilistic
+
+               Per-key sequential                               Strong
+Eventual                               CRDTs              (e.g., Sequential)
+
+  •    Per-key sequential: Per key, all operations have a global
+       order
+  •    CRDTs (Commutative Replicated Data Types): Data
+       structures for which commutated writes give same result
+       [INRIA, France]
+         • E.g., value == int, and only op allowed is +1
+         • Effectively, servers don’t need to worry about
+             consistency
+                     Red-Blue
+      Causal                        Probabilistic
+
+               Per-key sequential                                        Strong
+Eventual                               CRDTs                       (e.g., Sequential)
+
+  •    Red-blue consistency: Rewrite client transactions to separate
+       ops into red ops vs. blue ops [MPI-SWS Germany]
+        • Blue ops can be executed (commutated) in any order
+             across DCs
+        • Red ops need to be executed in the same order at each
+             DC
+
+                     Red-Blue
+      Causal                        Probabilistic
+
+               Per-key sequential                                      Strong
+Eventual                               CRDTs                     (e.g., Sequential)
+
+  Causal Consistency: Reads must respect partial order based on information flow [Princeton,
+  CMU]     W(K1, 33)
+ Client A
+                                         W(K2, 55)
+ Client B                                                                                         Time
+                     R(K1) returns 33
+ Client C
+
+              W(K1, 22)                 R(K1) may return
+                                                                          R(K1) must return 33
+                                            22 or 33
+                                                             R(K2) returns 55
+      Causality, not messages
+
+                             Red-Blue
+            Causal                              Probabilistic
+
+                     Per-key sequential                                                   Strong
+Eventual                                             CRDTs                          (e.g., Sequential)
+
+•   Linearizability: Each operation by a client is visible (or
+    available) instantaneously to all other clients
+     •   Instantaneously in real time
+•   Sequential Consistency [Lamport]:
+     •   "... the result of any execution is the same as if the operations
+         of all the processors were executed in some sequential order,
+         and the operations of each individual processor appear in this
+         sequence in the order specified by its program.
+     •   After the fact, find a “reasonable” ordering of the operations
+         (can re-order operations) that obeys sanity (consistency) at all
+         clients, and across clients.
+•   Transaction ACID properties, e.g., newer key-value/NoSQL
+    stores (sometimes called “NewSQL”)
+      • Hyperdex [Cornell]
+     •   Spanner [Google]
+     •   Transaction chains [Microsoft Research]

@@ -1,0 +1,231 @@
+Ordering Events in a Distributed System
+•   To order events across processes, trying to sync clocks is one approach.
+•   What if we instead assigned timestamps to events that were not absolute time?
+• As long as these timestamps obey causality, that
+  would work.
+   If an event A causally happens before another
+   event B, then timestamp(A) < timestamp(B).
+   Humans use causality all the time.
+         E.g., I enter a house only after I unlock it.
+         E.g., you receive a letter only after I send it.
+
+Logical (or Lamport) Ordering
+• Proposed by Leslie Lamport in the 1970s
+• Used in almost all distributed systems since then
+• Almost all cloud computing systems use some
+  form of logical ordering of events
+
+Logical (or Lamport) Ordering(2)
+•   Define a logical relation Happens-Before among pairs of events
+•   Happens-Before denoted as →
+•   Three rules
+     1. On the same process: a → b, if time(a) < time(b) (using the local clock)
+     2. If p1 sends m to p2: send(m) → receive(m)
+     3. (Transitivity) If a → b and b → c then a → c
+•   Creates a partial order among events
+     – Not all events related to each other via →
+
+     Example
+           A                    B               C             D     E
+P1
+                                                                         Time
+                                E                   F     G
+P2
+
+                     H                              I                         J
+P3
+While P1 and P3 each have an event labeled E,           Instruction or step
+these are different events as they occur at
+different processes                                      Message
+
+     Happens-Before
+       A       B      C             D     E
+P1
+                                               Time
+               E          F     G
+P2
+
+           H              I                         J
+P3
+  • AB                       Instruction or step
+  • BF                        Message
+  • AF
+
+  Happens-Before (2)
+       A        B   C             D     E
+P1
+                                             Time
+                E       F     G
+P2
+
+            H           I                         J
+P3•   HG
+  •   FJ                   Instruction or step
+  •   HJ                    Message
+  •   CJ
+
+In practice: Lamport timestamps
+•   Goal: Assign logical (Lamport) timestamp to each event
+•   Timestamps obey causality
+•   Rules
+     – Each process uses a local counter (clock) which is an integer
+         • Initial value of counter is zero
+     – A process increments its counter when a send or an
+       instruction happens at it. The counter is assigned to the event
+       as its timestamp.
+     – A send (message) event carries its timestamp
+     – For a receive (message) event the counter is updated by
+                     max(local clock, message timestamp) + 1
+
+     Example
+P1
+                                Time
+
+P2
+
+P3
+               Instruction or step
+                Message
+
+ Lamport Timestamps
+P1 0
+                                             Time
+
+P2 0
+
+P3 0
+                            Instruction or step
+Initial counters (clocks)
+                             Message
+
+ Lamport Timestamps
+P1 0
+       ts = 1
+                                                  Time
+
+P2 0
+               Message carries
+P3 0                ts = 1
+           ts = 1
+         Message send            Instruction or step
+                                  Message
+
+ Lamport Timestamps
+P1 0
+       1   ts = max(local, msg) + 1
+                = max(0, 1)+1                          Time
+                     =2
+P2 0
+               Message carries
+P3 0               ts = 1
+           1
+                                      Instruction or step
+                                       Message
+
+ Lamport Timestamps
+P1 0           2
+       1
+                   Message carries                    Time
+                       ts = 2
+P2 0
+                    2
+                          max(2, 2)+1
+                              =3
+P3 0
+           1
+                                     Instruction or step
+                                      Message
+
+ Lamport Timestamps
+                                        max(3, 4)+1
+                                            =5
+P1 0           2
+       1               3
+                                             Time
+
+P2 0
+                   2    3      4
+
+P3 0
+           1
+                            Instruction or step
+                             Message
+
+ Lamport Timestamps
+P1 0           2                       5      6
+       1               3
+                                                  Time
+
+P2 0
+                   2    3         4
+
+P3 0
+           1               2                         7
+                               Instruction or step
+                                Message
+
+    Obeying Causality
+          A              B       C                 D       E
+P1 0                     2                             5       6
+          1                          3
+                                                                   Time
+                         E           F         G
+P2 0
+                             2       3         4
+
+                     H               I                                J
+P3 0
+                     1                   2                           7
+•   A  B :: 1 < 2                           Instruction or step
+•   B  F :: 2 < 3
+•   A  F :: 1 < 3                            Message
+
+    Obeying Causality (2)
+            A            B       C                 D       E
+P1 0                     2                             5       6
+            1                        3
+                                                                   Time
+                         E           F         G
+P2 0
+                             2       3         4
+
+                     H               I                                J
+P3 0
+                     1                   2                           7
+•   H  G :: 1 < 4                           Instruction or step
+•   F  J :: 3 < 7
+•   H  J :: 1 < 7                            Message
+•   C  J :: 3 < 7
+
+ Not always implying Causality
+          A                    B          C                 D       E
+P1 0                           2                                5       6
+          1                                   3
+                                                                            Time
+                               E              F         G
+P2 0
+                                      2       3         4
+
+                    H                         I                                J
+P3 0
+                   1                              2                           7
+ •   ? C  F ? :: 3 = 3                               Instruction or step
+ •   ? H  C ? :: 1 < 3
+ •   (C, F) and (H, C) are pairs of                    Message
+     concurrent events
+
+Concurrent Events
+•   A pair of concurrent events doesn’t have a causal
+    path from one event to another (either way, in the
+    pair)
+•   Lamport timestamps not guaranteed to be ordered or
+    unequal for concurrent events
+•   Ok, since concurrent events are not causality related!
+•   Remember
+     E1  E2 ⇒ timestamp(E1) < timestamp (E2), BUT
+     timestamp(E1) < timestamp (E2) ⇒
+                    {E1  E2} OR {E1 and E2 concurrent}
+
+Next
+• Can we have causal or logical timestamps from which we can tell if
+  two events are concurrent or causally related?

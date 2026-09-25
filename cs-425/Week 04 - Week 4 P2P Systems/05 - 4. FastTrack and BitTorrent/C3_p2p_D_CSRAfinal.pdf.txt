@@ -1,0 +1,71 @@
+FastTrack
+
+•   Hybrid between Gnutella and Napster
+•   Takes advantage of “healthier” participants in
+    the system
+•   Underlying technology in Kazaa, KazaaLite,
+    Grokster
+•   Proprietary protocol, but some details available
+•   Like Gnutella, but with some peers designated as
+    supernodes
+
+  A FastTrack-like System
+
+Peers
+                                 P
+        P
+                 P
+
+                                     S
+
+            P                S
+                                     P
+                Supernodes
+
+FastTrack (contd.)
+
+•   A supernode stores a directory listing a subset of nearby
+    (<filename,peer pointer>), similar to Napster servers
+•   Supernode membership changes over time
+•   Any peer can become (and stay) a supernode, provided it has
+    earned enough reputation
+     •   Kazaalite: participation level (=reputation) of a user between 0
+         and 1000, initially 10, then affected by length of periods of
+         connectivity and total number of uploads
+     •   More sophisticated Reputation schemes invented, especially
+         based on economics (See P2PEcon workshop)
+•   A peer searches by contacting a nearby supernode
+
+   BitTorrent
+
+Website links to              Tracker, per file   (receives
+.torrent                                          heartbeats, joins
+                                                  and leaves
+                                                  from peers)
+ 1. Get tracker
+                    2. Get peers
+                                                  Peer (seed,
+                                                         has full file)
+    Peer                  3. Get file blocks
+
+   (new, leecher)             Peer        Peer
+                        (leecher,
+                        has some blocks) (seed)
+
+BitTorrent (2)
+
+•   File split into blocks (32 KB – 256 KB)
+•   Download Local Rarest First block policy: prefer early download of
+    blocks that are least replicated among neighbors
+     •    Exception: New node allowed to pick one random neighbor: helps in
+          bootstrapping
+•   Tit for tat bandwidth usage: Provide blocks to neighbors that
+    provided it the best download rates
+     •    Incentive for nodes to provide good download rates
+     •    Seeds do the same too
+•   Choking: Limit number of neighbors to which concurrent uploads
+    <= a number (5), i.e., the “best” neighbors
+     •    Everyone else choked
+     •    Periodically re-evaluate this set (e.g., every 10 s)
+     •    Optimistic unchoke: periodically (e.g., ~30 s), unchoke a random neigbhor –
+          helps keep unchoked set fresh

@@ -1861,7 +1861,3 @@ I get to see both, th-the all the engineering
 and development aspects of the technology, as well the services aspect. When you deploy
 a lot of what we develop on one of the world's largest private cloud infrastructures. So, um, no issues,
 no complaints. [laughs]
-
-## Quizzes
-
-_No transcript available._

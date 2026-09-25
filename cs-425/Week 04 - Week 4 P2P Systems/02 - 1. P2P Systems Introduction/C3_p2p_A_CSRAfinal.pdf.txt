@@ -1,0 +1,38 @@
+Why Study Peer-to-Peer Systems?
+
+•   First distributed systems that seriously focused
+    on scalability with respect to number of nodes
+
+•   P2P techniques abound in cloud computing
+    systems
+
+     • Key-value stores (e.g., Cassandra, Riak,
+       Voldemort) use Chord p2p hashing
+
+Why Study Peer to Peer Systems?
+
+A Brief History
+
+•   [6/99] Shawn Fanning (freshman Northeastern University) releases Napster online music
+    service
+•   [12/99] RIAA sues Napster, asking $100K per download
+•   [3/00] 25% University of Wisconsin traffic Napster, many universities ban it
+•   [00] 60M users
+•   [2/01] US Federal Appeals Court: users violating copyright laws, Napster is abetting this
+•   [9/01] Napster decides to run paid service, pay % to songwriters and music companies
+•   [Today] Napster protocol is open, people free to develop OpenNap clients and servers
+    http://opennap.sourceforge.net
+     •    Gnutella: http://www.limewire.com (deprecated)
+     •    Peer-to-peer working groups: http://p2p.internet2.edu
+
+What We Will Study
+
+• Widely-deployed P2P Systems
+   1.   Napster
+   2.   Gnutella
+   3.   Fasttrack (Kazaa, Kazaalite, Grokster)
+   4.   BitTorrent
+•   P2P Systems with Provable Properties
+   1.   Chord
+   2.   Pastry
+   3.   Kelips

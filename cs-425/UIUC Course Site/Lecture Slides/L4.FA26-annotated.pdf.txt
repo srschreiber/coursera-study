@@ -1,0 +1,310 @@
+CS 425 / ECE 428
+  Distributed Systems
+        Fall 2025
+       Indranil Gupta (Indy)
+w/ Aishwarya Ganesan, Ram Kesavan
+        Lecture 5: Gossiping   All slides © IG
+
+Today’s Agenda
+
+•   Epidemics, or how to use them to your
+    advantage (to do good things)
+
+Multicast
+
+            4
+
+Fault-tolerance and Scalability
+
+                                  Needs:
+                                  1. Reliability (Atomicity)
+                                      • 100% receipt
+                                  2. Speed
+
+                                                         5
+
+Centralized
+
+              6
+
+Tree-Based
+
+             7
+
+Tree-based Multicast Protocols
+
+•   Build a spanning tree among the processes of the multicast group
+•   Use spanning tree to disseminate multicasts
+•   Use either acknowledgments (ACKs) or negative acknowledgements (NAKs)
+    to repair multicasts not received
+•   SRM (Scalable Reliable Multicast)
+     • Uses NAKs
+     • But adds random delays, and uses exponential backoff to avoid NAK
+         storms
+     • (Do you know why SRM is called a “talented” protocol?)
+•   RMTP (Reliable Multicast Transport Protocol)
+     • Uses ACKs
+     • But ACKs only sent to designated receivers, which then re-transmit
+         missing multicasts
+•   These protocols still cause an O(N) ACK/NAK overhead [Birman99]
+                                                                            8
+
+A Third Approach
+
+                   9
+
+A Third Approach
+
+                   10
+
+A Third Approach
+
+                   11
+
+A Third Approach
+
+                   12
+
+“Epidemic” Multicast (or “Gossip”)
+
+                                     13
+
+Push vs. Pull
+
+•   So that was “Push” gossip
+     • Once you have a multicast message, you start
+         gossiping about it
+     • Multiple messages? Gossip a random subset
+         of them, or recently-received ones, or higher
+         priority ones
+•   There’s also “Pull” gossip
+     • Periodically poll a few randomly selected
+         processes for new multicast messages that you
+         haven’t received
+     • Get those messages
+•   Hybrid variant: Push-Pull
+     • As the name suggests
+                                                         14
+
+Properties
+
+Claim that the simple Push protocol
+
+•   Is lightweight in large groups
+•   Spreads a multicast quickly
+•   Is highly fault-tolerant
+
+                                      16
+
+  Analysis
+
+From old mathematical branch of Epidemiology [Bailey 75]
+• Population of (n+1) individuals mixing homogeneously
+• Contact rate between any individual pair is 
+• At any time, each individual is either uninfected
+  (numbering x) or infected (numbering y)
+• Then, x0  n, y0  1
+    and at all times   x  y  n 1
+• Infected–uninfected contact turns latter infected, and it
+  stays infected
+                                                              17
+
+  Analysis (contd.)
+
+• Continuous time process
+• Then
+              dx
+                    xy        (why?)
+              dt
+ with solution:
+                      n(n  1)               (n  1)
+                  x      ( n 1) t
+                                     ,y
+                     ne                 1  ne   ( n 1)t
+
+                                 (can you derive it?)          18
+
+Epidemic Multicast
+
+                     19
+
+Epidemic Multicast Analysis
+
+                b
+                            (why?)
+                n
+Substituting, at time t=clog(n), the number of infected is
+
+                                        1
+              y  (n  1)              cb  2
+                                    n
+                                        (correct? can you derive it?)
+                                                                        20
+
+Analysis (contd.)
+
+•   Set c,b to be small numbers independent of n
+•   Within clog(n) rounds, [low latency]
+
+                      1
+     • all but                 number of nodes receive the multicast
+                      cb  2
+                  n
+                               [reliability]
+
+     • each node has transmitted no more than cblog(n)gossip messages
+       [lightweight]
+
+                                                                        21
+
+Why is log(N) low?
+
+•   log(N) is not constant in theory
+•   But pragmatically, it is a very slowly growing
+    number
+•   Base 2
+     • log(1000) ~ 10
+     • log(1M) ~ 20
+     • log (1B) ~ 30
+     • log(all IPv4 addresses) = 32
+     • log(all IPv6 addresses) = 128
+
+                                                     22
+
+Fault-tolerance
+
+•   Packet loss
+     • 50% packet loss: analyze with b replaced
+        with b/2
+     • To achieve same reliability as 0% packet
+        loss, takes twice as many rounds
+•   Node failure
+     • 50% of nodes fail: analyze with n replaced
+        with n/2 and b replaced with b/2
+     • Same as above
+
+                                                    23
+
+Fault-tolerance
+
+•   With failures, is it possible that the epidemic
+    might die out quickly?
+•   Possible, but improbable:
+     •  Once a few nodes are infected, with high
+        probability, the epidemic will not die out
+     • So the analysis we saw in the previous slides is
+        actually behavior with high probability
+     [Galey and Dani 98]
+•   Think: why do rumors spread so fast? why do
+    infectious diseases cascade quickly into
+    epidemics? why does a virus or worm spread
+    rapidly?
+
+                                                          24
+
+    Pull Gossip: Analysis
+
+•    In all forms of gossip, it takes O(log(N)) rounds
+     before about N/2 processes get the gossip
+       • Why? Because that’s the fastest you can
+          spread a message – a spanning tree with
+          fanout (degree) of constant degree has
+          O(log(N)) total nodes (height of tree)
+•    Thereafter, pull gossip is faster than push gossip
+•    After the ith, round let p i be the fraction of non-
+     infected processes. Let each round have k pulls.
+     Then
+
+                  p  p 
+                                 k 1
+
+                    i 1     i
+•    This is super-exponential
+•    Second half of pull gossip finishes in time
+     O(log(log(N))
+                                                            25
+
+Topology-Aware Gossip
+•Network topology is
+hierarchical                                  N/2 nodes in a subnet
+•Random gossip target
+selection => core routers                                  Router
+face O(N) load (Why?)
+
+•Fix: In subnet i, which
+contains ni nodes, pick
+gossip target in your subnet
+with probability (1-1/ni)
+•Router load=O(1)
+•Dissemination                 N/2 nodes in a subnet
+time=O(log(N))                                                        26
+
+Answer – Push Analysis (contd.)
+
+                b
+Using:       
+                n
+  Substituting, at time t=clog(n)
+                    n 1                n 1
+     y                            
+                b
+                ( n 1) c log(n )          1
+        1  ne  n                    1  cb 1
+                                          n        1
+                                    (n  1)(1  cb 1 )
+                                                 n
+                                                 1
+                                    ( n  1)  cb  2
+                                               n           27
+
+SO,...
+
+•   Is this all theory and a bunch of equations?
+•   Or are there implementations yet?
+
+                                                   28
+
+Some implementations
+
+•   Clearinghouse and Bayou projects: email and
+    database transactions [PODC ‘87]
+•   refDBMS system [Usenix ‘94]
+•   Bimodal Multicast [ACM TOCS ‘99]
+•   Sensor networks [Li Li et al, Infocom ‘02, and
+    PBBF, ICDCS ‘05]
+•   AWS EC2 and S3 Cloud (rumored). [‘00s]
+•   Cassandra key-value store (and others) use
+    gossip for maintaining membership lists
+•   Usenet NNTP (Network News Transport
+    Protocol) [‘79]
+                                                     29
+
+NNTP Inter-server Protocol
+
+1. Each client uploads and downloads news posts from a news server
+
+2.
+                    CHECK <Message IDs>
+
+     Upstream                   238 {Give me!}
+                                                 Downstream
+      Server                                       Server
+                  TAKETHIS <Message>
+
+                                  239 OK
+
+     Server retains news posts for a while,
+               transmits them lazily, deletes them after a while.
+                                                                     30
+
+Summary
+
+•   Multicast is an important problem
+•   Tree-based multicast protocols
+•   When concerned about scale and fault-
+    tolerance, gossip is an attractive solution
+•   Also known as epidemics
+•   Fast, reliable, fault-tolerant, scalable, topology-
+    aware
+
+                                                          31

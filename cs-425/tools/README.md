@@ -1,20 +1,23 @@
 # tools
 
-Scripts that built this folder. Python 3 standard library only.
+Scripts that built this folder. Python 3 standard library only; `extract_slides.py` needs poppler's `pdftotext` (`brew install poppler`).
 
-All network scripts need your Coursera session cookie in `COURSERA_CAUTH` (DevTools > Application > Cookies > coursera.org > `CAUTH`). The cookie is sent only to coursera.org and is never written to disk. It expires after a while; grab a fresh one if you get HTTP 403.
+Network scripts need your Coursera session cookie in `COURSERA_CAUTH` (Chrome DevTools > Application > Cookies > coursera.org > `CAUTH`). The cookie is sent only to coursera.org and never written to disk. It expires; grab a fresh one if you get HTTP 403. Locked (timed-release) items are skipped and listed in each week's `index.md`; rerun after Coursera unlocks them.
+
+Full refresh, in order:
 
 ```
-# lecture slides + transcripts (resumable; only downloads what's missing)
-COURSERA_CAUTH='...' python3 fetch_course.py cs-425 --out ..
-
-# quizzes/assignments with your submitted answers and Coursera's feedback
-COURSERA_CAUTH='...' python3 fetch_quizzes.py cs-425 --out ..
-
-# rebuild per-week transcripts.md and the course README (local only)
-python3 build_study_pack.py ../cs-425
+cd cs-425/tools
+export COURSERA_CAUTH='...'
+python3 fetch_course.py cs-425      # lecture slides + transcripts (resumable)
+python3 fetch_readings.py cs-425    # reading pages as markdown, plus attachments
+python3 fetch_quizzes.py cs-425     # quizzes/assignments with your answers and feedback
+python3 extract_slides.py           # PDF -> .pdf.txt next to every slide deck
+python3 build_study_pack.py         # per-week transcripts.md + study_pack.md, course README
 ```
 
-`fetch_quizzes.py` uses the same GraphQL query (`AssignmentFeedback`) that Coursera's quiz results page issues; the query text lives in `graphql_docs.json`. It never starts or submits an attempt, so it only returns questions for quizzes you've already submitted.
+Notes:
 
-Locked items (timed-release content) are skipped and listed in each week's `index.md`; rerun after Coursera unlocks them.
+- `fetch_quizzes.py` replays the read-only GraphQL query (`AssignmentFeedback`, text in `graphql_docs.json`) that Coursera's quiz results page issues. It never starts or submits an attempt, so quizzes you haven't submitted come back empty.
+- `fetch_readings.py` converts Coursera CML markup to markdown and downloads any attached files it references.
+- `UIUC Course Site/` was pulled by hand from the public course website (courses.grainger.illinois.edu/cs425/fa2026): FA26 lecture PDFs, HW/MP specs, and the lecture schedule.
