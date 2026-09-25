@@ -1,0 +1,157 @@
+[MUSIC] So in this lecture we're going to look at
+how to combine a membership protocol or failure introduction
+along with a Multicast. This is often and very popularly implemented in
+an abstraction known as virtual synchrony. Virtual synchrony also known as view
+synchrony attempts to preserve multicast ordering and reliability in spite of
+failures of what happened in the system. It combines a membership protocol
+with a multicast protocol. Systems that implemented
+virtual synchrony or view synchrony, such as Isis from
+Cornell University have been used in many important scenarios including
+the New York Stock Exchange, the French Air Traffic Control System,
+and the Swiss Stock Exchange. Virtual synchrony or view synchrony has
+an important concept known as Views. Each process maintains
+a membership list and you've seen how membership protocols
+work earlier in the course. This membership list is called a View. An update to the membership
+list is called a View Change. For instance, if a process joins,
+this may be reflected in the view and that would be a View Change. If a process leaves or a process fails then those would
+be reflected in the view as well. That would be a View Change. Multiple changes may be made to a view and
+that would just count as a single View Change if
+those changes are made simultaneously. So for instance. A process P1 might be
+added to the view and simultaneously process P2
+might be drop from the view. That would just be a single view change
+where both those updates were done simultaneously. Virtual synchrony or views synchrony
+guarantees that all the view changes are delivered in the same order at
+all the correct processes in the group. So for instance if a correct
+process P1 receives views, which are somewhat like the following. The first view has only itself, P1. The second view has itself along
+with two other processes, P1, P3. The next view only has P1 or
+P2, P3 was dropped. And the next view has P1,
+P2 and P4, where P4 was added. Then any of the correct process also
+received the same sequence of view changes after it joins the group. So, for instance, if you construct P2 and
+the views it receives, P2's first view would be P1, P2, P3,
+because that's when it joins the group. But after that,
+its next view would be P1, P2. It would have to be the same
+as the next view that P1 got. And then the third view that P2
+reviews would also be the same as P1's next view which will be P1,
+P2, P4 over here. That is the same as P1's,
+our next view as well. In other words, as long as you can see
+only the correct process in the group of the sequence of view changes
+that they receive is in fact the same as all the other
+current processes in the group. When the process fails,
+then you stop considering it. But as long as the process is alive,
+all the views that it receives are in fact in the same order as
+the other correct process in the system. Now the times at which the views
+are delivered at the processes might be different at different process,
+but the ordering is the same. So again, here the insistence is on
+the ordering of them being the same. In other words, the views being totally
+audited in all of the processes, but they may of course be delivered
+at different physical times. And this is why it is somewhat
+known as virtual synchrony, but we'll come back to the name later on. So that's about abuse. What about the multicasts that are sent
+out among the processes in the group? Now a multicast M is said to be delivered
+in a view V at a process Pi If and only if Pi receives the view V. And then before Pi delivers the next
+view after V, it delivers multicast M. because in other words multicast M
+is delivered in between view V and the next view that follows V. Then M is said to be
+delivered in the view V. In other words, what we are saying
+is that when M is delivered view V was the membership
+list at the process Pi. Now multisynchronicity requires that
+the set of multicasts delivered in a given view is the same set of multicasts
+at all the correct processes that are in that view. This says that suppose
+the view consists of to P3 then the set of multicasts
+received at P1 in that same view is the same the set of multicasts
+received P2 in the same view. In other words,
+what happens in a view stays in that view. It does not go outside that view. Okay, this is a good rule of thumb
+to remember virtual synchrony by. He also required the sender of
+the mutlicast message to believe to that view otherwise it would make sense for
+a multicast to be received. Within a view when the sender is
+not a part of the view itself. And what this means is that, if a process
+Pi does not deliver a multicast M in view V, while other processes in the view V
+delivered multicast M in that same view, V, then Pi will be forcibly removed
+from the next view delivered. After we've add these other processes. So, yo have to go with what he rest of
+the group is doing otherwise you might be forcibly removed from that group
+if you don't satisfy group. So, let's see a few examples that are both
+correct from the and also incorrect form the viewpoint of So here's our first
+example with process P1, P2, P3, and P4. The first view that all of them deliver
+consists of all four processes, so that's our group. Then P1 sends out a multicast message M1,
+P2 sends out a multicast message M2, P4 sends out a multicast message M3,
+but P4 crashes after that. Because P4 crashes, the next view that is
+delivered at P1, P2, P3, the remaining members in the group Consists of only P1,
+P2, P3, and that's fine, okay? Now the message M1 is
+delivered in the first view, which causes all the four processes. M2 is also delivered in the first view. M2 is not delivered in P4, but
+that's fine because P4 crashed anyway. Now the message M3 from P4 is also
+delivered at P1, P2, P3 as well as P4 and it is delivered in the same view that
+consists of all the four processes. Okay, so satisfies virtual synchrony. This particular run over here. However if I make a small change which
+is that a P3 delivers the second view first and only then delivers
+the multicast n one from p one. This would not satisfy virtual synchrony
+because what happens in the view does not stay in the view. In other words m1 is delivered
+by p2 in the earlier view but delivered at p3 in the second view. And that does not satisfy
+virtual synchrony. This satisfies virtual synchrony,
+where P3 is forced out of the group, and only P1 and P2 are left in the group. And the set of multicast
+messages of P1 and P2 received in the old
+first view are identical. Okay, this satisfies virtual synchrony. Here's another example of a route that
+does not satisfy virtual synchrony. Why does it not satisfy virtual synchrony? Well Notice here that we have the modech as message m2 that is received at process
+p1 but is not received at process p3. But p3 was is a part of the next view so in other words this is a multi
+pass message m that is not completely reliably delivered inside
+the group inside the old view. Okay so
+this does not satisfy virtual synchrony. This satisfies virtual synchrony here
+because M2 is in fact not delivered at any of the members in
+the group in the old view. It's not delivered at P2 either, and this
+has virtual synchrony because essentially M2 as a multicast was never sent out,
+so never delivered at all in the group. Does not satisfy what you need here you
+notice that the multi-cache text message, m1 and m2 willing to the correct view,
+and the older view in all across but m3 is delivered in the next view
+at process v1 and process v2. And it's delivered in all view process p3, because this does not
+satisfy virtual synchrony. You might think that moving this view
+ahead now satisfied both virtual synchrony because [INAUDIBLE] at all the other
+processes in the system and all the current processes but this [INAUDIBLE] because by the time
+the semantic [INAUDIBLE] is delivered. The view does not include the sender p 4
+of that multicast message anymore, and so because p 4 is not part of the second
+view delivered at the correct processes, the run that I'm showing here is also not correct as far as virtual
+synchrony is concerned. And finally here is an example
+where dropped by the system and it's not able to tolerate any of
+the processes of the group and this satisfies of course virtual
+synchrony because what happens in the view stays in the view and
+before it has crashed. So, virtual synchrony or virtual
+synchronous systems implement membership protocols in the form of views, and also
+multicasts in terms of reliability, and they want to ensure
+reliability within each view. If you want to implement ordering in a
+virtual synchronous system you can do that too because ordering is
+orthogonal to reliability, so you can have a Virtually synchronous
+system that implements FIFO. Or a virtually synchronous system
+that implements causal ordering, or one that implements total ordering, or
+one that has a hybrid ordering scheme. Now the name virtual synchrony comes
+about, or came about because it's part of running on top of an asynchronous network
+with unpredictable delays and failures. The order of membership changes and multicasts that each process sees is
+the same at all the other processes. If you use a total ordering protocol, even
+if it's a hybrid total ordering protocol, then all the processes see
+the event in the system happening in the same order as all
+the other processes in the system as long as the processes that you're
+talking about are the correct processes. Okay, so instead of landing
+on top of an asynchronous network the view the processes behave
+are able to behave as if they're running on top of a synchronous system
+where all the membership changes and all the multi-cast messages
+are delivered in the same order. But then actually the question should
+arise whether or not such an abstraction could be used to implement a protocol
+that solves the consensus problem. And the answer to this is no because
+virtually synchronous systems are still susceptible to what is
+known as partitioning. This may happen due to inaccurate failure
+detections because a process may be mistakenly detected they will
+be removed from the group Also processes may be
+forcibly removed from groups. So an example of partitioning is
+shown on this slide, where initially, all the four processes, P1, P2,
+P3, and P4 are a part of the view. But subsequently, even though P4 is the
+only one that crashes, the view has become partitioned where P1 considers only
+itself to be a part of the view. And P2 and P3 are different view which
+consider only themselves to be a part of the membership list. So P1 is partitioned away from P23, and
+such partitions can happen in a virtually synchronous system and this is the feature
+that prevents socially synchronous or view synchronous systems from
+implementing consensus on top of them. So, that wraps of our
+discussion of Multicast. Multicast is an important building block
+for cloud computing systems that has been so far many use to it systems for
+many decades. Depending on the application need, you can implement either
+a flavor of Multicast Ordering. As far as your application
+requires level Multicast Ordering. If you don't care about
+efficiency then you can implement the Multicast Ordering Reliability. Protocol that we saw or
+there are other radians of multicache library protocols that we
+have discussed as well in this course. And if you need something really, really strong then you can implement
+virtual synchrony or real synchrony. In fact there are many real systems out
+there that use these forms of multicast in terms of their ordering that are and
+even a devotedly synchronize of framework. [MUSIC]

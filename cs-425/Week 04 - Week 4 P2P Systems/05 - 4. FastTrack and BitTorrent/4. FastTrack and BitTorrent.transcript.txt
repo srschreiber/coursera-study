@@ -1,0 +1,122 @@
+In this lecture
+we will quickly review, uh, FastTrack and BitTorrent, uh, two systems
+that are also very popular and have been very popular,
+uh, for many years now. So FastTrack is, um, uh,
+in a sense derived from Gnutella and is a hybrid between
+Gnutella and Napster. Uh, it's a better version
+Gnutella by, um, the fact that it uses some of the "healthier" participants, some of the more powerful peers in the system, uh, to make the system faster. FastTrack is
+a proprietary system. It's the underlying technology in Kazaa, KazaaLite
+and Grokster. Uh, though it's proprietary,
+some of the details are known, and that's what we're
+gonna discuss, uh, here. So FastTrack, for the most
+part, is just like Gnutella. It maintains an overlay graph, but some of the peers, uh, have some special, uh, duties, and these peers
+are known as supernodes. So this is what a FastTrack
+system might look like. Uh, it looks just like a-a
+Gnutella overlay, except that two of the peers, marked as "S" over here,
+are supernodes. Uh, these peers might, uh, undertake some
+of the responsibilities very similar to, uh,
+Napster, uh, peers in the sense that they might be storing directory information that are used
+by its neighboring peers in the overlay
+to search for files. So a supernode stores
+a directory listing of a subset of a nearby, um, uh, filename, uh,
+peer pointer lists, uh, similar to what
+Napster servers were doing. Uh, the supernode membership
+might change over time. Essentially, a peer, uh, cannot
+select itself to be a supernode. Instead, peers are selected
+to be supernodes based on their contributions
+in the past. Uh, essentially, uh, this
+contribution is decided from a reputation level. For instance, in KazaaLite,
+the participation level, the reputation, of a user
+is between 0 and 1,000. When a user joins the system,
+their reputation is 10. If the user has, uh, prolonged
+periods of connectivity and more uploads
+from that, uh, client, their reputation goes up, or the participation level goes up. When the participation level
+crosses a threshold, uh, the peer might become
+a supernode. Uh, there are also a lot of, uh, uh, sophisticated
+reputation schemes that have been invented
+in, um, the academic literature. Uh, there is an entire, uh,
+workshop called P2PEcon, which, um, you might want to look at if you're interested, that covers some of,
+uh, these ideas. With this, uh, the, uh, peers,
+um, can now search much faster. They can just search
+in nearby supernode, going back
+to the previous figure. This peer on the bottom left
+corner can now simply send a query, its query to, ah, its
+neighboring supernode instead of flooding the query throughout the
+entire overlay graph. Uh, why is there an advantage
+to being a supernode? What is the incentive
+to be a supernode? Well, a lot of your queries and
+searches now become just local searches
+in your local uh, data structure or your local
+directory information, and so they do not incur
+any network traffic. They are really, really fast. BitTorrent is
+one of these systems that has been very popular
+and continues to be popular. Uh, it has a lot of similarities with the systems
+that we have discussed so far, but it works
+in slightly different ways, uh, by incentivizing peers
+to participate in the system. Remember that we discussed
+that peers oftentimes do not contribute anything
+to the system. They do not contribute files, they do not contribute even bandwidth in many cases, and BitTorrent addresses this
+by having incentives, um, uh, for
+the peers to participate so that the peers
+can benefit from, uh, being unselfish
+and helping other peers. So how does, uh,
+BitTorrent work? Well, BitTorrent has
+a notion of trackers. Uh, typically there is
+one tracker per file. Uh, there might also be
+trackers for multiple files. When a peer wants
+to join the system, you f-somehow find, uh,
+the torrent or the tracker, uh, and this, uh, enables you
+to talk to the tracker. The tracker, uh, maintains
+a list of some of the peers that are currently
+transferring that file. Uh, it does so
+by receiving heartbeats from, uh, the current, uh, peers heartbeat messages,
+uh, from these peers. The peers are of two kinds,
+a seed, which has a full file and is still continuing to be,
+um, uh, part of the system and help the other peers download the file, and the leechers, which has some blocks from the file, a file is split up into blocks, [silence] typically equal sized blocks, and, uh, this
+peer has some of the files and is still looking to download the other, uh, blocks
+of that particular file. The new peer, when it joins this
+particular, uh, group of peers, uh, is also a leecher
+because it has, obviously, none of the blocks
+of that particular file. A file is typically
+split into blocks. Uh, the block size is fixed, maybe somewhere between 32 kilobytes to 256 kilobytes. Uh, now when a peer
+starts to download a file from some of its neighbors, remember, going back
+to the previous slide, the peer, when it joins, uh, when it joins the group, it has some neighboring peers, and it has multiple blocks
+that it can download and multiple peers
+from which it can download, uh, each of these blocks. How does it select
+which block to download and which peer to download from? Well, it uses the Local
+Rarest First policy. Essentially, um,
+it prefers that block which is the least replicated among its current neighbors. Uh, this is useful because- because with churn
+in the system, some of these blocks
+might disappear quicker than other blocks, uh, and earlier than other blocks that are replicated more
+among its neighbors. And so, uh, this Local Rarest
+First policy helps to download those blocks
+that are the rarest. There are of course
+exceptions to this. Uh, a new node, newly joining
+peer, is allowed to pick one, uh, neighbor at random,
+and this helps in bootstrapping so that you don't
+always get stuck, uh, with just one
+deterministic group. Now incentives are provided by a tit-for-tat bandwidth
+usage scheme. Um, uh, this incentivizes a peer
+to provide blocks to neighbors, uh, so that, um, you-you're
+providing blocks to neighbors that provided you the best download
+rates in the past, okay? So this, uh, enables or
+incentivizes your neighbors to provide download, uh,
+speed to you so that you are then
+able to provide, uh, blocks to it in the future. And the seeds do the same too,
+not just the leechers. Now, the number of, uh,
+concurrent transfers that might go on for-from a peer to its neighboring peers might become very large, um, so you don't want this to
+overload the, uh, peer itself, and so choking is used here. Choking limits
+the number of neighbors to which concurrent uploads
+are going on. Um, uh, typically this is
+a n-small number like 5. Uh, these are
+the best neighbors. Everyone else is
+considered to be choked. These selected neighbors are
+considered to be unchoked. Uh, you periodically reevaluate
+this set, say every 10 seconds, and you do
+an optimistic unchoke, so periodically you
+unchoke a random neighbor. This helps keep the, uh, set of
+neighbors that are unchoked, uh, to be very, very fresh. Okay, and again, this is used,
+uh, because the set of blocks that are-that are peers
+is changing, and also the set of peers
+in your group is changing because of, uh, churn. Okay, so choking, in summary,
+helps peers to, um, uh, limit how many other peers they're, uh, uploading to, uh, so that the upload bandwidth is, uh, not overwhelmed.

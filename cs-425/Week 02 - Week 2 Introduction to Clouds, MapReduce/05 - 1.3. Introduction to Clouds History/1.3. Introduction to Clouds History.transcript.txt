@@ -1,0 +1,129 @@
+So I wanted to take a detour
+and give a little bit of history of how cloud computing
+came about, to be. Cloud computing is not
+the first distributed, uh, system in the wild, uh,
+that has existed. Uh, there have been many,
+uh, over the decades. In fact, the first few computers
+that were built, including the very famous,
+uh, ENIAC, and other computers such
+as the ORDVAC and the ILLIAC, which were built in the 1940s. These were the first computers that were built
+in the architecture, or similar architecture
+as we know of today. They were in fact datacenters; they occupied entire, uh, large halls and entire large labs. So those were
+in the 40s and the 50s. Then in the 1960s and 70s
+there was an era of industry called timesharing
+and data processing industry. This was an industry that took
+large amounts of data large for that, uh,
+those periods of time, those might have been
+kilobytes or megabytes and process them
+and then gave the outputs. Typically this, uh, input was given in the form
+of punchcards, as well as the outputs
+were spewed out in the form of, uh, punchcards. Then in the 1980s personal computers
+became popular, and the data processing industry and timesharing
+companies declined, but PCs also made it easier
+to build clusters or networks of workstations,
+and this lead to the evolution of other eras of computing
+such as grid computing, and then
+very large-scale systems such as peer-to-peer systems
+in the 1990s and the 2000s. And only now have we been
+coming back sort of full circle to the timesharing
+and data processing industry by building
+very large-scale clusters that process
+very large amounts of, uh, data. And so clouds and data centers,
+a lot of us argue, are in fact coming back
+full circle to the 1960s and 70s,
+except with a lot more scale and very different workloads than in the 1960s and 70s. So, uh, this is a very, uh,
+crowded slide, obviously, and there's lot of detail
+on this slide. Uh, I don't mean to go through
+all the elements on the slide. One of the things
+I want to point out is that the data
+processing industry, uh, which is often called a precursor to this
+cloud computing industry, was a fairly large industry, so if you look at
+the numbers here, in 1960 the data processing
+industry was $70 million. By 1970 it had become
+$3.15 billion . Given the rates of inflation, uh, and how much
+the dollar has inflated, this was a fairly large industry at that point of time. The players then
+were very different from the players that we have today, in cloud computing. Uh, Honeywell, IBM
+and a whole bunch of companies, including Xerox
+were big players. That era also resulted
+in several machines which are the precursor
+for the architecture of many of our, uh, workstations and even servers, uh, today. This included
+the, uh, DEC PDP-10, as well as the IBM 370, uh, which were very popular,
+uh, at that time. The networks
+and workstations which, uh, are built from PCs
+or servers, uh, included the Berkeley Network
+or Workstations project and also server farms, uh, at several companies, including at, uh, IBM. Uh, grids became fairly
+popular in the 1980s. These were a way to connect
+several sites together the sites being
+not very large-scale, not as large-scale as
+the datacenters, but being large enough,
+and grids were born out of the Grid Physics
+Network Project, also known as
+the GriPhyN, uh, Project. The peer-to-peer systems
+that were popular in the 1990s and continue to be popular today included, original systems
+of Napster and Gnutella, which we'll be seeing later on in the course, uh, as well as BitTorrent,
+which is, uh, um, still popular today. And all of these,
+I argue, culminated in
+today's cloud computing. All of the wisdom, as well as, all of the
+technical infrastructure and the software protocols
+that have been developed have culminated
+and enabled us to develop, uh, the cloud stack
+as we know it, today. So there are several trends, uh, that are well-known
+in computer science. Uh, the, uh, most popular trend
+is that, uh, um, uh, the CPU compute capacity doubles once about every 18 months. This is often known
+as Moore's Law. It is also, um, uh, uh, true that storage doubles
+once about every 12 months and bandwidth doubles
+once about every 9 months. When I say "doubles"
+I essentially, uh, mean that per dollar
+you can buy twice the amount of capacity. So Moore's Law, which says that,
+uh, the CPU compute capacity or at least,
+the original version said that, CPU compute capacity doubled, uh, once every 18 months said that CPU,
+uh, frequency doubled once every 18-
+every 18 months, but that has hit a power wall, so nowadays,
+what you will find is that the CPU speeds
+don't increase anymore. Instead, CPUs grow horizontally. In other words, uh,
+you find, uh, the number of CPUs that come out on motherboards that you can buy, of the market, is doubling once about
+every 18, uh, months or so. But there are
+significant differences as a result of this
+exponential growth, um, in what was used
+in the 1980s and 90s and what is typical today. Bandwidth, for instance, in 1985 consisted of mostly
+56K links nationwide. Today, uh, our, uh, um, backbone links in the internet are much faster than this. Uh, this capacity, uh, today's, uh, PCs, workstations that you buy, or even laptops, uh, sometimes have
+hundreds of gigabytes, in some cases terabytes,
+and this is much more storage than a supercomputer
+back in the 1990s. Not only the hardware
+and the software, but also the user's
+expectations have changed. Uh, biologists, for instance,
+in 1990 were running, uh, small single-molecule simulations, but today they run, uh,
+fairly large-scale, uh, genome sequencing experiments. Um, companies that
+sequence your genome might run very large-scale jobs on a, uh, cloud. The, uh, Large Hadron Collider,
+um, which is run by CERN, uh, and a variety of other, um, uh, uh, physics,
+uh, and astronomy, uh, applications and setups, uh,
+produce a lot of data per year. All this data
+needs to be stored somewhere. It needs to be processed, a-and it is this storing
+and processing that allows them to make
+large discoveries such as, uh,
+the discovery of the or the confirmation
+of the Higgs boson, the confirmation
+of the gravitational field, and a variety of other advances that have all occurred because of the ability
+to store and process large amounts of data from, uh, these, uh, particle colliders. So one of the prophecies
+that was, uh, made in the 1960s, uh, by Fernando Corbató
+and other designers of this operating system
+called Multics is that eventually, uh, the, um, computing would be available
+as a utility, just like power is
+available as a utility. Today we plug in our, uh, devices into the wall
+and we get power, or you open the tap
+and you get water. Uh, similarly
+they envisioned that computing would be available
+by just plugging and, uh, playing your client,
+uh, into maybe an ethernet jack. So many have, uh, today said that cloud computing has in fact realized this vision. Others have said that we haven't yet
+realized this vision; we have come very close to it. This is something for you
+to think about, uh, not just now but also throughout the course as we go along. As an aside,
+this Multics operating system that I mentioned here was one
+of the precursors of, uh, today's Unix operating system. So Multics, for fair- was a fairly heavy-weight
+and monolithic operating system, and at some point of time, uh,
+a bunch of scientists sat down and said "Let's pare it down
+to its minimal, uh, basics and build a smaller,
+faster operating system." That operating system
+was the Unix, uh, operating system,
+which is of course the precursor for many of the popular operating systems today, including, uh, the, uh,
+versions of Linux such as Ubuntu, Red Hat,
+and so on and so forth. [electronic music]

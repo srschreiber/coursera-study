@@ -1,0 +1,145 @@
+So in this, uh, lecture today we'll see, uh, how to solve
+the consensus problem in the synchronous system model. Uh, once again, if someone
+gives you a problem, uh, always remember to make sure you know what the system model is, what are the assumptions
+under which you're trying to solve the problem. In the synchronous
+distributed system model there are bounds
+on message delays, there are bounds on, uh, how, uh-uh, fast each process, uh, can take steps,
+and there are bounds, of course, on, uh, the clock drift rates. For instance,
+multi-processor systems, uh, which have a common
+shared clock across processors fall into this category. Uh, here processes
+can crash, as well. Uh, synchronous systems do not
+mean there are no failures. Processes can crash by stopping. When a process crashes, uh,
+it doesn't execute any more instructions, thereafter. This is typically called
+a crash failure or a crash-stop failure. We'll just refer to it
+as a failure itself. Uh-uh, this does not include kinds of failures where processes recover
+after, uh, crashing. Uh, those can be accommodated
+by allowing the process to rejoin
+with a different identifier after it crashes. So, uh,
+the consensus protocol, uh, in the synchronous system model, uh, assumes that there are,
+at most, f processes that crash during the protocol. Uh, f is the number that is less than or equal to n, the total number
+of processes in the group. Uh, if you're not sure what
+the number of failures is, then just f-f-set f to the n. Uh, all the processes
+in this protocol are synchronized
+and operate in rounds of time. Uh, so for instance,
+here I'm illustrating three rounds, uh,
+in the protocol. Uh-uh, the rounds, uh,
+are essentially, um-uh, demarcated by specific times at which processes
+finish a round and start the next round. And you can do this
+in the synchronous system model because, uh, the, uh,
+process clocks are, um-uh, not drifting
+by more than a bound, so you can
+actually specify times at which all the processes
+will end their previous round, and then start the next round. So the algorithm proceeds
+in f+1 rounds where, remember, f is the number
+of processes that crash, that-the maximum number
+of processes that crash, um, and, uh, the algorithm uses
+reliable communication, to all members. Think of this as, uh,
+using some variant of, uh, TCP. Uh, the algorithm uses an area
+known as values, uh, _i^r. Uh, this refers
+to the set of proposed values that are known
+to the process P_i, that's the subscript, at the beginning
+of round number r, where r goes from 1 to f+1. This will come through
+in, uh, the algorithm pseudocode which we'll see
+on the next slide. So here is the algorithm
+in all its glory. Uh, initially at process pi, this is the algorithm
+for process pi, the values array
+is set to be empty. This is at the beginning
+of round 0. Then at the beginning
+of the first round you include process pi's
+own contribution, small vi, into the values array. Then in each
+of the following rounds you do the same
+following thing. First of all, you ma-m-you
+multicast all new values that you have received
+since the previous round. So in the first round this would just be the process pi as value, uh, small vi, but in the subsequent rounds
+you might receive other values from other processes
+and you would multicast these new values
+that you've received in just the last round. You wait to receive values
+from the other processes, so you set your values
+for the next r+1th round to be the same as your values
+in the rth round, and then for every new value Vj that you receive from the other processes, you include Vj
+in the values array. In the next round,
+r+1th round, you would use this
+particular values array to multicast out
+to all the other processes. Now when I say multicast,
+essentially the process pi, uh, goes through loops
+through a for loop where it goes through all
+the other processes in the system and sends them,
+individually, a message, just a single,
+point-to-point message. Since this is a synchronous
+system, if the sending process and the receiving process
+are both non-faulty, this message will be received before the end of the round. If any one of them is faulty, then the message
+may not be received. And then finally,
+after you do this, uh, f+1 times, after f+1 rounds, so i-so this
+is one round, right, what I'm showing over here, and this is done for f+1 rounds at each of the processes, so each of the processes executing one execution of this, uh, for loop
+in each of the rounds. So after you do this f+1 times, you simply look
+at your values array, all the values that you
+have received, and you can look
+at the minimum value that you've received. This could either be the, uh,
+minimum ID process who has sent you a value, or it could just be
+the minimum value that you have received, and you set your
+decision variable or your output variable
+to be that minimum value. Now why does this work? This seems like
+a very strange algorithm where everyone seems
+to multicast their values to each other, and if different processes end up with different
+values arrays at the end of the f+1 rounds, then they will end up
+deciding different values. Well it turns out that
+this protocol ensures that all the non-faulty processes
+in the group, the ones that have not crashed, end up with the-
+with identical values arrays at the end
+of the, uh, f+1 rounds so that when they take
+this minimum operation, they all end up
+with the same decision value. Why is this true? Let's see the proof, uh,
+for this. Uh, so once again the claim here
+is that after f+1 rounds, all non-faulty processes
+would have received the same set of values,
+and so they will end up making the same decision using the minimum operation. Let's assume, uh,
+that this is not true. Let's assume that two,
+non-faulty processes, say pi and pj, differ in their
+final set of values after f+1 rounds. Uh, assume,
+without loss of generality, that pi possesses a value, v, that pj does not have. If the reverse is true,
+that pj has a value v that pi does not have,
+you just flip i and j and do the same proof. So pi must have received this
+value v in the very last round, the f+1th round
+of the protocol. Why? Well, if it
+had received it earlier, in the fth round or before, then pi would have multicast the value in the f+1th round, and because pi did not fail
+and pj did not fail, pj would have received
+this value and would have had the value v. So essentially, uh,
+pi got this value v in the very last round,
+the f+1th round, um, and, um, uh, this means that some
+of the process pk, say pk must have sent
+the value, uh, v to pi but must have crashed
+before sending the value v to pj, when it went
+through the full loop, trying to send the value v
+to all the processes in the group. So some process pk crashed
+in the very last-that is, f+1th-round of the protocol. Now, you have a scenario where in the fth round
+of the protocol, or the end of the fth round
+of the protocol, uh, you have a process, uh,
+pk, that received the value v but another process pi
+that did not receive the value v. This is the last-but-one round,
+or the fth round. Right? Um, or you can also
+consider pk and pj as-as-as the slide, uh, shows. But essentially,
+using this, once again, you can use the same argument
+as we did for the f+1th round to show that, um-uh,
+again there must have been some other process, say pk', that must have crashed
+in that fth round, uh, as well. And using this sort
+of reverse induction, uh, we can infer that
+in each of those f+1 rounds, a unique process
+must have crashed. However, this
+is a contradiction, because this means that we have a total of f+1 crashes, uh, during the execution
+of the protocol, but we assume that there are
+at most f crashes in, uh, the protocol. In other words,
+if you let f to be N, you run the protocol
+for N+1 rounds, you will end up concluding
+from this, uh, assumption that there are N+1 failures, which cannot be true in a group of N processes. This means that our original
+assumption must be false, uh, that, um, after f+1 rounds,
+um-uh, um-uh, two non-faulty processes differ in their final set of values, and so the converse
+of that must be true, which is that all
+the non-faulty processes end up with the same values
+at the end of f+1 rounds, and so, with the minimum operation applied on the values' array,
+they do decide the same, uh, values for their
+decision variables. So that's the, uh,
+consensus protocol that works in the synchronous system model
+and also the proof for it. But what about
+the asynchronous system model? Can we just go ahead
+and solve it? Well, we'll see how
+to do that in the next lecture

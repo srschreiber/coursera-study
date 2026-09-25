@@ -1,0 +1,284 @@
+[MUSIC] So in the next series of lectures
+we'll be discussing a variety of peer-to-peer systems that came
+out of academic research. Some of these systems have
+been deployed in the wild. The first system we'll study in somewhat
+of detail is Chord, which arguably was one of the first few peer-to-peer
+systems to be designed from academia. And it's also interesting because
+it has several concepts and techniques that are widely used
+in today's key value storage and NoSQL storage systems, which are very
+popular in cloud computing today. So a lot of you might be familiar with
+the data structure called a hash table. A hash table is a data structure
+typically maintained inside one running process on one machine,
+which allows you to insert, look up, and delete objects with unique keys. So you can perform these operations in
+essentially order 1 time or constant time. And a hash table essentially
+stores these objects in buckets based on a hash of the key, and
+this allows you to look up and perform other operations like insert and
+delete fairly quickly on each key. A distributed hash table, also known as
+a DHT, is a similar data structure except that it runs in a distributed system
+rather than in a single process. Again, objects here are files and
+files have unique keys. Maybe the file name is the key. However, instead of storing
+the objects into buckets, you store the objects at nodes or
+hosts or machines in a cluster. And again, the cluster might be
+distributed out throughout the world. Similar to the regular hash table, you have some concerns in
+the distributed hash table. One is load balancing. You want each node or each host to have about the same number
+of objects stored on it as everyone else. You don't want some hosts overloaded
+with objects while others have far fewer objects. However, unlike the hash table,
+where you can't lose a bucket but still have another, in a distributed
+hash table you could lose a node but still have another around. So fault tolerance becomes a concern here,
+which means essentially that you want to make sure that even though some
+of the nodes might fail or might just leave the system due to churn,
+you don't want to lose any objects. Just like a regular hash table, you want
+to have efficient lookups and inserts and maybe perhaps even delete operations. And finally, you want to have locality,
+which essentially means that you want the messages that are transmitted among
+the clusters to be transmitted preferably among nodes that are close by in
+the underlying network topology or in terms of the Internet
+distance underneath. So Napster, Gnutella, and FastTrack
+systems that we've just discussed so far are all kind of
+distributed hash tables. But they're not really because they don't
+really try to optimize the insert, lookup, and delete times,
+as we'll see on the next slide. Chord is one of the first peer to peer
+systems which tries to directly address this problem and tries to bring the
+insert, delete, and lookup time down low enough that we can claim that it is, in
+fact, a DHT or a distributed hash table. So here is how Napster and
+Gnutella compare along three metrics, in terms of memory, both at the client and
+at the server if applicable, and the lookup latency and
+the number of messages for a lookup. So let's look at Napster here. Napster, at the client, essentially does
+not store too much information other than the files that have been uploaded by
+the user, so we'll discount that. But the only other information stored
+is the address of the server or servers that it is talking to. However, at the server,
+if there are N clients in the system and each one is uploading some constant
+number of files, the server store directory information, which turns
+out to be order and information. Essentially this means that it is linear
+in the number of clients in the system. The lookup latency is essentially
+just one round-trip time. Ignoring the time for
+the servers to look up their internal ternary tree is just order 1. The number of messages for a lookup is also order 1,
+because it's just one round-trip time. However, the server load is fairly high. It's order N. For Gnutella, however,
+where you don't have servers and you only have this overlay graph,
+the memory might be as high as order N. If the client does not have a limit
+on the number of neighbors, then you could have peers that have
+order N immediate one-hop neighbors in the underlying Gnutella overlay. The lookup latency would be as high as
+order N in the case of a degenerate Gnutella topology that
+essentially looks like a line. So you have one Gnutella
+topology where all the nodes are joined in one straight line,
+and you have a file that is
+located only at one end of the entire topology, so
+the file f is located here. And the query for it starts from here. So there's only one copy of the file. And because this is order N or N minus 1 links, essentially you have
+a lookup latency that is order N. And so the number of messages for
+the lookup is also 2 times N minus 1, which essentially means
+that it's order N as well. So order N is a fairly large number,
+especially when you're considering millions of nodes in the system, and
+you really want to do better than this. And that's where Chord comes into play. It essentially makes all of these,
+the memory, the lookup latency, and the number of messages for
+a lookup order log N on expectation. Why is log N nice? Well, log N is nice because for practical
+purposes, it's almost as good as constant. If we are taking, say, log base 2,
+log base 2 of 1,000 is 10, log base 2 of 1 million is 20,
+log base 2 of 1 billion is only 30. And when you consider the number of
+IPv4 addresses, that's just 2 power 32, the log base 2 of that is just 32. So even though it's not really constant,
+for practical purposes it's
+considered to be a constant. Any case,
+we won't push that under the carpet, we'll still refer to that as log N. So how does Chord achieve this? Let's look at that in
+a little bit of detail. Little bit of history of Chord, so Chord was developed by researchers
+from both Berkeley and MIT. Essentially Chord uses a technique
+where each of the nodes in the peer-to-peer overlay selects its
+neighbors in an intelligent fashion. Earlier Gnutella nodes essentially
+selected their neighbors based on metrics like number of files shared,
+number of kilobytes shared. And essentially,
+they use the ping and pong messages. Here there are certain rules
+that the nodes use to decide who their neighbors are. So we'll discuss the rules
+over the next few slides. So Chord uses what is known
+as consistent hashing. Consistent hashing has
+different interpretations. I'll give one interpretation here and
+the more popular interpretation later on. So consistent hashing basically means
+that you take a peer's IP address and port number, which uniquely does
+identify it, and you apply a well-known hash function such as the SHA-1 function,
+which stands for secure hash algorithm. This is a well-known
+cryptographic function. The output of this function
+is a 160 bit string. No matter how large its input is,
+its output is always 160 bits. And the nice thing about the hash function
+is that if you run this hash function on the same input, no matter where you're
+running it, no matter which host you're running it on, you're going to
+get the same 160 bit output. So you take this 160 bit output and
+you truncate it to m bits, where m is a system parameter. And this gives you a peer id,
+which is essentially an m bit string, which is an integer between 0 to 2
+power m minus 1, both inclusive. Now you can hash multiple
+peers' IP addresses, address comma port number
+of pairs using this. If m is large enough,
+then the conflicts become very unlikely. You're not guaranteed to
+not have conflicts, but they're very unlikely as
+long as m is large enough. Essentially you want 2 power m to be much
+greater than the total number of nodes or holes in your system. Essentially what this means is that
+you can draw a circle which consists of 2 power m logical points running
+from 0 to 2 power m minus 1. And if you have a set of nodes,
+you hash each of these nodes, and you put them on the corresponding
+hashed peer ID on this point. So, when you hash it, and
+then you truncate it in bits, you get a number that is a peer ID. So, this node over here
+has a peer ID of 16 or here when you hash the type port
+number and so, we'll call it as N16. Similarly there is another
+node with a peer ID of 32, another node with a peer ID of 45,
+and so on and so forth. There are six nodes in
+this particular cluster. In this system here we are using m equals
+7 which means that these numbers run from 0 to 127 over here which
+is the last point before the 0. Now, this is a ring and it loops around. So, at the point to the clockwise of
+127 is 0 and then, you have 1 and so on and so forth. Now what are the neighbors
+that the peers maintain? The first type of neighbors that the peers
+maintain, as shown on this figure, are successors. Every node knows its immediate
+clock-wise successor in the ring. So 16 knows about the IP address and
+port number of 32, so it can send messages directly to it. 32 knows about the IP
+address in port number of 45, can send messages directly to it,
+and so on and so forth. Once again, 112 knows about the IP
+address and port number of 16, so it can send messages directly to it,
+and that completes the ring. Peer pointers are just
+the successors in each node. Similarly you can have predecessors, where
+each node knows its counter-clockwise, or anti-clockwise neighbor, in the ring. For most practical purposes,
+caller only uses predecessors. That's the first kind of peer pointer. The second kind of peer pointer
+which is somewhat complex is called the finger tables. But this is really useful to
+route your queries very quickly. Now, in a system where you are using m,
+the node has m finger table. So let say we have m equals 7 and we have
+finger tables running from 0 through six. So that's run from 0 to m minus 1. Here is a rule for the finger table. The i finger table and
+the peer that has peer ID n, is the first peer that
+has ID immediately at or to the clockwise of n + 2 power i but
+then, taking modular 2 power m. So, let's do the exercise for node N80. The value of N for 80 is just 80, right? So that's well known. So, let's say i equals 0. The 0 finger table at node N80 which is
+this one over here, how did we get 96? So, 80 + 2 power 0,
+n + 2 power i, that's 81, and so that's a point somewhere
+here on the ring, right? The node immediately to
+the clockwise of that, is 96, N96. And that's why we say that N96 is,
+in fact, the zero-th finger table entry, at N80. So, N80 knows about N96 IP address and
+port number, because it's zero-th finger table entry. Similarly, when you said i equals 1,
+you get 80 + 2 power 1, that's 82. Again, already made it and
+the clockwise of it is 96. And keep on going that way
+until you reach i equals 4. When you have 80 + 2 power 4,
+or 96 and again, that is 96, because 96 is at n + 2 power i. Now when you have i equals 5,
+that's 80 + 2 power 5, that's 80 + 32 or a 112. And that gives you 112 as the fifth
+finger table entry at node N80. Now instead of having 112, if you had for
+instance a 113 and 113 over here then N113 would have been the fifth finger
+table entry at this, at node N80 right? So, you are searching at n + 2 power i or
+immediately to the clockwise of it. Now, coming to i equals 6 similarly n
+plus 2 power 6 is 80 plus 2 power 6, that's 80 plus 64 that's 144. Let me right this down here. So that's 144 but
+you need to now take modular 2 for m because 144 doesn't appear on the ring. Right, so you need to take 144 mod 128. And that essentially is 16. Right and so, you have this point
+on the ring over here which is this point here and so, N16 becomes
+the sixth finger table entry at node 80. So, one of the things you'll notice
+here is that as you go along the ring, as you increase the value of i, the distance from one finger table
+entry to the next doubles okay? And there's a reason for this, we want
+to be using these for our searches, so that the searches are fast,
+so that they are log in. And you'll see that in just a little bit. So that's how we place nodes on the ring. How do we place files, how would
+we decide where files get placed? So unlike Napster Gnutella where clients
+told their own files, and don't upload them by default, here instead find the
+store in specific notes based on the same rules if your using for
+placing the servers on the ring. In other words you take the filing, which we assume to be unique
+across the entire system. You apply the same hash function to it,
+the SHA-1 simple hash algorithm one. And get 160 bit string. Then, you truncate it again,
+just like you did for peer ids, and then you map this file
+onto a point in the right. Okay, so,
+going back to the previous figure, the file might map to,
+say, point 34, right. That's somewhere over here. Then the file is stored at the first peer
+that is immediately to the clockwise, or right, of that point. So again, you need to take more mod 2
+power m, so you wrap around the ring. So, for instance, if I have a file
+name that's cn.com/index.html, this maps to a key, say 42. Once you hash and truncate it, that's
+going to be stored at the first peer that is immediately to the right of 42,
+which in our previous example would be 45. So here, notice that I'm
+assuming unique files names and I'm using the URL as a unique file name. This is kind of intentional here. Typically, peer-to-peer systems that
+have been developed in the wild are used to exchange MP3 and MPEG files,
+but this is not a limiting factor. You can use peer-to-peer systems to
+develop other applications such as cooperative web caching,
+where client browsers across a large population of clients share their
+web results with each other. So they have faster browsing because
+you're able to fetch pages that have been fetched already by another
+client that's near to you. In that case the URL's become
+the name of the particular object and the objects here
+are the webpages themselves. This essentially what I'm trying to
+say here is peer review systems can be used for storing any kind of object,
+no matter what kind of objects they are. As long as the objects have a unique
+name in this particular case. So the most popular notion of consistent
+hashing essentially says that with K keys and in the system and N peers in the
+system, each peer will store about order, will store order keys over N keys. Okay, when I say order, O(K/N),
+it just means that the number of keys at a peer is less than c times K over N for
+some constant c with a high probability. And essentially this means that you have
+good load balance across the different tiers in your system or
+the different nodes in your system. Remember that this is what load balancing
+was one of our goals when we started out. So, we still haven't talked about
+how the rest of the system works. So once again, pictorially here is where the file
+with key K42 would be stored at N45. I mean, if here the clockwise of maps. How the search work, okay, so
+that's the next thing we need to discuss. So suppose N80 wants to search for
+cnn.com/index.html, the first thing it does is that hashes
+it and trunks it to embeds, gets 42. Now it knows that it needs to route
+to the point 42 on the ring, or rather to the point that is
+immediately to the north, that is immediately to
+the clockwise of 42. How does it do this? Here is a search algorithm, and
+this is applied recursively. So at node N, right now N is just 80,
+when you have a query that is destined for key k, in this case k is 42. You forward the key to
+the largest successor or finger table entry, essentially your
+largest neighbor are, when I say largest it actually means it's the most to
+the right wrapping around the ring. That is still to the left of K. Okay, if non exist then you
+send the quality of successor. The second line ensures that even if
+the finger table entries are wrong, then [INAUDIBLE] present,
+then as long as the successors are correct you end up routing the query
+to the correct server eventually. It might take a long time. It might take n hops in the worst case,
+but you end up routing it to the right way. So let's ignore that same part for now but essentially at N80 remember that the finer
+table entries an 96, 112, and 16. So the one among them that is
+the farthest to the right, the farthest away clockwise from N80
+that is still to the left of 42 is 16. That's why N80 will
+forward the query to N16. When N16 received this, it does likewise. It calculates among it's neighbors
+which are its successors and finger table entries, which is, the most
+to right, but still to the left of 42. And you'll notice that 16 will
+have 32 as a finger table entry because essentially,
+16 plus 2 power of 4 is 32. But 16 plus 2 power 5 is 16 plus 32
+that's 48 which means that the fifth, the next finger table entry
+after 32 at 16 is N80, which means that 16 does not
+even know about N45's existence. And so 16 has only two choices,
+32 or 80 to forward the 32 and since 32 is to the left or counterclockwise
+of 42, it forwards it to 32. 32 tries to do similarly but it doesn't have a neighbor that is to the
+left of 42 so it simply forwards it to its successor and that's where
+the second line comes into play. And that makes its way to 45. Whenever a node receives a query in
+relation to this algorithm, it also checks its local files to see if any of those
+files match, and in this case, 45 matches. And it can respond back directly
+to anything with the response. Now in this case,
+I've drawn three arrows here. Each of these are the hops
+that the query takes. These hops are essentially RPCs or
+remote procedure calls. This is a well known abstraction
+in discriminate systems. So I claim that this algorithm
+takes O(log(N)) time. Why is that?
+Well, essentially what happens is that if
+you consider the points on the ring, whenever query takes a step, whenever it
+takes a hop from one pier to another. The distance between where
+the query is and the ring and the point where the key is,
+this dotted line, that distance goes on by
+a factor of at least two. because as you do I'm
+saying this is where so this is where the query currently is and
+this is where the key is on the ring. Then if you consider the second
+half of this particular segment that's where the query's
+going to jump to next. Again why is this, this is again you
+can prove this by contradiction. If this was not true, if the query jump to
+the first half of the segment over here. Then we can show because of the doubling
+of the finger table entries that there's going to be at least one
+finger table entry in the second half. Which this node must know about and
+you reach a contradiction. Essentially because the finger table
+entries double this node over here. It's going to have at least one neighbor
+in the second segment which is to the left of Key K. It's going to have at least one finger
+table entry in the second segment which is to the left of Key K and
+it's going to forward that to that one. So essentially, after log and forwardings
+the distance to the key increases by a factor of two power log N and
+that's just N. because we're taking log base 2 over here,
+and so the distance between where the queries and where the keys in terms of points on
+the ring, is 2 power N divided by N. So essentially, this means that now
+even if you use the successors in this small section of the ring which
+has two power m divided by n points. You want to have the query
+reach the eventual key. But this using balls and bins you can show
+that in the small segment of the ring. There is only order log N appears
+with high probability, and so even if you use successors in
+this small section of the ring. Once you have done these log N
+forwardings, you can only hit another order log N peers with hyper mobility,
+so that's log N plus log N, which is still order log N hops for the
+entire equation to reach where the key is. Now the algorithm that
+I described to you so far is essentially it's not just for
+searching. So, so far we've assumed that it's for
+searching but you can essentially use that
+algorithm to route to any key. And the routing message is independent
+of what operation you're doing on it. So you might have the routing message say,
+hey, I want to insert this key. Or I want to delete this key. Or I want to update or look up this key. It doesn't matter. So routing essentially is the building
+block that we have discussed so far. And it can be used for any of these
+distributed hash table options, or DHT options. Now somebody said that, and were shown that time to do a routing
+message to any key is order log in. But this is true only the finger tables
+and the successor entries are correct. When could they be wrong,
+well they could be wrong when you have a peers leave the system whether
+they fail or whether they out. And the corresponding successors and finger table entries
+have not been updated. [MUSIC]

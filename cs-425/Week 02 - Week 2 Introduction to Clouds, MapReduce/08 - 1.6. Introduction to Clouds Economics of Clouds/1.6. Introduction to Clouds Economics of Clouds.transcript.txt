@@ -1,0 +1,113 @@
+So today we come back to, uh,
+one of the issues that we raised in the first lecture in the series which is, uh,
+that Clouds are money savers. Are they really all the time? So once again,
+just to remind you, uh, when you want to start up your own, uh, service or company you have a couple of options. Either you could use
+an existing public Cloud, we have mentioned several
+of these names, or you could, um, buy and use
+your own private Cloud. Uh, there is a difference
+between these, essentially when you use
+a public Cloud you're paying, uh,
+for CPU hours you use, gigabytes months that you
+store but you're not paying for, uh, power for cooling, for,
+ah, management costs and so on and so forth. You would be paying those if
+you buy your own private Cloud. So the question we raise is,
+uh, should you outsource or should you
+own your own Cloud? So in order to do this essentially we have to do
+a cost calculation so let's do a sample cost
+calculation for a sample uh, medium-scale data center that, uh, we bought recently
+at Illinois a few years ago, but at least that means that we have the
+hardware numbers for it. Uh, this data center was called the Cloud Computing Test Bed
+or the CCT. It had a 128 servers,
+housed 24 total cores, with 8 cores per server and a little over
+500 terabytes of data. Let's assume
+that the new company that you are going to run requires exactly
+that much amount of, uh, CPU and storage resources, okay? So that's the typical
+storage resources that you'd need
+to run all the time. So if you outsource and we use
+AWS costs here from 2009, uh, then, uh, to store,
+uh, uh, 524 terabytes using 12 cents
+per gigabyte month, the cost from 2009, um, uh, and we use, uh, the EC2 costs of 10 cents per CPU hour, the storage costs comes
+to be about, uh, $62,000. If you add the storage
+and CPU costs it comes out
+to be about $136,000. So that's the grand total per
+month that you'd be paying to AWS in order to run a service
+of, uh, this given size. On the other hand if you own,
+buy your own private Cloud, uh, then we can take the numbers
+from the invoice, uh, the storage total cost was
+$349, uh, thousand. And since your service is only
+going to run for M months, M is a variable here,
+the per month cost is, uh, $349K divided by M. The total cost is $1555K
+divided by M that's the total cost here, uh, plus you need to also be paying
+for, uh, uh, sysadmin, uh, and this uses an industry
+rule of thumb, which says that for a small sca- for a medium scale data center
+with a 100 s- with a few hundreds of servers you need one sysadmin
+per 100 nodes. And since it's
+about 128 servers, uh, we just one sysadmin and use, uh, the, um, uh,
+the, uh, monthly rate, uh, that is required for
+just, uh, the CCT services. The-the quote out here $1555K also includes, uh, the numbers for, uh, the power
+and the network so we-what we did
+is we used the invoice number, which of course I can't put out,
+uh, uh, in public but I used the invoice numbers along with, uh, the, um, uh, uh, uh, industry rule of thumb which says that if you pay
+45 cents for hardware you need to pay 40 cents for power and 15 cents for network amortized over-out
+over three years of, uh, lifetime
+of the hardware, so using
+that we get these numbers. So essentially now it becomes
+a comparison of costs right? So, uh, the breakdown analysis
+essentially says that it is more preferable
+to own rather than outsource if the cost of owning is less than the cost of outsourcing on a per monthly basis. So for storage this says
+that it is $39K divided by M less than $62K. And you can use this
+to solve for M and it turns out to be M
+greater than 5.55 months. Essentially this means
+that if you loo- if you focus only on storage, if your service is going
+to be running for fewer than 5.55 months then you want to be outsourcing
+and using a public Cloud. If it's going
+to be running for longer then you want to be using, uh, un, uh, perhaps your
+own private Cloud because it's
+more cost effective. Overall the calculation says that the cost of, um,
+owning is less than the cost of, uh, outsourcing
+and that is, uh, true if you solve for M here, you find that M is greater than
+12 months, uh, for the overall. Again this means that
+if you think your service is going to last
+for more than a year, then it's, uh, more, uh, cost effective for you to buy your own private, uh,
+data center, but if it's, uh,
+less than 12 months then, uh, essentially you may want to outsource and use a public Cloud. This explains
+why startup companies, which are not really sure
+how long they want to last and, uh, also not sure
+of how much competition and, uh, storage
+resources they are going to use prefer to outsource
+and use public Clouds in their first few months and even their first few years. And later on when the, uh, when
+it congeals they might move to buying
+their own private Cloud, on the other hand they might not because they've already built
+an infrastructure on a well known public Cloud
+and it works and, uh, customers and, uh, users
+are already going there so they may not want
+to change it. Uh, so AW- so, uh, you know, um, uh, companies like AWS and Microsoft, NetZero and, uh, Google Computing
+engineered these services, uh, they essentially, uh, are
+able to, uh, benefit from you building the stack on those,
+uh, software infrastructures and then sticking with them. Also these, uh, Cloud providers
+benefit a lot, uh, from storage, as you noticed, uh, the break
+even point for storage is much smaller
+than the break even point for, uh, for, uh, for the overall, uh, cost and this means
+that, um, the, uh, storage is benefiting the Cloud
+providers the most but essentially
+you're storing data there and it is just sitting there
+even though it may not be used you'd be in the you-you'd be paying per gigabyte month. So I want to wrap up
+our discussion of the introduction
+to the Cloud Computing. Cloud, um, Computing is not, um, has not, uh, been bought
+out of the blue it is, uh, a culmination
+of many previous generations of distributed systems and it builds on the technical knowledge as well the wisdom of these previous generations. Uh...it is a coming back to full
+circle of the timesharing and data processing industry that existed
+in the 1960s and 70s except with more scale,
+different kinds of workloads and many, many more
+users and customers. When someone gives you a problem
+that is, uh, that they say is a Cloud Computing problem,
+essentially we check whether the problem has
+one or more of these traits; large scale, on-demand access, data intensive nature or involved
+new programming paradigms. If it does not have
+any of these, ah, ah, aspects then it may not be a new problem it may be
+an already solved problem with well known solutions. If it has one of these aspects, uh, at least one
+of these aspects then it may be a new problem and, um, uh, perhaps
+there is a new solution or the- perhaps you can build
+a new solution to it. So it's important for us to, um,
+check Cloud Computing problems against these,
+uh, four criteria.

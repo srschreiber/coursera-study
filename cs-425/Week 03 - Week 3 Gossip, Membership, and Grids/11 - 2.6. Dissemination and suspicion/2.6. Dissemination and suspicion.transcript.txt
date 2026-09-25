@@ -1,0 +1,151 @@
+So today we
+are bringing together the dissemination component, and the failure detection
+component as well, and we will also discuss
+a technique known as suspicion that can improve your, uh, false positive, uh, rate. So, again, to remind you, uh, we
+have, um, uh, uh, we have, uh, the dissemination, uh, component
+here that is, uh, tasked with the goal
+of disseminating out information about
+a detected failure. Also this, uh, component can
+be used to send out information about, uh, processes that have
+joined the group and as, as well as processes that are going
+to be leaving the group. There is different
+mechanisms you can use. You could use, uh, um, hardware
+multicast or IP multicast. Uh, the issue with this is, uh,
+that it might be unreliable, it is not guaranteed
+to get, uh, the information across to all the recipients. Also IP multicast is not
+necessarily enabled in all the routers and, uh,
+switches in the network. Also this might result in multiple
+simultaneous multicasts, especially if you have, um,
+multiple, uh, processes that are detecting the same
+failure almost at the same time. Instead you could use, uh,
+point-to-point messaging, uh, where the detecting, uh, process
+sends out, um, uh, either TCP or UDP, uh, messages to all of the processes
+in the system. This can get very expensive, especially when you're talking of thousands of processes in the group. A third option, which is
+available to us, especially if you're using
+the SWIM style of, uh, uh, failure detection, uh, which we saw
+in the last lecture, is, uh, by piggybacking
+this information on top of the failure
+detection messages. This is known as
+infection-style dissemination; this is where the "I"
+in SWIM comes from. So you might recall this particular SWIM failure
+detector protocol. Essentially what we do is that, uh, we piggyback information about some of the recently
+detected failures on top of the ping messages, on top of the ack messages, on top
+of the indirect ping messages, and on top
+of the indirect ack messages. Whenever processes receive
+these messages, they do the same
+as they did before, but in addition they also look
+at what is being piggybacked and use that to update
+their membership lists. So this is known as epidemic
+style dissemination because the ping and ack
+messages are random messages going around the system, and so essentially
+you're using epidemic or gossip style dissemination to disseminate out
+the information about the detected
+failures as well. So the same properties
+that we saw in the gossip style failure detection for detecting failures now holds for disseminating information about the failures. Specifically, after lambda times
+log-in protocol periods, where lambda is some constant, uh, N power minus...two lambda
+minus two processes would not have heard
+about the update, which means that most, uh,
+processes in the system hear about the update after all the log-in protocol periods. Essentially, eh, every process
+maintains a buffer of recently joined
+and evicted processes, or join and, uh,
+left or failed processes. You piggyback, uh, uh,
+some entries from this buffer on top of every message, ping,
+ack, indirect ping, or indirect ack
+that you send out, and, uh, if you want to maintain
+a constant size buffer, you, uh, prefer recent updates and you garbage college-collect
+element that are old. If you really care about, uh,
+um, more consistency you can, uh, buffer, uh,
+elements, um, uh, for longer and garbage collect them after lambda times
+log-in protocol periods. Uh, this ensures that, uh,
+with high probability, the information
+has already been received at all the, uh, members
+or processes in your group. But of course there's always
+a small probability that-that it
+has not been received. So what the value
+of lambda is here, it determines, uh, the level
+of consistency that you get. No matter what you choose here, you can always be sure that you have completeness guaranteed because, uh, because
+of the SWIM failure detector that ensures that all, uh,
+failures are detected in, uh, two N minus one protocol
+periods, in the worst case. Now in spite of all of this, your false positive rate
+might be too high. Uh, this might be too high, uh, because there are
+false detections, uh, that are occurring due
+to processes that are perturbed, processes that are facing
+quite a bit of jumpiness in their, um, um, uh,
+message loss rate. Uh, also, there might be
+packet losses that occur due
+to, uh, congestion. Indirect pinging may not really
+solve the problem because there might just be
+a high message loss rate near the, um, uh, faulty-the detected faulty host, the pinged host,
+during that period of time. The target here is to give
+the process a second chance by suspecting it before declaring it as, uh, failed in the group. In other words,
+you use a state machine where Pi maintains
+a state machine for a given other process, Pj, which is present
+in its membership list. By default this, uh,
+state is in, a-alive. Uh, if the failure detector detects the process
+as having failed, uh, Pj as having failed, then, uh, you move the process
+Pj state to suspected. In addition, you start
+disseminating via the SWIM piggyback messages the fact that you're
+suspecting process Pj. This, uh, state is, uh,
+sustained for a while, which times out after a while,
+and after the time out, the process Pj
+is marked as having failed, and at that point of time
+you start disseminating failed Pj via
+your SWIM piggyback messages. When you're in the suspected
+state for process Pj, you might receive, uh,
+an ack for process Pj or maybe even another direct ping from process Pj, or even a message
+from someone else in the group saying, "Hey, process Pj
+has not failed, but in fact it is alive." In that case you move
+the state back again to alive for process Pj. One of the issues here is that, uh, process Pj might
+go back and forth between the alive and the
+suspected state multiple times. In order to avoid confusion,
+you use incarnation numbers. There is a per-process
+incarnation number, uh, this is incremented, uh, the pr-the incarnation number
+for a process Pi can only be incremented by Pi. Typically Pi does this when it
+receives a suspect Pi message, meaning that someone else
+in the group is suspecting process Pi
+as having failed. It might receive this via a ping
+or an ack, uh, message, or an indirect ping
+or an indirect ack message, or it might even be piggyback. Uh, and-but it receives this
+and increments this Pi message, its, uh, increment,
+its-its incarnation number, and starts disseminating
+an alive Pi message, along with
+the incarnation number. This is, uh, this mechanism
+is similar to some routing protocols that are used in ad hoc networks especially the DSDV
+routing protocol. Essentially higher incarnation
+number notifications override the notifications
+of lower incarnation numbers. So for instance, uh, um, uh,
+as we've discussed before, uh, the suspect incarnation,
+uh, message when it is received
+at a process, um, um, Pk for process Pj, uh,
+is, uh, used to override, uh, the, uh, alive, uh, information
+for process Pj or Pk. So in other words, if process
+Pk knows that Pj is alive in incarnation number 35, it receives a suspect Pj incarnation number 35 message, it will mark Pj
+as, uh, suspected, over to the suspected state, and start gossiping, uh, or piggybacking the suspect
+Pj incarnation 35 messages. Uh, if an alive message
+is received with a higher
+incarnation number, 36, then the process Pj is moved
+back into the alive state again because this is a more recent,
+um, uh, notification. However the failed,
+uh, um, incarnation, uh, uh, fail-failed message
+for any process Pj, regardless
+of incarnation number, overrides everything else. So once a process Pj is marked
+as having failed, once it is moved back
+to the failed state at-by any other process
+in the system, uh, then the process
+Pj would be marked as failed at everyone in the group, and if it's not actually failed then it may need to rejoin
+the group, uh, once again. So to wrap up our discussion
+of, uh, failure detection and membership, uh, failures are the norm
+rather than the exception in data centers, uh, because
+you have very large number of machines and processes
+in a data center. And so every distributed system,
+uh, needs a failure detector. Many distributed systems, in fact most use some form
+of a membership, uh, service or membership, uh, algorithm running among the processes
+or among the servers. Uh, we have seen, uh, how our
+ring failure detection works, and this in fact underlies
+several, uh, systems including the IBM SP2 and many other similar, uh,
+small or medium sized clusters. You've also seen how gossip
+style failure detection works, uh, and gossip style
+failure detection is, uh, rumored to underlie, uh, Amazon web services
+internal infrastructure. Of course this is only a rumor,
+but at the least now you know how gossip style
+failure detection, uh, works.

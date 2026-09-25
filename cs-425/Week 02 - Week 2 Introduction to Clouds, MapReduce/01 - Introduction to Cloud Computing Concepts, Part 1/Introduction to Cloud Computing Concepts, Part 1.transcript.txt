@@ -1,0 +1,55 @@
+Hello everyone, I want to thank you
+for, uh, joining me on this, uh, journey through
+Cloud Computing Concepts. This is the first part of the Cloud Computing
+Concepts course, which is a two part course. Uh, this course here is about the internals
+of cloud computing. This means that
+we'll go underneath the hood and look at the distributed systems concepts, and the distributed algorithms, and the distributed techniques, that underlie today's
+cloud computing technologies. This course is not about
+how to write cloud systems or cloud applications. There is a separate course, uh, that's coming up,
+called Cloud Applications. Uh, and, uh, this course
+is not about networking either, in the cloud. There's a separate course called Cloud Networking
+that's coming up, uh, that's about networking inside the Cloud. Uh, both, uh, w-well all
+of these courses, the Cloud Computing
+Concepts course, this course, both parts, as well as,
+the Cloud Applications course and the Cloud Networking course are part
+of a Cloud Specialization, which is being offered,
+uh, to students. What we'll discuss in this
+cloud computing concepts course, uh, both part one
+and part two is, uh, three things. Uh, concepts that underlie today's
+cloud computing systems, especially,
+distributed systems concepts. Uh, techniques, uh,
+that are used, uh, fairly widely, in a variety of cloud computing
+systems today. And we'll also, uh, while discussing concepts
+and techniques, uh, look at, uh, some facets and some aspects
+of industry systems including open source systems, uh, like Hadoop and NoSQL storage systems and many others. So the cloud competing
+concepts course is really a mix
+of distributed systems, uhh, er, with a mix
+of distributed algorithms. And both of these combined
+as applied, uh, to cloud computing systems
+as they are today. So what we'll discuss
+in this first part, the first five week, uh, part of the Cloud Computing Concepts course. Eh, first we'll have
+an introduction to Clouds, what they are, why they are, the way they are. Uh, we'll look at Mapreduce
+and Key-value stores, uh, two of the, uh, emerging, subareas of cloud computing. Then we look at some
+of the precursors, previous generations
+of cloud computing systems, like Peer-to-peer systems
+and Grids, that, uh, are ancestors, parents of, uh,
+today's cloud computing systems. Then we'll, uh,
+go underneath the hood and start to look at
+widely used algorithms, for Gossip, Membership,
+Paxos for consensus, uh, and also
+classical algorithms, including, Time and Ordering, Snapshots, and, uh, Multicast. Along the way, uh,
+in some weeks, we'll have interviews
+with leading managers and researchers from industry, as well as, academia, uh, and I hope these will be interesting to you, as well. The, um, uh, the course is structured so that you can learn as you move along, uh, so there are five homeworks, uh, spread throughout
+the course, uh, uh, as well as,
+a programming assignment. The programming assignment involves, uh,
+writing code inside an emulator. In the first part of C3,
+uh, course, uh, you will be writing, uh,
+a membership protocol inside an emulator
+that we will provide to you. We'll provide you the template, the C++ template
+and you can write it. and the one final exam. Well, cloud computing is
+an exciting area to be studying, to be working in. And, uh, it is also a very dynamic
+and continuously changing area. And that's what, uh, that's part of what
+makes it exciting, as well. I'm really looking forward
+to working with you and interacting with you as this course
+move al-moves along. Uh, come join me as we start
+our tour of the cloud computing

@@ -1,0 +1,155 @@
+[MUSIC] Hi, there.
+So in this lecture we'll start looking at the solutions to the mutual exclusion
+problem in the distributed setting. So once again, before solving any problem,
+you need to make sure that you know what the system model is,
+under which you're solving the problem. So here are the assumptions
+in our system model here, each pair of processes that is connected,
+is connected by reliable channels, which means that when you send messages on these
+channels they are delivered eventually. We can use TCP for these channels. The channels that
+are point-to-point channels, which means that they have one sender and
+one receiver. Messages along the channel are delivered
+eventually to the recipient, and delivered in first in, first out order,
+which means that if one message is sent before the second message, then the first
+message is received before the second message as well, and finally we'll
+assume the processes do not fail. There are many variants of
+the algorithms that we'll discuss, all the algorithms that we'll discuss
+that are fault-tolerant variants and these are present in the literature, so
+our first solution is a central solution. This uses a central master or
+leader which is elected using one of our leader election algorithms that
+you have seen elsewhere in the course. The master keeps a queue of waiting
+requests from processes who wish to enter the critical section. The master also has a special
+message called the token message. Access to the token message allows the
+holder to access the critical section so the token message is
+a very special message. It's like cash, if you have it then you
+can use it whether you're a good person or whether you're a thief. So when a process wants to access
+the critical section it calls the enter function where it sends
+a request to the master, and then it just waits in a loop for
+the token from the master. When the processes receives the token,
+it enters a critical section and hangs onto the token. When it's done with the critical section
+it calls the exit function wherein it simply sends the token back to the master. What data structures does the master
+maintain, and what does it do? Well when the master receives
+a request from a process Pi, if the master currently has a token,
+it simply sends a token to Pi, which gives Pi access to
+the critical section. If the master does not have the token, this means that some other process has the
+token, and in this case the master ends up queuing the Pi request alongside other
+requests that may also be waiting. When there are other process that have
+access to the critical section releases the token, this token is
+received back at the master and the master then looks at its queue. If the queue is not empty it
+takes the head of the queue, some process Pj,
+whose request was sent and queued there and this process Pj is
+then sent a token which gives it access. 'Kay, and notice that this process
+Pj's request will be removed from the queue after it's sent the code,
+after it's sent the token. However, the queue is empty, this means
+that there are no outstanding requests and the master can then hang on to
+the token at this point of time. So, let's analyze this algorithm, so
+why does this algorithm guarantee safety? It guarantees safety because
+it is exactly one token and only access to the token gets you
+access to the critical section. What is guaranteed liveness, liveness is guaranteed if every
+request is granted eventually. This is guaranteed because there are at
+most N processes in the system and so if your request is queued at the master
+there's going to be at most, N minus 1 requests ahead of you and so when each
+of the requests finishes, because there are no failures and eventually when
+your turn comes at the head of the queue, you will get access to the token and
+the critical section. The ordering guaranteed here is FIFO,
+in the order received at the master so if your request came in slightly earlier
+than your friend's request at the master, then you will get access to the critical
+section just before your friend's request, so those are correctness properties. What about performance properties? There are two requirements from
+mutual exclusion algorithms. One is that they involve few messages, which means that they are incurring lower
+overhead on the network itself, and second is that they incur low delays at the
+clients that access the critical section. This means that the overhead of
+access in critical sections and releasing them is fairly low. There are three metrics
+that capture these. The first is bandwidth, which is simply
+the total number of messages sent in the enter and exit functions. The client delay and
+synchronization delay are as follows. The client delay is a delay incurred by
+a process when there is currently no other process in the critical section, 'kay, which means that right now
+there's no one in the critical section, one process comes a long and says, hey,
+I need access to the critical section. How long does it take that process
+to get into the critical section? The synchronization delay is the delay
+between one process releasing the, the critical section, that is,
+calling the exit function and the next waiting process getting access
+to the critical section, 'kay, so we assume that there's only one resea,
+releasing process and of course, and there is only one waiting process for
+the synchronization delay. So, let's analyze the central
+algorithm for this. Bandwidth once again for
+the enter operation only involves the requesting process
+sending a request to the master, and it receives a token back so
+that's two total messages, no matter when these messages happen,
+but that's two total messages. For the exit the requesting process or
+the process in the critical section simply sends the token back to the master,
+so that's one message for the exit. For the client delay, the master is has a token because there's
+no one in the critical section and the requesting process sends a request to
+the master which sends it back the tokens so that's two message latencies or
+one round trip time. Synchronization delay the process
+in the critical section exits the critical section by sending
+the token to the master. So that's one message transmission,
+then the master sends the token forward, to the next process in the queue,
+which is another message transmission. So that's two message latencies for the synchronization delay,
+in the central algorithm. So the master of course here is
+the performance bottleneck because it could get overloaded with a lot of
+requests and also if the master fails then you have a single point of failure,
+which means that until this new master is elected you cannot
+serve any mutual exclusion requests. So, our next algorithm tries to address is
+eliminating the master all together and instead using a ring. Here we organize all the processes in
+the system into a virtual ring where each process can talk to its
+successor in the ring. Typically, this is a clockwise successor,
+so for instance N3's is N3 is a process,
+its successor is N32. It can send messages to N32. N32 is another process in the ring which
+can then send messages to it's successor N5 and so on and so forth and
+the ring loops around. We have a special message called
+a token message shown as a blue message here on this slide. The process that has the token
+message at any point of time can enter the critical section. No other process can enter
+the critical section, so N3 currently has access
+to the critical section. It, if it chooses so, can access the
+critical section at this point of time. When it's done, it can pass on
+the token to its successor in the ring. At this point of time, no one can access
+the critical section anywhere in the loop, because the token is in transit,
+it's on the network. But when N32 receives the token,
+it can then access the critical section. If it's not interested, it simply
+passes on the token to its successor. So once again,
+we have N processes in a virtual ring. Each process can send a message
+to its successor in the ring. There is exactly one token in the ring. In order to enter a critical section you
+simply wait until you get the token. There is nothing you can do to
+actively seek out the token. When you're done with the critical when
+you're in the critical section you hang on to the token. When you're done with
+the critical section, you simply pass on the token
+to your successor in the ring. If you get the token, and you're not
+interested in the critical section, meaning that you're not
+in the enter function, then you simply pass on the token
+immediately to your successor in the ring. So, why does this
+guarantee guarantee safety? Well, there is exactly one token and
+for the same reasons as in the central mutual exclusion algorithm
+safety is guaranteed here. Liveness is guaranteed because there is a
+finite a number of process in the ring and the token eventually loops around and
+reaches a requesting process. This of course assumes no failures, which means that the token is not lost and
+that the ring stays intact. Bandwidth, per enter operation there's
+only one token message received by the requesting process, however the other
+N minus 1 processes might have to put an effort in transporting
+the token around. So the total number of
+messages per request might be as high as N throughout the system. There is, of course,
+just one message per exit operation, where the process passes on the token
+to its successor in the ring. What about performance? Let's look at client delay. Client delay means that there is currently
+no one in the critical section and suddenly, one process comes up and
+says, aha, I need access to the critical section. The best case is when this process
+already has access to the token. In which case, the number of
+message transmissions is zero. The worst case is when this, the process
+that just requested access in the critical section has just passed on the token
+to its neighbor or to its successor. In this case the token now needs to ma, make it's way around the other N minus
+1 processes because in a system of N processes in a ring, you have N links, and
+this means N message transmissions for the token to come around, and
+that's the worst case, so the client delay could be anywhere
+between 0 to N message transmissions. What about synchronization delay? Synchronization delay means that
+one process releases the token and one of the processes somewhere in
+the ring is waiting for the token. The best case is just one message
+transmission where the waiting process is the successor of the releasing
+process which means that the, the, the token makes only one hop before
+it gives access to the critical section. The worst case is when the process that is
+waiting is the predecessor of the process that is releasing the token. In this case the token needs to make its
+way around the ring in a clockwise manner to reach the requesting process, and that's N minus 1 message transmissions
+in a system of N processes in the ring. 'Kay, so the synchronization delay could
+be anywhere between 1 to N minus 1 message transmissions, so
+we solved somewhat the the bottleneck problem with the central mutual exclusion
+algorithm, but the client delay and the synchronization delay have gone up to
+the other N, in the ring-based approach. The question is, can we do,
+can we do better than this? Can we lower this kind of
+synchronization delay further? And the answer,
+we'll see in the next lecture. [MUSIC]

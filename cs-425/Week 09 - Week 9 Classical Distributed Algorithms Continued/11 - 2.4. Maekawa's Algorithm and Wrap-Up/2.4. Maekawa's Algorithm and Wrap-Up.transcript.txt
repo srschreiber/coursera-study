@@ -1,0 +1,229 @@
+[MUSIC] In this lecture, we are going to
+discuss another classical algorithm for distributed mutual exclusion, and we also wrap up our discussion
+of the mutual exclusion topic. So the Ricart-Agrawala Algorithm
+that you've seen already from mutual exclusion requires replies from
+all of the processes in the group, which is one of the reasons
+that it has a high bandwidth. It has a bandwidth that is order N. The key idea in the Maekawa's Algorithm,
+new algorithm, is that you need to get replies from
+only some processes in the group, not all the processes but only some. But you also need to ensure that only one
+process is given access to the critical section at any point of time which
+means that safety is guaranteed. So Maekawa's Algorithm works as follows, each process Pi is associated
+with a voting set called Vi. A voting set consists of a few
+other processes from the group. Each process must belong
+to its own voting set Vi. Now, the voting set is not all
+the other process in the group which is essentially the approach of
+the Ricart-Agrawala Algorithm, but the voting set is only
+a small subset of the group. However, you need to make sure that
+given any two voting sets Vi and Vj of process Pi and Pj, respectively. The intersection of these two
+voting sets is non-empty. Which means that there's at least
+one process that belongs to both Vi as well as Vj. So given any pair of voting sets, Vi and
+Vj, you need to make sure that at least one process is in common
+between those two voting sets. This might sound familiar to you, in fact,
+it is the same concept of the same idea as Quorums, which you have
+seen elsewhere in the course. And however,here, the usage of this
+is slightly different of course. Now each voting set is of size K. So all the voting sets
+are of similar size. And each process contributes by
+belonging to M other voting sets, including, of course, its own. Maekawa shows that the values of K
+= M = square root of N, work best. We'll see a calculation
+later on in this lecture, which calculates why square
+root of N is a good value. One way of assigning voting sets so that
+they are always intersecting in any pair of voting sets, and so that you get
+order square root of N voting set sizes, is to put all the N processes in a square
+root of N by square root of N matrix. And whatever process falls in the matrix, you consider that the processes column and
+you also consider the processes row. And all the processes in the column and
+in the row all together, the union of them is considered
+to be the voting set of that process at the intersection of the row and
+the column. So, this would result in voting set
+size that is 2*square root of N-1, which is still order of square root of N. So let's see an example. So suppose I have four processes
+in the system, of course, this is a perfect square. So we can put them in a matrix
+as shown here, p1, p2, p3, p4. And if you select a processes
+drawing column as its voting set, then you get voting sets as shown
+on the left side of the slide. So consider p1 and the process p1, it's
+row consist of the process p1 and p2 and its column consists of the process p1 and
+p3. So it's voting set consists of
+those three process, p1, p2 and p3, as shown by this circle over here. Similarly, V2 which is the voting set for
+p2 consists of the processes p1, p2 and p4, and so on and so forth. You notice that any pair of
+processes intersect in at least one, in many cases,
+two of the process in the system. So [INAUDIBLE] V1 and V4,
+they intersect in two process, p2 and p3, in other systems. So let's see how these
+voting sets are used, then. So first of all, each process requests permission from only
+its voting set members, not from all. And this is one way in which
+the Maekawa's Algorithm differs from the Ricart-Agrawala Algorithm,
+that we've seen previously in the course. Second, each process that
+is in the voting set, gives permission to at most
+one process at a time. And again, this is different from the Ricart-Agrawala
+Algorithm where a process may have given permission to multiple, perhaps
+all the other processes in the group. Okay, so these are two key differences. Anyway, let's look at how
+the algorithm actually works. So first,
+initially the state of a given process. Again, we described the algorithm by
+describing what happens at a given process. The state of a given process is released
+which means that currently does not holding the lock or
+it's not in the particular section. Also it's state for voted is false,
+meaning that it has not yet voted for any other process to get
+access to the critical section. Now, when this process Pi wants to enter
+the critical section it first sets its state to be wanted, meaning it wants
+to enter the critical section. Then it multicast a request message to all
+the processes in its own voting set Vi. Notice that this votings
+in Vi also includes itself. So, when Pi sends and receives its own
+request, then you have to process it. And I'll describe how this processing
+is done in the next slide. Then the process, after sending out
+this request message, it waits for a reply or a vote message from all
+the processes in its own voting set. And that includes a vote from itself. When it has all these votes,
+it can then set a state to be held and then proceed in to the critical section. What happens when a process is
+done with the critical section? Well, the first thing it does is that
+it sets its state to be released again. Meaning, that it's done
+with the critical section. And then multicast release message to all
+the processes in it's own voting set Vi. This is not all that there is for
+the protocol. Now, when a process Pi receives
+a request from Pj, first, it checks if it's own state is held, meaning,
+it currently is in the critical section or if it has voted in the past meaning
+it's voted variable is true. If either of these conditions is true then
+it queues this new request because it means that someone answers
+in the critical section. Otherwise, it sends a reply or
+a vote back to Pj and it sets its voter variable to be true,
+indicating that it has recently voted. Now, when a process Pi receives
+a release message from process Pj, recall from the previous slide
+that a release message is received when Pj has just exited
+the critical section. And informs all its voting set members
+that it has exited the critical section. Pi looks at its queue of waiting requests. Remember, that Pi may be in
+not just Pj's voting set, but also in the voting set of other processes. And these other processes may
+be waiting for a vote from Pi. But if Pi's queue is empty, it means that
+Pi doesn't have any outstanding requests and so it sets its voted variable to be
+false and it exits in the point of time. However, if there's
+something in the queue, then a dequeue is a head of the queue,
+say a process, Pk. Remember, that this means that
+Pk's voting set contains Pi and that Pk has previously sent a request
+to Pi which has been queued. And the queueing happened
+here in the past or right at the top of the slide over here. That's where the queueing happened. And in this case, the entry for
+Pk is dequeued and a reply message is sent to Pk, meaning that Pi now has voted
+for Pk to enter the critical situation. And so
+Pi sets its voted variable to be true. So why does this algorithm
+guarantee safety? Well, when a process Pi receives replies
+from all its voting set members Vi including itself, no other process
+Pj could have received replies from all its voting set members Vj. Because Vj would've had intersection
+with Vi in at least one process Pk. And Pk could have sent only one reply or
+vote at a time. And it always send a vote to Pi, which
+means that it could not have voted for Pj as well. And so this means that safety is
+guaranteed by the Maekawa Algorithm. For liveness, a process needs to wait for at most N-1 other process to
+finish the critical section. And you might think this
+guarantees liveness. However, Maekawa's Algorithm has
+a subtle behavior in its original form that can actually violate liveness
+because it can result in a deadlock. Here is an example of a deadlock. Again, another example of four process P1,
+P2, P3, P4. Suppose all the four processes request
+access to the critical section. P1 gets some replies but
+is waiting for P3's reply. P3, in turn, is waiting for P4's reply,
+which is in its voting set. P4 is waiting for P2's reply and P2,
+in turn, is waiting for P1's reply. Now, we've complete a cycle or
+a circle among these processes, and this is called a deadlock. There is not going to be any
+more progress in the system, because these processes are going to
+be waiting for these replies forever. So the original Ricart-Agrawala Algorithm
+as we've discussed is deadlock prone and these deadlocks can occur. There are of course variance of Maekawa's
+Algorithms that have been published that address this issue and
+that are free from deadlocks. Returning to original Maekawa's Algorithm,
+let's analyze its performance. The bandwidth involved in entering
+the critical section is square root of N messages that you send out
+to your voting set members. And then square root of N replies so
+you see back, so that's 2 times the square
+root of N messages. For exit operation you're simply sending
+a reply message to all your votings and members, that's just
+square root of N messages. These numbers are better than Ricart and Agrawala's Algorithms which
+had bandwidths of order N. You might think square root
+of N is still a large number. It's not constant for sure,
+but it can be fairly small. So if N is a million for instance, then the square root of N value is about
+1,000, which is a fairly small number. What about the delays? Well, for the client delay, when no one
+has access to the critical section, a process comes up and says hey,
+I need access to the critical section. It sends out a request to all
+of its voting set members, that's one message transmission because
+all these messages are in parallel. And then the responses are received back
+also in parallel that's another message latency in the backwards direction. So that's one round trip time. Synchronization delay means that one
+process is currently in the critical section, and
+one of the processes is waiting to get in. And at this point of time, the releasing
+process will send a reply message back to the process Pk, which is the common
+process between the two voting sets of the releasing and the waiting process. And then that Pk process which
+isn't common will forward a vote to the waiting process which can
+now enter the critical section. So that's two message transmission times. One from the releasing process to
+the common intersection voting member, and from the voting member
+to awaiting process. So why is the square root
+of N the right size for the voting sets in Maekawa's Algorithm? Once again, each voting set is of size K, each
+process belongs to M other voting sets. Now, the total number of voting
+set members is K times N, because each of the N processes
+has K members in its voting set. And so, K times N is the total
+number of voting set members. Of course because
+the voting sets overlap and intersect members or processes
+maybe repeated in this K times N. But each process belongs to exactly M
+voting sets, so K times N divided by M should be equal to N, because each process
+appears exactly M times in this K times N. So K*N/M = N. And if you evaluate this by canceling N
+out on both sides you get that K = M. Which means that the sides of
+the voting set should equal the number of voting sets that each process is in. Okay, so let's have that equation and
+hold it to the side. Now, consider a process Pi. Right, so the number of voting
+sets that are there in the system is equal to a Pi's own voting sets so
+that's the +1 over here. There are K members in Pi's voting set,
+right, that K processes. And each of those processes
+has their own voting sets. Right, so that's the total number of
+voting sets that is there in the system. Because each of this is a K voting
+set member of Pi's is involved in M total voting sets. But one of them is Pi's own voting set. So the remaining voting
+sets are simply (M-1)*K. Okay, so that's the total number of
+voting sets present in the system. However, the number of voting sets
+should equal the number of processes in the system, so
+we have N equaling this value. Now, we substitute in the value of M
+equals K from the earlier equation, and you get N = (K-1) *K + 1. Solving this you will see that K equals
+about a square root of N give or take a little bit. And this explains why K equals M equals
+square root of N is the optimal value for minimizing the overhead of K. So in order to minimize K,
+we set N = (M-1)*K + 1. And then we use the earlier equation,
+K = M, to give us a K = square root of N. Now, the Maekawa's Algorithm of
+course does not handle failures. Neither does the ring-based or
+the centralized algorithm or the Ricart-Agrawala Algorithm. Of course, there are fault-tolerant
+versions of all of these algorithms that exist out there in the literature. Other ways to handle failures include
+Paxos-like approaches to handle failures. So Google system called Chubby,
+which is used for unlocking is a fairly popular
+way to handle failures. To handle failures while doing mutual
+exclusion inside of Google's stack. So Chubby uses a system used underneath
+Google's storage system such as BigTable and Megastore. Chubby is not been open-sourced but
+the technical details and the design of Chubby has been
+published in a paper by Google. And that's what we're going to
+discuss in very brief detail in this slide and the next. Chubby provides only Advisory locks,
+this means that clients must ensure that the access locks before they access the
+critical resource, or the object itself. So if clients forget to access the log, then hey,
+then mutual exclusion may be violated. So this is why this is
+known as Advisory locks. So Chubby, of course,
+uses a cluster of servers, and there are five servers by
+default in the Chubby cell. One of the servers is marked as Master. Again, this is elected using one of
+the Leader Election Protocol that we send you before. In this particular figure,
+Server D is a Master. Chubby allows clients
+to not only do locking, but also writes small configuration files. And Chubby relies on the Paxos
+consensus algorithm. Chubby again, is a group of servers,
+as one elected as the Master, the other servers in the group,
+the non-master servers are just slaves. They replicate the same
+information as the Master. When a client wants to read one of
+these small configuration files on the lock file, it sends a read request
+to the Master which can serve it locally. Okay, so
+the Master serves all the request locally. When a client wants to write, however,
+it sends a write request to the Master, which then forwards it to all
+these servers in the group. It then gets a majority of them
+to respond back to the Master. When a majority of them respond back,
+you reach a quorum in the system. Then the Master can send back a response
+to the client acknowledging that the write has been done. And so, this is where mutual
+exclusion comes into play. If some other client has already got
+an access to the critical section, it means that it has access, it has permissions from at least
+a quorum of the servers via the Master. And the next request that goes to
+the Master will not reach a quorum, and it will wait until that first
+process exits its critical section. Now, you can have failures here. If you have failures at the Master,
+and the Master fails, then you simply rerun the election
+protocol to elect a new master. If the replica fails you simply replace
+it, or it reboots by itself, and then have the new replica catch up with
+the other servers on the group, or with the Master itself. So Chubby present say fought in way of not
+just doing mutual exclusion in the system, but also to maintain
+small configuration files which reflects the ways in which Chubby
+is used inside of Google stacks. Now being upon discussion
+mutual inclusion, it is a very important problem
+in cloud computing systems. There are a variety of
+classical algorithms. We've discussed four. The Central, the Ring-based,
+the Ricart-Agrawala Algorithm and the Maekawa Algorithm. They are not all fault-tolerant but they are fairly efficient and they all
+try to guarantee safety and liveness. And as we progress down
+from Central to Maekawa, the algorithms have gotten better and
+better in terms of performance. Industry uses a variety of systems for
+coordination and for mutual exclusion, these include
+Chubby at Google which is used for locking and also to maintain
+small configuration files. And also Apache Zookeeper which is
+an open-sourced system that is used for coordination, and I encourage you to
+look up Apache Zookeeper on the web. [MUSIC]

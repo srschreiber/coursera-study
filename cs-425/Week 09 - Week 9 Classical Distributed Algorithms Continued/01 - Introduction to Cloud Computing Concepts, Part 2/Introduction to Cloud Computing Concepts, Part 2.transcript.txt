@@ -1,0 +1,39 @@
+[MUSIC] Welcome back to all the students
+interested in learning more about Cloud Computing Concepts. This is Cloud Computing Concepts part two. In this course, just like the first
+part of the Cloud Computing Concepts, remains about internals of cloud computing
+which means distributed systems. And display the algorithms that underlie
+today's cloud computing technologies. What underlies the hood is what
+we are going to focusing on in the second part as well. We'll discuss concepts, and techniques and applications of these two industry
+systems, as well as open-source systems. The second part of C3 Cloud Computing
+Concepts course builds on the part one. C3 part one is a prerequisite for,
+part two. We will be reusing and relying on many of
+the concepts we have learned in part one, throughout part two for the homework, for the material that we discuss, as well as
+for the optional programming assignment. So what are we going to cover in C3,
+part two? We'll continue our discussion
+where we left off in part one, and focus on more classical algorithms
+including leader election, mutual exclusion, and scheduling, all of which are used in pretty much all
+of the cloud computing systems today. We look at it a discussion of scalability. How do you support millions of
+clients with concurrency control, and hundreds of servers, and
+replicas with replication control? We'll look at new trending areas
+such as real time stream processing, distributed graph processing, and
+also, wisdom in structure of networks, as well as new areas like sensor networks. And finally, we'll discuss areas related
+to cloud computing such as distributed file systems,
+distributed shared memory, security. And we'll see case studies of what happens
+when things go wrong in data centers. And we'll continue interviews with our
+friends in Industria as well as Academia. What we'll be relying on from C3 part one
+includes classical precursors, information about the widely used algorithms and
+classical algorithms that underlie cloud computing systems, things that you've
+already learned in part one, as well as knowledge about map reduce and key value
+stores that you have seen in part one. Just like part one, here in part two,
+as well, we're going to have homeworks. Here, we'll have weekly homeworks. In addition, you'll be doing a programming
+assignment, and it's in C++. In addition, you'll be doing a programming
+assignment, and it's in C++. In this programming assignment, you're
+going to be implementing a fault-tolerant key-value store inside an emulator
+that emulates a distributed system. This builds on the programming assignment
+from the Cloud Computing Concepts, part one. So I highly encourage students who
+have not taken part one yet to go and, take a look and even try out
+the programming assignment from part one. And of course, at the end of the course,
+there's going to be one final exam. >> Cloud computing continues to be
+an exciting area, one that is dynamic and continuously changing. And I hope you will continue this
+journey with me as we complete our tour through the cloud computing concepts,
+landscape.

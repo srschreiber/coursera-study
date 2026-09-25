@@ -1,0 +1,105 @@
+[MUSIC] Hi everyone, so today we're going to
+discuss group membership and its need in datacenters and
+in cloud environments. So let's start with a scenario where
+you've been put in charge of a datacenter, perhaps that's your new job. And your manager tells you, no, we don't
+have any failures in our data center. Would you believe your manager? And if you didn't believe your manager,
+what would be your first responsibility? Well, your first responsibility would
+be to build a mechanism that detects failures of servers in your datacenter. I encourage you to think at this point
+about some of the things that could go wrong if you did not
+build a failure detector. And I'll come back to this
+question in a couple of minutes. But why would you not
+believe your manager? Well, in datacenters, failures
+are the norm rather than the exception. And let's see an example
+that illustrates this. Suppose the failure rate of one machine,
+say the hardware, software, failure rate
+is once every 10 years. This is a little bit optimistic, but
+let's say it's one every 10 years, and that means it's 120 months on average. When you increase the number of machines
+in your datacenter from one to 120, the mean time to failure goes
+down by a factor of 120. This means that the average time
+between now and the first machine, among those 120 failing, is 120 months
+divided by 120 which is 1 month. This is known as the MTTF,
+the mean time to failure. Still it's looking fine, but suppose you have a good scale datacenter,
+12,000 servers. Then the mean time to failure goes
+down by a factor of 12,000, and that turns out to be about 7.2 hours. You can imagine what happens if
+I make that a 120,000 servers, it would be 0.72 hours. Essentially this means that failures
+are happening almost all the time. And any system that you build that
+assumes failures don't happen will not work correctly. So what are the things that could go wrong
+if you didn't build a failure detector? Essentially, what you can have is you
+could have data loss because some of the servers have gone down. And your software has not
+detected this failure and not recovered from that failure. You could also have inconsistency in
+your system which could lead to loss of revenue for your customers. And eventual shut down of your datacenter
+and the services that it provides. So how do you build a failure detector? You have a couple of options,
+the first option is to hire 1,000 people. Each monitoring one or
+a few machines in the datacenter and reporting to you when the machine fails. The second option is to write a program or software that in a distributed manner
+automatically detects failures and reports to your workstation, or
+maybe even takes corrective action. Well, clearly the second approach
+is more preferable because, one, it does not require you to spend
+money to hire 1,000 people. Second, it's much faster, and third, it might even be able to take
+corrective action upon detecting failures. So we won't use the first
+option obviously, and we'll go down the path
+of the second option. So our target here is any distributed
+system that involves multiple members in a group. The group might be a datacenter
+where we have groups of servers, the members are servers. It might be a group of servers
+replicating one or more files, for instance in a peer-to-peer system. Or it might be a group of
+servers running a distributed or a replicated database,
+it doesn't matter what these are. The kinds of failures we're dealing with
+are crash-stop or fail-stop failures. This essentially means that
+once a member of the group, we'll call that member a process. Once a process fails, it basically
+stops executing any instructions from its point of failure
+until time infinity. It does not recover, also it does not
+take any actions which deviate from the original code or
+the original algorithm that you coded in. This is different from
+a few other failure models, such as a crash recovery failure
+model where processes can recover. The fail-stop, crash-stop failure model can be easily
+changed to be a crash recovery model. When you have processes rejoin the system
+with a slightly different identifier. The failure model where processes fail and
+deviate from their actions, that is known as Byzantine failure model. We won't discuss that in this series of
+lectures, we might discuss them later on. So essentially what you have at each
+process in your group of processes is that you have a membership list here. Which maintains the list of most or all of the other processes that are currently in
+your system and that have not yet failed. That means non-faulty processes. This membership list is accessed
+by a variety of applications, for instance the application might be,
+A gossip-based application, which you will find
+elsewhere in this course. Or it might be an overlay or
+a distributed hash table application, which you'll find elsewhere
+in the course as well. So essentially the membership list or
+accessing the membership list or even sampling the membership list is
+an important building block of many distributed algorithms. So our goal is to build
+the membership protocol which keeps this membership
+list up-to-date. As processes join the system, the group, as they fail silently, and as they leave. The difference between failure and
+leave is that a process, when it fails, it fails silently without telling anyone. However, a process leave essentially
+involves it telling people and giving them time to update their
+membership lists before it changes. One of the biggest challenges is that this
+membership protocol has to communicate over the unreliable communication medium. Which can drop packets,
+which can delay packets quite a bit. The quality of the semantics of this
+list might be of different flavors. The list might be a complete list that
+is consistent at all times across all the processes in the group, this is
+known as strongly consistent membership. For instance, virtual synchrony, which is a well known distributed
+computing paradigm, relies on this. There are also algorithms
+such as gossip style, algorithms which rely on
+an almost complete list. There are a variety of examples of this, some of which you will
+see in this lecture. There are also other algorithms
+such as SCAMP, T-MAN and Cyclon which you can look up papers for on
+the web which make a partial-random list. Our focus here is on almost complete
+lists because they are weakly consistent. But they're close enough to the complete
+list itself that they're useful to a variety of applications. So you'll notice here that I put
+two sub-protocols in the membership protocol place. One is a mechanism that detects failures, the second is a mechanism that
+disseminates information about these failures after detection to
+the other processes in the system. The dissemination component can also be
+used to disseminate information about process joints as well as
+process leaves in the system. So that was for one process pi,
+however the same algorithm or the same software is running at
+all the processes in your group. And this might be thousands of processes, we'll call these as
+the members of the group. And remember that they're communicating
+over an unreliable communication medium. The goal here is that, just suppose
+we have two processes, pi and pj, and we're dealing with
+crash-stop failures only. When process pj crashes,
+this could be any of the process pj, some process finds out
+quickly about this failure. This is the goal of the failure detector
+component of the membership protocols. Now multiple processes might find out
+about this failure, but we need to ensure that at least one non-faulty process
+finds out about this failure. What it does, it can then use
+the dissemination component to disseminate this information to
+the other processes quickly. So that they get to know about this
+failure and update their membership lists. So next we will discuss how to design
+group membership protocol that has both the failure detector component and
+the dissemination component. [MUSIC]

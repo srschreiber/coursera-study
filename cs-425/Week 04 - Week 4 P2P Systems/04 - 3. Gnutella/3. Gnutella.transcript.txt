@@ -1,0 +1,383 @@
+In this lecture we are going
+to study, uh, Gnutella, which is the, um, uh, arguably the first fully distributed, uh, peer-to-peer system. So one of the problems
+with Napster was the fact that the servers were maintaining
+directory information and that they were,
+uh, responsible for "indirect infringement," and so Gnutella's
+solution to this was to eliminate
+the servers altogether and instead use
+the clients themselves to search and retrieve
+using messages. So in effect the clients
+act as servers too, or they take on some
+of the responsibilities of the, uh, the servers, and so Gnutella clients are often called as "servents," which is a collage word that consists of "server"
+plus "client." Uh, AOL actually released
+Gnutella in 2000, uh, but realizing that there were
+copyright issues with it, uh, withdrew it, but Gnutella
+continued growing, and it had, uh, 88,000 users
+around, uh, March 2003. Gnutella itself underwent, uh,
+several revisions. Uh, we are gonna discuss the very first version
+of, uh, Gnutella, uh, that was, uh, published,
+uh, as tech report. So Gnutella, there
+are no, uh, servers. Instead peers, uh, communicate
+directly with each other. Um, peers, like in Napster,
+store their own files; files do not go anywhere
+by default. Ah, but peers also
+store peer pointers. In other words, every peer
+has one or more neighbors which are also other peers
+in the system. So consider this peer over
+here, it has five neighbors, uh, this, this, this,
+this, and this peer. Essentially, a neighbor means
+this peer knows about their IP address
+and port number pairs and can send them, uh, messages using, uh, for instance, TCP. So essentially, uh, this, uh,
+creates a graph among the peers; this is called an overlay graph. This is called an overlay graph because it's a graph that is overlaid on top of the internet. Uh, each of the links
+in this graph, each of the edges in this graph, is essentially an internet path
+in the underlying internet, but as far as the
+overlay is concerned, it is, um, uh, the actual path
+in the underlying internet is irrelevant. As long as the peers
+can talk with each other, that's all that matters. So, um, how do I search for a
+particular file, say the Beatles
+"Penny Lane" file, which we searched for
+in, uh, Napster earlier? Well, Gnutella routes
+different messages within the overlay graph, and for this it uses five
+different kinds of messages. For the search messages
+which contain the key words, it uses the Query message. The QueryHit is a response to
+the search, and we'll see these, uh, over the next few slides. In order to keep, uh, the list
+of neighbors, uh, up to date, it uses Ping and Pong messages, and it uses a fifth kind
+of message called Push, uh, for a file transfer. We'll go into the structure
+of the messages now, and the protocol itself. Now, all of the fields
+in the messages that I'm going to discuss are I, except IP addresses,
+are in little-endian format. Um, you might have heard
+of little-endian versus big-endian format. These are two different ways
+of, uh, storing, say, integers in your memory. In the little-endian format,
+essentially if you have a hex, which is 12345678, 78 is stored
+in the lowest address byte, then 56 is stored
+in the next higher address, and so on and so forth. Uh, in the big-endian format,
+this would be reversed. Essentially, 12 would be stored
+in the lowest address byte. So here is the header for all
+the five kinds of messages in Gnutella; Query, Queryhit,
+Push, Ping, and Pong. The first 16 bytes are, uh,
+the ID of this transaction. This is typically
+generated uniquely for every single search
+from every peer. In other words, whenever your
+client generates a, uh, search, it has to generate
+a descriptor ID that is unique
+throughout the entire system. For instance, you could, uh,
+generate this by using the IP address
+and port number of the client, and also an incrementing
+sequence number at that client itself. This descriptor ID is useful
+because the intermediate nodes can then use this
+to distinguish messages that only belong
+to this particular, uh, search, and not confuse it
+with other searches. The next two bytes,
+uh, essentially, uh, carry the type of payload, the kind of message
+that this is, and this is one of five types for the five
+different messages. Next you have TTL,
+or "time to live." That's one byte, and then Hops, which is the number of hops that this, uh, message
+has transmitted to. Whenever a message
+is forwarded by a peer to its neighboring peers,
+TTL is decremented by one. When the TTL hits zero, you do not
+forward the message anymore. The TTL is set
+to be a finite number, so that essentially a message doesn't keep circulating around the overlay
+graph forever. You don't want the overlay graph
+to have very old messages still going around
+inside of them. The initial TTL is usually set to be somewhere
+between seven and ten. The hops is also incremented every time
+a message is forwarded. You might wonder, at this
+point, and I'm sure you should, you're wondering, why you
+need a hops when you have a TTL. Well, the reason
+is the initial TTL may not be the same
+at all the initial peers. Uh, some peers might choose
+the initial TTL to be seven others might choose it
+to be ten. In any case, most
+of the protocol, uh, deviants we discussed don't really
+use the Hops field; they mostly rely
+on the TTL field. Finally, the message
+might have a payload, which differs depending
+on the kind of message it is, depending on the one
+of the five kinds of messages. And so how many bytes are there
+in the payload is present in the Payload
+length field, so you know how far to look
+for the end of the message. That being said, let's go
+into the individual messages. The Query message contains, uh,
+first of all the minimum speed that is requested
+by the Querying peers, so if you're connected
+to a, um, 100 MBps line, you might say
+"Well, I need peers that are "at least 100 MBps
+or at least 10 MBps," and then the search criteria,
+these might be the keywords, say "Beatles Penny Lane"
+that you're searching for. This is present in the Payload
+portion of the previous, uh, message that I showed. But how are queries sent out? Well, let's imagine this, uh,
+peer on the bottom left is the one that is trying
+to search for PennyLane.mp3. It creates a Query message
+which has a TTL of, say, two in this case, and it sends out,
+uh, the Query message to its immediate
+neighboring peers, this, uh, top left peer and also
+this middle peer over here. When, um, uh, each of these
+peers receives its message, it first of all searches
+among its local files whether they have, um, uh,
+any of their keywords matching the incoming
+Query message, and also it floods out
+the Query message to its immediate
+neighboring peers. So this peer over here
+that I'm showing, uh, floods out the Query message
+to all the peers it has received except, uh-so all of its neighboring peers, uh, except the one
+from which it just received, uh, the Query message, so in
+this case that's four peers. This peer would have
+done likewise, except that it received
+the Query message, um, uh, from this other peer, so it doesn't send it, uh,
+the same Query message. How does it know this? Well, the descriptor IDs
+of these Query messages are the same,
+and they are retained, um, as the messages transit through the overlay graph. Now, in this, um, arrow or also
+in any of these arrows, the TTL of these messages is 1. So when this peer receives
+a Query message, or the two Query messages, it decrements the TTL,
+finds that the TTL is 0. It does not forward
+the Query message anymore. So for instance, this peer over
+here never receives the copy of the Query message because,
+uh, all of its neighbors have already had a TTL of 0 when they received
+that Query message. So the Query messages
+are also TTL restricted. Finally, they
+are forwarded only once, so once this peer
+has forwarded a Query message, if it receives a duplicate, uh,
+for instance, um, you know, this peer might receive
+a duplicate from this peer, it doesn't forward
+the Query message a second time. A-again, how does it know this? It knows this by,
+uh, keeping track of the recent Query messages that it has forwarded, uh, and using
+the descriptor ID field to find out whether or not an incoming
+Query message is a duplicate. So in this way essentially
+you're trying to, uh, flood out the Query messages, but not
+to the entire network, only to some, uh, portion
+of the overlay graph, um, uh, hopefully
+a large enough portion that you'll get back
+enough search results. Now, how do search
+results come back? So when a peer finds that
+it has some matching files which match the incoming Query's
+keywords, what does it do? Well, it creates
+a QueryHit message. The QueryHit message contains
+the following payload. It contains
+the number of hits, the number of files that match, it contains the port,
+uh, and the IP address, as well as the speed
+of the responding peer, this is the peer that is responding to the querying peer, and then it contains, uh, for each of the files
+that match, information about that file
+such as the filename, the file index,
+and the file size. It might also contain
+a servent ID, which essentially
+is a unique identi-identifier of the responder. This might be derived
+from its IP address. For most parts this
+is not really used, um, uh, in the Query
+and QueryHit. It might be used by the Push
+message, but not really here. Now how does the QueryHit
+make its way back to the querying peer? Well, QueryHits
+are reverse routed. Remember we said that every peer
+keeps track of, um, the recent Query messages
+it has received. It also keeps track of which
+of its neighboring peers it received
+this Query message from. So when this peer either
+generates a QueryHit message or receives a QueryHit message, it just, uh, simply, uh,
+sends a QueryHit message back to the peer
+from which it received the corresponding Query
+message from. So this peer, uh, over here in
+the, uh, top right corner, when it generates
+a QueryHit message, it sends back the QueryHit
+message to that peer which sent it
+the corresponding Query message. This QueryHit message
+that is sent back contains the same descriptor ID as the original Query message, so that, uh, the peer
+that is receiving, uh, this QueryHit message knows, uh, which Query message is the corresponding matching
+Query message for this QueryHit. And so, uh, in this way
+the QueryHit messages make their way back
+in the reverse path to the querying peer, uh, and the querying peer
+now receives back all of these responses, and now it knows who are, which are all
+the matching files, and it can display these
+responses to the user. Now to avoid
+duplicate transmissions, each peer maintains a list
+of recently-received messages, uh, as we mentioned. The Query is forwarded
+to all neighbors except the peer from which
+you have received it, or peers from which
+you may have received it. Each Query is
+forwarded only once. The QueryHits
+are reverse routed, uh, back to, uh, the peer from which the Query received
+the same descriptor ID. And duplicates with the same
+descriptor ID and payload typically, uh, Queries,
+um, are, uh, dropped. Also, the overlay graph may
+have changed, as we'll see soon, because some of the neighbors
+may have shifted and changed, uh, in between the time that
+the Query went through and, uh, until when the
+QueryHit comes back. So, uh, this, in addition
+to the fact that you're only maintaining some of the recently-received query messages may mean that you might receive
+a QueryHit message, uh, for which you don't have
+any information about a Query message with the
+same matching descriptor ID. In this case, you do not flood
+the QueryHit message; instead, you just drop it. Uh, this may result in some of
+the, uh, responses being, uh, not shown
+at the querying peer, but hopefully this is only a small portion of the total responses. So what happens when the
+querying peer receives back, um, uh, the response? Essentially these are shown to,
+uh, the client, and the client then, um, uh, selects one of them, depending on the, uh, bandwidth, uh, and then,
+uh, the download starts. Well, how does
+the download start? Well, initially the requester
+or the querying peer, uh, sends an HTTP request to the responder's
+IP address and port number. This is a GET http
+request, as shown. It also contains, um, uh,
+a connection type, which is a Keep-Alive, uh,
+in this case an HTTP 1.0. It also specifies a range field. Uh, the range field
+is essentially used, uh, to start partial file transfers. So for instance, if you started
+to transfer a 1 MB file, and after you'd
+transferred 512 KB the connection, uh, was killed for some reason, then you can trans ano-transfer- start another GET transfer by specifying the
+range field that's 512 KB so that, uh, the file transfer
+starts from the 512 KB, uh, onward, uh, rather than- and transfers only
+the second half of the file rather than transferring
+the entire file. When the responder receives
+this GET message, it responds back
+with an HTTP OK message, uh, with the content length,
+the number of, uh, bytes, and then this
+is followed immediately by packets that contain
+the actual file data itself. So HTTP is a file
+transfer protocol. Why the Gnutella developers
+decided that-it's standard, it's well-debugged
+and it's widely used, and they didn't want to reinvent a new file transfer protocol. The range field, as we
+discussed, is used, uh, to support partial
+file transfers so that you don't need to, uh,
+restart the entire file, um, uh, transfer, uh, whenever
+a connection gets dropped. Now one of the issues that
+arises in the real internet is that, uh, some of these
+peers are behind firewalls. A firewall is essentially used, uh, to prevent some kinds of messages,
+uh, uh, from coming in. It does not, uh, prevent, uh,
+messages from going out, or at least most messages
+from going out, but it does prevent some
+kind of messages from coming in. So if you go back, uh,
+essentially, um, this HTTP message will not make its way to the responder if the responder
+is behind a firewall. How do you then do
+the file transfer? Well that's where the Push
+message comes into play. What Gnutella does
+is something very clever, which is that it uses
+the overlay links themselves, remember that these edges in the overlay are already set up; they're already set up
+TCP connections among, uh, the peers
+or between pairs of peers. And so you can route whatever
+messages you want, uh, using these links, and so that's what, uh, the, uh,
+Gnutella requesting peer does. First it does try to set up
+an HTTP connection to the responding peer. When it fails,
+it guesses that hey, maybe the responding peer,
+the yellow peer, in this case, is behind a firewall, and it routes a Push message via
+the, uh, links in the overlay, and again, the Push message
+is reverse routed along the Query hit path, okay, so it's reverse routed
+along the reverse QueryHit path, and so when the peer receives
+this, uh, Push message, it can then generate
+an outgoing TCP connection. Here's what a Push
+message looks like. Here's where the servent
+ID field is used. This is, uh, taken from
+the QueryHit message. The file index is also taken
+from the QueryHit message so that you're not using
+the entire file name. And then the IP address and
+port number respond-correspond to the address
+of the requesting peer so that the responding peer can create an outgoing
+HTTP connection. When the responding peer
+receives this Push message, it creates an, uh, uh, ah, uh, TCP connection that goes out
+to the requesting peer. It sends a GIV HTTP
+message along this. When the recei-when the
+requestor receives this, it then sends a GET HTTP message
+just like we discussed before, and then the file transfer
+is completed just like we discussed before. If the requestor
+is also behind a firewall, um, uh, then Gnutella gives up, uh, but you should be
+able to think of, uh, a clear alternative,
+uh, solution. Finally we come to the
+Ping and Pong messages. These are used by peers, uh, to update, uh,
+their neighbor lists. The Ping message, uh, is, uh,
+flooded out, TTL restricted, and it is done so periodically
+by every peer. Essentially, a Ping message
+is sent by a peer to know its
+immediate neighborhood. The TTL is typically-typically
+the TTL is very small. It's typi- uh, typically
+much smaller than 7 or 10, and this is used by the peer to know its one
+or two Hop neighbors or three Hop neighbors maybe, so that it can
+update its membership list. When a peer receives
+a-a Ping message, it responds back
+in the reverse route to the Ping message
+using a Pong message. The Pong message contains
+the IP address and port number of the responding peer, the number
+of files it has shared, and the number of kilobytes
+it has shared. These last two fields are used
+by the, uh, pinging peer to prefer neighbors
+which have more data and more files to share. Why is Ping and Pong needed? Well, because peer-to-peer
+systems have a very high, um, rate of churn. Uh, clients are continuously
+joining and leaving the system, and we'll discuss this
+in a little bit, but the rate of churn
+is so high that, the, uh, set of neighbors
+that you have right now may not be there a few
+seconds, uh, from now, because some of them
+may have left the system. So it's very important for you
+to keep your set of neighbors always, uh, fresh
+and always, uh, fresh with the-with neighbors
+that are are currently there in the, uh, uh, in the system so that you're not disconnected from the system. So in summary, Gnutella
+maintains no servers. Instead, peers form
+an, uh, overlay graph and they maintain neighbors. Peers store their own files,
+queries are flooded out, TTL restricted,
+forwarded only once, QueryHits are reverse routed along the reverse path. Gnutella also supports
+file transfers when the responding peer
+is behind a firewall, and it uses periodic Ping-pong to continuously refresh
+neighbor lists so that, uh, peers maintain,
+uh, connectivity to the overlay graph in spite
+of churn in the system. Now because the size
+of the list may be different, because different clients
+may specify different maximal
+neighbor list size, uh, they have found, um, uh, that there is heterogeneity
+in the system, that different, uh, peers have
+different numbers of neighbors. In fact, they've found that this
+regular distribution, uh, the number of links
+that a, uh, peer has follows a power
+law distribution. In other words, the probability
+that the number of neighbors you have is L ~ L/-k where k is a constant. This is a power
+law distribution. Some of the problems with
+original, uh, um, Gnutella have been solved since. Uh, the Ping and Pong traffic
+in the original version of this Gnutella consumed a very
+large amount of traffic, 50% of the traffic. One of the, uh, uh, fixes to
+this was to multiplex. In other words, uh, when you
+have multiple, uh, Pongs that are being received
+from multiple peers, you, uh, make one Pong message out of it and, uh, send it forward instead of sending multiple
+Pong messages. Similarly with the Pings, uh,
+you forward, um, only one Ping when you receive multiple Pings. You can also cache
+these messages. If you receive a Ping
+from another, uh, peer and you have some
+of the latest received Pongs for a previous Ping, you can simply send back, uh,
+those cached pongs instead of forwarding
+the Ping again. You can also reduce the
+frequency of Pings and Pongs, uh, to bring down,
+uh, this particular overhead. The same caching can
+be used for keywords. Some files may be popular. A recently released song by some
+artist may be more popular and may have, uh, may appear
+in more Query messages. In that case you can cache
+the QueryHit messages, and if you receive a query message with identical keywords to a previously cached
+QueryHit message, then you can send back the previously cached
+QueryHit messages instead of forwarding
+the Query message themselves. Also, some peers just do
+not have enough bandwidth. They might be connected over
+very slow modems; um, they may not have enough
+bandwidth for Gnutella traffic. In this case you may want
+to use a central server to act as a proxy
+for such, uh, peers. A different solution that leverages some
+of the more powerful nodes in the systems, some of the more powerful appliance in a system, is called FastTrack,
+which we'll discuss soon. Some of the other problems
+with Gnutella, uh, which are not just problems
+in Gnutella but problems with any
+peer-to-peer system, uh, are the-is
+problem of freeloaders. Uh, here, a-a freeloader
+is essentially a user who only ever downloads files, never uploads files
+to the peer-to-peer system. Studies, uh, have found that as
+many as 70% of the users in the year 2000 in Gnutella
+were freeloaders, um, and this meant that, um, only
+a small fraction of the nodes, in this case 30%, uh, were taking on
+most of the responsibilities of serving files, uh,
+to the system. Again, this is a problem
+that is not necessarily only Gnutella-specific. It's a problem that is-that
+appears in all peer-to-peer, uh, systems because
+of, uh, human behavior. This is not a technical issue, but rather
+a human behavior issue. And I hope you have been
+wondering all along, uh, why do you need to flood
+the Query messages. Query messages being flooded
+out are still fairly wasteful. A very large portion of the
+entire overlay graph receives every single Query
+message that is sent out. Uh, this can be very wasteful; this can use a lot of bandwidth. Instead, is there a way
+of intelligently routing the Query messages so that it
+reaches only those peers which are, um, currently storing, um, uh, copies of
+the files that match, uh, the, um, what the querying
+peer is looking for? That's essentially what a lot of the academic
+peer-to-peer systems do. These are structured
+peer-to-peer systems, and one of these systems,
+called Chord, one of the first structured peer-to-peer systems that came out of academia, is one of the systems
+that we'll study next.

@@ -1,0 +1,82 @@
+In this lecture, we will see what the gossip protocol
+actually looks like. So once again,
+you have a group of, uh, nodes in your
+multicast group and you have one
+multicast sender. Again, we consider
+only one multicast message and only one multicast sender, but the same protocol
+can be applied, uh, to multiple mulst-multicast messages being sent out, each by a separate sender. So you want to get
+the multicast across to all the nodes in the group. So, uh, what happens through
+the-eh-the sender is that periodically, say once every
+five seconds or so, uh, the period can be adjusted but let's say five seconds. Uh, the sender picks b, uh,
+targets at random and sends them copies
+of the multicast message using what is known
+as a gossip message. This gossip message
+can be transmitted using the connectionless, uh, undereliable protocol, UDP, uh, and this works, uh, because gossip by itself, the overall protocol has a lot of reliability,
+as you will see soon. Okay, so this b again-again
+is, uh, is a gossip parameter. B, typically,
+is a very small number, say b equals two is a typical, uh, value for, uh,
+the, uh, gossip fan out. B is called a gossip fan out. Uh, and it does this periodly. So every five seconds, a sender
+will send out, will select b, uh, nodes at random
+from the group, and sends them copies
+of the gossip. Uh, these are, uh,
+these nodes are picked, uh, uh, with replacements so, uh, it's potentially possible that, uh, the same nodes
+are picked multiple times to receive the gossip. What do receivers do? so once, uh, uh, a node
+receives its gossip, it is said to be infected
+by the gossip. And after it doe-after it
+receives the gossip, after it's infected
+by the gossip, it does the same thing,
+uh, as the sender, meaning that periodically,
+every say five seconds, it sends out, um,
+uh, b copies of the gossip, of the multicast message, to, uh, each, to a randomly selected, um, gossip target. So here you notice that, uh,
+the two red nodes that received the gossip
+in the previous round, uh, are sending out gossips now and there might be nodes
+that receive, uh, multiple, duplicate gossips that contain the same
+multicast message. So, there is some amount
+of wastage, over here. Finally, in this particular run, all the, uh, nodes in the group get infected by this uh, uh, gossip, uh, spread and they receive
+the multicast message. So, in a sense, gossip is using a slightly higher
+number of messages, i-in order to get
+the gossip across but this has certain amount of, uh, benefit as
+you will see soon. Uh, and the amount
+of overhead involved- the increased overhead involved is not that much. So this is the epidemic or
+the gossip multicast protocol, uh, in a nutshell. When a, uh, node, eh, receives, uh, the, uh, gossip
+or the multicast message, it's said to be infected. Otherwise, it's uninfected. When a node turns from
+uninfected into infected it starts periodically
+sending out, uh, copies of, uh, this gossip, uh, message, uh, to b t-targets,
+uh, selected at random. Once again, the gossip, uh, protocol itself is not synchronized across different, uh, nodes so each node would essentially be running
+its periods of gossip completely independent of
+the other nodes in the system. However, when it comes
+to analysis, uh, typically we assume that the nodes run in, uh, synchrony, uh, because this helps to make the analysis, uh, um, easier and more tractable. However, that analysis
+also applies when nodes are
+completely unsynchronized and are running gossip,
+uh, periods, uh, completely independently
+of each other. So that protocol,
+that I described, was actually a push,
+uh, gossip protocol, where, once a node has received a multicast message, it then, turns infected and starts to gossip that message. If you have multiple messages
+essentially, uh, you can gossip, uh, either each
+message separately or you can gossip uh,
+a set of messages together, perhaps a random subset
+of the messages you received, or you could gossip
+recently received ones, recently rec-recently
+received multicasts, uh, because they are
+more important. Or multicast messages might be
+marked with a priority, and you always prefer
+the higher priority messages and put those in the gossip, uh, uh, rather than
+the lower priority messages. Again, there are variants of the gossip protocol
+that I described that have each of these, um, uh, implemented in them. Now the reverse of the push,
+is the pull based, uh, gossip protocol, where essentially instead of, uh, sending out gossips
+only when you turn infected, you send out gossips
+all the time, and the gossips don't necessarily contain messages, instead they contain, um,
+uh, queries, uh, for, uh, messages that might
+have been received, uh, since the last time
+you gossiped. So, essentially, periodically you send out a gossip message, uh, to a few randomly selected nodes in the group asking, "Hey, have you heard
+of any multicasts "since this last multicast
+that I heard?" If they have, then they send you
+copies of the multicast message. That's called a, uh,
+pull based, uh, um, protocol. There are also, uh,
+hybrid, uh, variants, uh, hybrid push-pull variants
+of gossip where, in the initial query
+when you have the pull, uh, message going out, um, the pull query going out, you also include some
+of the recent gossip messages that you received, that makes it
+a push-pull hybrid protocol. In the next lecture,
+we'll be analyzing, uh, how the push
+and the pull protocol, uh, work, how fast they are, how fault tolerant they are.

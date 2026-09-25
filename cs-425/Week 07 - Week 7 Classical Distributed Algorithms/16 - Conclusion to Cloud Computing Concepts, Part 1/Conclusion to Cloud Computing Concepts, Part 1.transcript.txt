@@ -1,0 +1,46 @@
+[MUSIC] At this point, in the course as we begin to wrap up the
+part one of the cloud computing concepts, we are essentially taking a pause,
+in the concepts that we have seen so far. Hopefully what you've seen so
+far has been a good sampling of what underlies to these cloud
+computing systems. You've seen a little bit of
+distributive algorithms, and, in the second part of the cloud computing
+concepts course, we'll continue our, tool. What you've learned so far has been
+an introduction, to the idea of cloud computing concepts including mapreduce and
+key-value stores, many classical precursors and widely used algorithms that
+underly today's cloud computing systems. And also we have started to
+look at classical algorithms, as, the end of the course came up. In the second part of the course,
+we'll continue with, the same thread. We'll continue looking at
+more classical algorithms. You also looked at some
+interviews with managers and researchers from industry
+as well as academia. What's coming up after the pause in C
+three part two, the second part of this course, is a more classical
+algorithms including leader election, mutual exclusion and scheduling. Discussion of scalability,
+how can you support millions of clients? How can you support hundreds or
+thousands of servers, replicating data? We look at new trending areas
+such as stream processing, distributive graph processing. As well as,
+wisdom on structure of networks. As well as exciting ideas
+like sensor networks. And we'll look at a variety of ideas that
+have, some relation to cloud computing, including distributed file systems, distributed shared memory,
+security, and we'll look at some case studies of what happens
+when things go wrong in data centers. And of course we continue interviews with, our friends in academia
+as well as industrial. The goal of, C3-Part 2, which is coming
+up, remains the same as, Part 1. We continue to look at the internals of
+cloud computing, meaning the listable systems and algorithms that underly
+to these cloud computing systems. We'll discuss concepts, techniques,
+and industry systems that use these concepts and techniques,
+including open-source industry systems. Again the format of C3 Part 2 should be
+familiar to you, it is just like C3 part one, you have two homeworks, and one exam
+and an optional programming assignment. While in C3 Part 1, you will build
+a membership protocol in C3 Part 2, you will be building a key
+value store inside an emulator. But one again, just like part one, the
+emulator is better so that the code can be taken as is, and ported easily
+over a reall distributor cluster. C3 Part 1, that you have been involved in
+so far, is a prerequisite for C3 Part 2. Which means that you are perfectly pleased
+to move forward to C3 Part 2 right now. You have all the necessary,
+background that, you need to actually
+take C three part two. Cloud computing continues to
+be an exciting media, and, one that is dynamically changing and
+continuously changing. So I invite you to continue this,
+journey with me as we move forward and continue our journey,
+through the landscape. I'm looking forward to seeing you again
+in Cloud computing concepts Part 2. [MUSIC]

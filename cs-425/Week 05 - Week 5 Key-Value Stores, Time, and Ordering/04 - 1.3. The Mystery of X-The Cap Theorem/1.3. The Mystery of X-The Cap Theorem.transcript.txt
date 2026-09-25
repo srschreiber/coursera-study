@@ -1,0 +1,350 @@
+So, uh, when we discussed
+the design of Cassandra in the previous lecture, uh, we use
+this magic value of X, which, uh, is,
+uh, specified by the client alongside every
+read or write query, and X specifies
+the number of replicas that the coordinator waits for until, uh, it can return
+either a read value or an acknowledgement
+for the write for the client. How do you set this value of X? Well that brings us
+to the discussion of, uh, the famous theorem known
+as the CAP theorem. The CAP theorem was proposed
+by Eric Brewer from Berkeley, and was subsequently
+proved theoretically by Gilbert and Lynch,
+um, from, uh, NUS and MIT. Uh, and basically it
+says the following: uh, in a distributed system, uh,
+there are three properties that are considered
+to be very important. Uh, typically this
+is for a storage system. Um, and unfortunately,
+in a, uh, distributed system such as an asynchronous distributed system, you can only satisfy, at most, two out
+of these three properties. You can't guarantee
+all the three. The three properties are: consistency, availability,
+and partition-tolerance. Consistency essentially says
+that even though there are multiple clients that are
+reading and writing the data, uh, all the clients,
+uh, see the same data at, uh, at any given
+point of time. Uh, and that the reads,
+uh, by any client return, uh, the latest written value
+by that particular client. Availability says
+that the system allows, uh, read and write operations
+on all the keys all the time, and these operations return
+very, very quickly. Partition-tolerance says that, uh, when the system
+is, uh, partitioned, when the network is
+partitioned into say two parts that cannot talk
+with each other, the system continues to work and, uh, guarantee both the
+consistency and the availability that we outlined earlier. So the CAP theorem
+essentially says that you cannot guarantee
+all the three, you have to choose, at most,
+two out of the three. So why are
+these three important? Before we discuss
+the actual CAP theorem, and so let's look at why consistency, availability,
+and partition-tolerance are really important. Availability refers,
+uh, to the fact that, uh, first of all, you can read and write keys all the time, and also that reads and writes complete reliably
+and very, very quickly. Well, quick-the quickness
+in, uh, reading and writing is very important because
+it essentially translates to revenues
+for today's businesses. Measurements, for instance,
+have shown that a 500ms increase in latency for operations
+at Amazon.com, um, uh, or at Google.com cause a 20% drop in,
+uh, the numbers of users that, uh, come
+into that particular site. And this results in essentially
+a 20% drop in the revenue for that particular,
+uh, company. At Amazon.com, um, each added
+millisecond of latency resulted in six million, uh, uh,
+dollars of, uh, loss per year. And this is an enormous amount. And again, this is really
+why these companies care for availability. They care to make the latencies as small as possible
+for all reads and writes. Uh, so service level agreements, uh, or SLAs, which are typically written by providers, uh, for any of their customers,
+uh, for instance, Amazon webservices
+might have SLAs that it provides to Netflix, which uses Amazon
+webservices infrastructure, um, uh, SLAs, uh, predominantly
+deal with latencies that the customers, uh, want
+the provider to, uh, guarantee. So why is consistency important? Um, uh, consistency essentially
+says that all nodes see the same data at any time and that reads
+returned by a client refer to the latest writes
+to that key. Well, when you access your
+bank or investment account by a multiple, uh, client
+such as your laptop, your workstation, your phone or your tablet, you want all the updates
+to reflect, uh, uh, in all the devices. You don't want, uh, to update
+something from your tablet and then immediately
+go to your workstation and find that that update has not been reflected
+on your system. Also when you have multiple
+clients reading and writing, uh, the same set of, uh, keys, um, uh, for instance when you have thousands
+of customers and client machines that are trying to book
+the same flight, you want
+the same consistent information, uh, reflected
+to all the clients. You don't want some clients
+to see only two seats available, other clients to see only
+to-uh, one seat available. You don't want two different
+clients booking the same seat, uh, on the same flight. And again, partition-tolerance,
+the third one of, uh, the CAP, uh, is, uh, important
+because partitions can happen across data centers when
+the internet gets disconnected. This may happen
+during internet router outages, it may happen
+because the under-seas je-se-Atlantic internet
+cables get cut, uh, or because the DNS or the
+Domain Name System doesn't work, or because of censorship, because of, uh, uh,
+certain governments. Partitions can also occur
+within a datacenter. For instance, uh, uh, rack
+switch might go out, which means that all the servers
+in that rack are, uh, for now,
+uh, disconnected from the rest of the work. And in spite of this partition,
+these partitions occurring, you still desire the system
+to continue functioning, uh, normally, and providing
+consistency and availability under these partition scenarios. So the CAP theorem says that again you can
+only, uh, get three, only at most
+two out of these three: consistency, availability,
+and partition-tolerance. Since partition-tolerance
+is really, really important in today's, uh, uh, uh, world
+and because partitions do occur, uh, let's say the P
+is really, really required. Essentially this means that,
+uh, the CAP theorem implies that you have to choose between either consistency
+or availability in today's systems. So Cassandra, which is the system we have been discussing so far, uh, always
+chooses availability. So it chooses availability A, and partition-tolerance P. Which means that it has
+to punt on the consistency. It can only provide weaker forms
+of consistency, and it provides a weak form known
+as eventual consistency. Cassandra does not provide
+strong notions of consistency. Traditional relation databases, uh, prefer strong consistency instead over availability or insert availability whenever
+you have a partition. Okay, so this is a-a market
+change, uh, a sea change, uh, in these new generations
+of key-value stores. So, uh, the CAP trade-off
+has been the starting point for the NoSQL revolution, uh, once again
+it says that you can get, at most, two
+out of three of C, A, and P. Uhm, and-so if you draw
+a triangle where you have consistency, availability,
+and partition-tolerance at the three edges
+of the triangle, different systems that exist
+can be put at different points on the spectrum. So relation databases prefer
+consistency and availability in in the-in scenarios, uh,
+where they are single server and they really don't care
+about partitions. Okay, so when you don't have
+multiple servers, you can provide both C and A. However, Cassandra, and also
+other, uh, key value stores, such as RIAK, Dynamo
+and Voldemort, uh, prefer availability
+and partition-tolerance, and they provide weaker notions
+of consistency. Other NoSQL systems such as HBase, HyperTable,
+BigTable, and, uh, Spanner, where, um, uh, BigTable and
+Spanner are both from Google, prefer consistency
+as well as partition-tolerance, and they might have, uh,
+weaker notions of availability when there are, uh, partitions
+that can happen in the system. So what is eventual consistency
+which is provided by Cassandra, what does it really mean? Eventual consistency essentially
+says the following: given a key, suppose all
+the writes to that key stop. Then all the replicas
+of that key, uh, all the values that
+are mating on the server side, will eventually converge
+to, uh, the latest write that has been written
+to that particular key, okay. Typically the latest write, it doesn't need
+to be the latest write, it is some one value. Essentially is says that all
+the values uh, need to converge um, uh, to being the same value. Um, again this is the
+theoretical definition, um, uh, the, uh, reality though is that writes
+will continue coming, they'll keep coming
+to the system. Uh, if this is the case, then the system will always try
+to keep converging, that's what eventual consistency
+always tries to do. Essentially you have a, um, uh, uh, a front wave of the
+latest writes that are going on in the system and then you have
+a, um, a moving later wave of updated
+values of the replicas and the moving wave is always
+trying to catch up to that, uh, front wave. Yeah, and if the writes,
+uh, become slow at some point of time, uh, then, uh, the moving wave
+will catch up, uh, to, uh, the latest values. However, because the moving wave
+is always lagging behind, is oftentimes lagging
+behind the front wave, uh, some reads might
+return stale values, uh, to the clients,
+uh, for instance, if there are many
+back-to-back writes and, uh, mechanisms we-
+that we have discussed, like the read repair,
+uh, don't have, uh, time enough to catch up, uh, uh, to the front wave itself of updates, then, uh, the, um, uh, then some
+of the reads from clients may return,
+uh, the staler values, older values that replicas. So, uh, relation databases, uh,
+provide what is known as ACID, these are very strong,
+uh, guarantees, uh, ACID stands for Atomicity, Consistency, Isolation and Durability. We'll discuss these
+later on, uh, in the course. Uh, ah, in comparison, key
+value stores like Cassandra are reputed to provide, uh, the
+opposite of ACID, which is BASE. Uh, this is sort
+of a tongue-in-cheek, uh, terminology, uh, but it-it
+seems to make sense here. BASE stands
+for Basically Available Soft-state Eventual Consistency. Uh, basically available you
+know, because Cassandra, uh, wants to always support
+reads and writes, no matter what happens
+in the system, soft state refers
+to the fact that it maintains a lot
+of in-memory information, especially like the mem tables that we have already discussed. Eventual consistency, like we
+have discussed, ensures that, uh, when, uh, writes stop
+or become slow, then all the replicas
+of a given key will converge
+to the same value. Again, uh, Cassandra prefers
+availability over consistency when it comes
+to partition-tolerance. Now, back to Cassandra. Let's look at the value of X. So how do you specify
+the value of X for a given read or a write? Uh, the value of X is what is known as a consistency
+level in Cassandra. The client is allowed
+to choose the consistency level for each operation,
+a read or a write, for any key,
+uh, that it sends out. So for each operation
+that the client sends out, it can specify a given consistency level for that particular operation. If the consistency level is ANY, this is an allowed consistency level by Cassandra, it means that
+any server can store that particular, uh, write, um, and then return immediately to, uh, the, uh, uh, client. This is really useful
+because it's the fastest, even if all the replicas
+are down, the coordinator simply caches, uh, the write
+and returns immediately, um, to, uh, the, um, uh,
+to the, uh, client, okay. So this is the fastest. The slowest, on the other hand,
+is the consistency level of ALL. This says that all the replicas if there are three replicas
+for a given key, then all the replicas
+need to acknowledge to the coordinator
+before the coordinator can say that the write has been done and return and acknowledgement
+to, uh, the client, okay? This ensures the strongest
+consistency because essentially, uh, it ensures that
+all the replicas acknowledge, and all the the replicas
+have gotten the latest write, uh, before an, uh,
+an acknowledgement is sent back
+to the client. But of course, it's the slowest, because some of the replicas may respond slower than others, and essentially
+you end up waiting for the slowest replica,
+uh, among the group. Uh, so in between ANY and ALL, uh, is a spectrum
+of consistency levels. Along the spectrum lies ONE, where you say
+that the coordinator, uh, needs to receive back
+a, uh, an acknowledgement from any ONE of the replicas, uh, this is again different
+from ANY because ANY applies, a-a-allows even
+the coordinator to store, uh, the, uh, the written value before returning
+an Ack to the client, ONE does not allow that. ONE, uh, says that
+at least one of the replicas must return an Ack,
+uh, to the coordinator before it's returned back,
+uh, to the client. This is of course,
+faster than ALL, uh, but it cannot
+tolerate a failure, so if all the replicas fail,
+then, for instance, then ONE will result
+in a write operation that fails. Um, QUORUM y-uh, says
+that, uh, the coordinator needs to, uh, receive
+a quorum of replies, uh, from replicas before it Acks
+back, uh, to the client. What is a QUORUM? We'll see on the next slide. By the way, uh, in this slide
+I have so far discussed the consistency levels, uh,
+as far as writes are concerned, all the consistency levels
+we have discussed can also be applied to reads, um, uh, the consistency level essentially specifies how many replicas the coordinator needs to hear from before it returns the latest time stamp value to the client. So let's look
+at what a QUORUM is. So Quorum, essentially, uh,
+in, uh, the simplest terms, a quorum refers, uh, to, uh, at least a majority, at least 50%. So suppose I have a quorum,
+um, of, uh, say, suppose I have a group
+of, uh, five replicas, for a given key value pair, so each of these,
+uh, servers are storing, uh, uh, a copy
+of the key value pair, a quorum is at least 50%,
+essentially a quorum is at least three out
+of the five, uh, replicas. So, I have one quorum here, the
+blue quorum, and another quorum, the red quorum over here. Suppose, um, uh, a Client 1
+does a write in the red quorum, meaning that it updates, the coordinator updates
+these three, uh, replicas in the red quorum, uh, and then returns
+an Ack to the client. A client two subse-Client 2 subsequently does a read, and the, uh, the read also does a, uh, also uses quorum and it does, uh, the read
+in the replicas of the blue quorum using
+these three replicas. Now because a quorum is at least
+50%, any pair of quorums, any two quorums, such as the red
+quorum and the blue quorum over here, will intersect
+in at least one server. Okay, that's guaranteed to you. So this server over here, which is common to both the red
+and the blue quorums will return the latest written value,
+um, uh, to that particular key. Okay, so, uh, quorums are nice,
+because they don't require you to wait for all the replicas
+to return an Ack. They are not as slow
+as the ALL consistency level, however, um, uh,
+they are, uh, giving you a fairly strong notion
+of consistency almost as strong as, the uh,
+ALL, uh, consistency level, um, um, uh, in spite of not
+incurring that much of overhead. So quorums are very, uh,
+interesting technique and a very important technique that are fairly fast, uh, essentially you send out
+the write to all the replicas, all the five replicas, and whenever the first three
+of them acknowledge, you can send back an acknowledgement to the client. Again, so it's fairly fast, uh, it's, um, uh,
+not as slow as ALL, but it gives you a fairly
+strong consistency guarantee, uh, that is the same as ALL. So, many key value stores such as Riak and Cassandra
+use quorums, essentially the reads specify a,
+uh, read consistency level of R, again the value of R  N, the total number
+of replicas for that key. Uh, the coordinator waits
+for R replicas to respond before sending
+the result to the client. And in the background,
+the coordinator checks the other N-R replicas to see if they have older values, staler values, and if so, then it initiates
+a read-repair to bring them up to date. For writes, um, writes come
+in two flavors, um, uh, we'll see
+those two flavors, uh, the client again speficies, uh, the write consistency level, W  N, the number
+of replicas for that key. Um, the client writes the value,
+the new value, written value to the W replicas, and returns. There are two flavors, uh, the first flavor has
+a coordinator blocking until the quorum is reached, and only when the replicas, uh, acknowledge to the coordinator does it return an Ack
+to the client. The asynchronous, uh, instead has, uh, the coordinator returning an Ack immediately to the client
+and then thereafter very find that the, uh, um,
+write consistency level is reached by insuring
+that at least W replicas, uh, Ack to the coordinator. This, uh, allows the client
+to proceed with other reads and write operations, rather than waiting for all
+the W, uh, replicas to Ack, uh, and it, um,
+uh, offloads the responsibility of insuring that W replicas
+have been written to the coordinator itself. So, you have a combination,
+more the read replica count and the write replica count
+and the values you choose for these, uh, insure either
+strong consistency or not. So if you really want to insure
+strong consistency in your system, then you wanna make sure
+that the value of W+R>N, the number of replicas
+for each key and that the value of W>(N/2), essentially, the second
+condition here says, the, says that W+W>N. The first equation here,
+insures that if you have a write quorum
+and a read quorum they intersect
+in at least one server, um, uh, among
+the replicas of that key, and this insures that reads
+will return the latest write. The second condition here
+insures that if you have two write quorums then they
+intersect in at least one, um, uh, uh, replica server
+and this replica server will, uh, keep the latest value
+of the write. Essentially, this is also used
+for returning conflicts, if you have
+two conflicting writes, then at least one server
+detects that conflict. The values you select
+for W and, uh, and R, really depend on your workload. So, for instance, uh, if you
+have very few writes and very few reads, you want to select W
+to be small and R to be small, so that they're fast
+and, essentially, you don't, uh, expects too many conflicts, uh, in this system, uhm, you expect
+that the-that the, uh, by the time the reads come along
+all the, uh, replicas would have gotten updated, um, uh, and, uh, you choose
+a small values of W and R for this. If you have read-heavy workloads
+you want the reads to be fast, so you choose R
+to be a small number, like one, but if you want to make sure that both of these equations
+are satisfied, then you choose W to be N. 'Kay, this insures
+that W+R>N. If you have
+write-heavy workloads you choose both W and R
+to be (N/2)+1, this satisfies
+both the above equations, that we discussed, uh,
+and, uh, it also makes sure that the writes don't need
+to wait for, uh, N replicas, instead they only wait
+for a quorum of replicas. Um, also, you can choose, um,
+uh, for write-heavy workloads with, uh, only one client
+writing per key, you can choose W
+to be one, because essentially you don't have,
+uh, multiple clients trying to write to a key but multiple clients might be trying to read, uh, from a key. So, in order to make sure
+that reads are consistent and return the latest,
+updated value, you set your read quorum,
+uh, to be N. So, we've discussed
+those three consistency levels. There are also other consistency
+levels that Cassandra provides, uh, using the notion of quorums. Uh, the quorum consistency level in Cassandra, uh, says that, you need to get a quorum across
+all the replicas in all the datacenters. Uh, so this means that,
+if you have three datacenters, uh, each with, uh, three
+replicas for a given key, then you need to get, um, uh, at least five
+of those replicas, across all the datacenters, to return an Ack
+before an Ack can be returned, uh, to the client. A local quorum says that,
+you need to get a quorum in the coordinator's datacenter, uh, this is one of
+the fastest versions of quorum, so again, using our, uh, example
+of three, uh, datacenters each with three replicas
+for the given key, the client typically contacts
+one, uh, uh, coordinator, in one of the datacenters and that datacenter contains
+three replicas for the key, if any of the two
+of those three replicas, uh, send Acks
+to the, uh, coordinator, the coordinator
+can then send back an Ack to the client without waiting
+for the other datacenters. Finally, each quorum says
+that you need t- uh, uh, reach a quorum in each
+of those, uh, datacenters. So again, using our example
+of, uh, three datagen, three datacenters each
+with, uh, three replicas, in order to make sure
+that two replicas, in each of those datacenters, each of the three datacenters, uh, sends back an Ack, um, uh, to, uh,
+the, uh, clients coordinator, so that then an Ack can be returned, uh, to the client. So this, uh, allows each
+datacenter to, essentially, do its own quorum and it
+supports hierarchical replies, where the replicas
+in each datacenter re- uh, send a message back
+to that datacenters coordinator and then that sends, uh, message back to- an Ack back, uh, to the clients coordinator in the clients,
+um, uh, contact datacenter, and then that coordinator
+can then send back an Ack to the client itself. So, Cassandra offers
+Eventual Consistency but there are other kinds
+of consistency models that are weak consistency models
+that are out there too and that have emerged
+in the last few years. Well really, they've not emerged, they've been around for many years, from the, uh,
+notions of paddle systems and the area of architecture,
+computer architecture, but in the last few years
+they have, uh, started to emerge
+in the area of key value stores and no sequel storage systems. We'll discuss that
+in, uh, the next lecture.

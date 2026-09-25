@@ -1,0 +1,138 @@
+[MUSIC] In this lecture, we're going to look
+at how election is done in a couple of popular systems in industry and
+they are Google's Chubby system and the open source Apache Zookeeper system. Both of these systems use consensus or consensus-like approaches
+to solve election. One approach to using
+consensus to solve election is to have each process proposal value. Everyone in the group reaches
+consensus on some process Pi's value. And then Pi is elected as a new leader. Whichever is the lucky process who's
+value is chosen as the consensus value, in fact becomes the lucky
+leader in the group. This is one approach this is not
+necessarily the approach that these systems follow in industry. The systems in industry follow
+Paxos like approaches for election. Paxos as you've seen elsewhere in the
+course is a consensus solving protocol. It's guaranteed to be safe. Meaning that it it assures that never is a
+case that different decisions are reached by different processes for
+the consensus variable. But it's only eventually live, which means that it doesn't guarantee
+that the protocol will ever terminate. Google's Chubby system uses
+a Paxos-like approach and Apache Zookeeper also use,
+uses a Paxos like approach. So let's look at Google Chubby first. Google Chubby is a system for locking. It is an essential part of Google's
+internal stack of systems. Many of Google's storage systems,
+such as BigTable and Megastore rely on Google Chubby for locking and for
+writing small configuration files. Chubby maintains a small
+group of replica servers. For instance, a cell, a Chubby cell
+might contain five replica servers. Server A, B, C, D and E. And one of these servers is elected as
+a master server at all points of time. So at any point of time, exactly one
+of these servers must be the master or the leader and all the other servers in the group must
+get to know about who the leader is. This is eventually our
+leader election problem. All right.
+So for instance in this case,
+Server D is the master here. Now in order to make sure that
+there is exactly one master and everyone knows who the master is,
+an election protocol is required. Potential leader,
+a server that wants to be a master or a leader,
+tries to get votes from the other servers. Each server votes for at most, one leader. And when a potential leader gets
+a majority of votes from the group, in this case, a majority would be three or more of the servers voting for you is
+then that server becomes the new leader. When you have at least three votes from
+the group, you can become the leader. So why is this road safe? Well, essentially every potential leader
+is trying to reach a quorum in the system. And once again, this is an example of a
+technique that you have seen elsewhere in the course that should,
+should be familiar to you. Quorum is essentially a majority or
+larger. Since any two quorums, no matter which
+processes they contain are guaranteed to intersect in at least one process and each
+process can vote for at most one leader. You cannot have the case that there
+are multiple leaders elected by this election protocol. So this algorithm guarantees safety. Why is this algorithm live? Well, it's only eventually live because,
+of course, you cannot solve consensus
+in an asynchronous system. And so failures may keep happening,
+so that no leader is ever elected. But if things were right
+in the in the future, when messages are not delayed to much,
+when not too many bad failures happen, then the protocol has a good chance
+of converging and terminating. In fact, the folks at Google saw
+elections typically take a few seconds, that's a typical time to run an election. And the worst case that was noticed
+in the original paper written on Chubby by Google, I noticed that the worst
+case election run took only 30 seconds. Chubby also uses a concept
+known as leases. After an election finishes,
+meaning a leader has been elected, the other servers, servers,
+in the group, this group over here. Server A through E guaranteed that they
+would not run another election for awhile. Okay.
+So this while up time or this time duration is
+called a master lease. This is the minimum amount of time that
+the master is guaranteed to be the leader. Okay. This is particularly
+said to be a few seconds. The master lease must be
+renewed by the master, by simply getting a majority again. So as long as it's able to get a majority, it can continue to be the leader
+without going through the overhead of running the entire leader
+election protocol all over again. This technique of leases or
+master leases also ensures that if the master fates renewal lease,
+for instances, it has failed or has just began really slow,
+then automatically the other servers start a new election run where a new master is
+going to be elected with a new quorum. Next we're going to look at
+election in Apache Zookeeper. Apache Zookeeper is an open source
+system that is a centralized service for maintaining configuration information. Zookeeper uses a variant
+of Paxos called Z-A-B or Zab, which stands for
+Zookeeper Atomic Broadcast. Zookeeper needs to have
+a leader elected at all times. The way lead election works in Zookeeper,
+at least the way of electing leaders in Zookeeper is by having each server
+create a new sequence number for itself. Let's call these sequence numbers as ids. Essentially, each server
+does the following. It gets the highest-id so far. It fetches this from
+the Zookeeper file system. Creates a next-higher id and it writes
+this into the Zookeeper file system. At the end, whichever id remains, the process
+that wrote it becomes the new leader. Okay.
+So the highest-id service becomes the new leader. So this ensures that as long as
+the files are written anatomically, so that files are written over completely and you don't have partial rights
+from two different servers. You're insured that there's exactly one id
+in that Zookeeper file at the end and so everyone knows who the leader
+is by looking at that file and the leader also knows who
+the leader is by at the file. Okay.
+So for instance, N80 might be elected as the leader, because it has
+the highest-id in the group. What about failures? Well, when you have failures,
+such as the leader itself crashes. One option is for
+everyone to monitor the correct master. For instance, by using a failure detector,
+such as heart beating or ping-ponging. When there's a failure detected,
+the processes initiate a new election run. However, when the master fails, multiple
+other processes in the group might initiate elections simultaneously and
+this may lead to a flood of messages. Even though you could use a way to
+suppress the election messages so that most one of them completes, failure
+does lead to an explosion of messages. So the option that is actually
+implemented in Zookeeper involves each process monitoring its
+next higher ID process. So N32, which is the second highest id
+process in the system monitors N80. N32 itself is monitored by N12. N12 is monitored by N6 and
+so on and so forth. And of course, N3 is monitored by N80,
+so that you wrap around the ring. If a process has a successor that
+is the current leader in the group, this would be N32, who's successor is N80. And if that process successor has failed, then N32 can immediately
+become the new leader. So, it doesn't even need to
+run a new election protocol. However, if your successor
+is not the leader. For instance, N12 or N6,
+then you need to wait for a time out and you need to check your successor again. So, if you timeout waiting for
+your successor to respond, then you make sure that you then
+point to your successor's successor. If you successor was the leader,
+then you can become the new leader. Now conflicts may happen in the system,
+because two different processes might write the same sequence number into
+Zookeeper file and might turn out that both of them think that they're
+the leader in the, in the group. The leader might, the leader might
+also fail during the election run. To address both these issues, Zookeeper
+uses a two phase commit protocol, which is run after the sequence id
+protocol that we have discussed before. In this two-phase commit, the potential leader would seize its own
+sequence number in the Zookeeper file. Sends a new leader message to
+all the processes in the group. Each process that receives a new
+leader message, waits for a while. It might receive new leader messages
+from multiple prospective leaders. It responds back with at most, one ACK
+message with at most, one board message. And sends it back to that potential
+leader that has the highest process id. Now, what does the leader do? Well, the leader waits for a majority
+of processes to send it back ACKs. If it reaches a majority,
+then it knows that it is a leader. Because each process will
+have ordered at most once and if it's got a majority,
+if this leader has gotten a majority, then it's sure that no other potential
+leader would have gotten a majority. This is the same idea as quorums or majorities that we have
+seen as well in the course. Once a leader has its majority of ACKs,
+it can then send a commit message to all saying that it is
+the new confirmed leader. And everyone, everyone else on receiving
+this commit message, update the leader or elected variable to be the new leader. Okay.
+So this ensures that safety is still maintained, because once a leader has a
+quorum, no one else can have a quorum and so it becomes the new leader. However, this may not guarantee liveness. It's possible that two potential leaders
+that send out new leader messages simultaneously, maybe there are mo, more
+than two leaders, suppose there are three leaders in the group that
+are sending out new leader messages. Each of them gets about
+a third of the works or a third of the ACKs from the group and
+so now no one has a majority. No one has a 50% or
+more of the ACKs in the group. And so liveness is not guaranteed here, you may need to read on the lead
+election protocol again. However, safety is guaranteed,
+because of the use of quorums. So that concludes our discussion of
+election Google Chubby and an Zookeeper. And next we'll discuss in the next lecture
+another classical algorithm called the Bully algorithm. [MUSIC]

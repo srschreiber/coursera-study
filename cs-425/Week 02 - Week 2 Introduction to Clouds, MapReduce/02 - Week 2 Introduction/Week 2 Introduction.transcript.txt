@@ -1,0 +1,16 @@
+[MUSIC] Thank you for joining me on this
+journey into Cloud Computing Concepts. In this first week of the course we
+are going to see first an introduction to clouds. What are clouds, why they evolved,
+and the history of previous generation of distributed systems that
+lead to the emergence of clouds today. So in this we'll see many
+precursors to cloud computing. Next we'll see why this course is
+really about distributed systems. Even though we are starting cloud
+computing, the concepts underneath the cloud computing systems are in
+fact distributed systems concepts. We'll see why clouds are in
+fact distributed systems, and we'll also try to define
+the term distributed systems. And we'll start to see examples of
+distributed systems that are used in clouds today. The first example we'll see is Mapreduce
+and the open source Apache Hadoop. We'll see what the paradigm is,
+how it works. We'll see many examples of Mapreduce
+being used, and we'll delve a little bit into how the scheduling works
+inside Mapreduce and Hadoop. [MUSIC]

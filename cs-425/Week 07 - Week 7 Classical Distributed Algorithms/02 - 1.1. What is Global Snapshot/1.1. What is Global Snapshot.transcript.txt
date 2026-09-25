@@ -1,0 +1,93 @@
+Hi there. Uh, in this, uh, series of lectures, uh, we'll see, uh, what, uh, the concept of a global snapshot is, uh, how do you calculate
+a global snapshot, and, uh, the kinds of things that it can be used to detect. So here's an example
+of a global snapshot where, uh, the, uh, premiers, or the representatives
+of several nations, uh, gathered in one place
+and, uh, took a photograph. Uh, this was done
+in Paris in 2011. Uh, so this is the easy way
+of calculating the snapshot, uh, but that's not
+what we wanna do. This problem really, uh,
+becomes challenging when, uh, the country's representatives are sitting in their
+respective capitals and they're exchanging messages,
+say, via emails, uh, sent to each other. In that case, uh,
+in this very distributed system, calculating a global snapshot becomes very, very challenging. In fact, it's not even clear what a global snapshot even means when there are messages, uh, in transit among these different processes in the, in the system. What I've described is in fact a distributed system
+of representatives. You can think of, uh, this being analogous to our distributed system of processes, uh, which are also exchanging messages with each other. In the cloud, for instance,
+you might have an application or service that is running
+on multiple servers. The servers are handling
+concurrent events and interacting with each other via messages, and the ability
+to obtain a "global photograph" or a global snapshot
+of the system is really useful for detecting
+many kinds of properties. You might want to checkpoint
+the system, uh, so that, uh, the entire distributed computation is checkpointed across multiple processes
+so that if you have a failure, then you can restart
+from the latest checkpoint. You might want
+to garbage collect objects. For instance, you might want
+to detect objects, uh, that don't have
+any other objects or servers pointing to them, so that these
+can be garbage collected; these are orphan objects. You might want
+to de-detect deadlocks, um, in database transaction systems. You might want to detect
+termination of computation in @Home applications like
+Folding@Home, uh, or SETI@Home, which some of you
+might be familiar with, or in, uh, batch computations that might be running in, uh, the cloud. But what is a global snapshot? So a global snapshot,
+or a global state, consists of an individual state for each process in the distributed system, along with a state for each
+of the communication channels in, uh, the distributed system. Essentially, we want
+to calculate, uh, or capture the instantaneous state
+of each process in the system, and also the instantaneous
+state of each of, uh, the, uh, channels in the system. When I say a channel I mean
+a point-to-point channel that goes from one process p
+to another process p. So, uh, one, uh, obvious solution to this is to synchronize the clocks
+of all the processes using one of the well-known synchronization algorithms, uh, which we have discussed elsewhere in the course, um, and then fix a time at which all the processes record, uh, their own states. The issues with this are one, that time synchronization always, uh, is error-prone, uh, with the error being a function of the round-trip time, uh, and/or the message latencies in the network. You really don't want
+your banker to inform you that "Hey, we had a 1-millisecond clock skew among our, uh, servers, and this resulted in us losing your, uh,
+entire bank balance, and so we don't know, we are, your bank balance is 0." Uh, also this algorithm does not
+record the state of the messages in the channels themselves. Uh, thankfully, uh, causality comes to our rescue again. Uh, we don't really need
+time synchronization here; we can again, uh,
+make due with causality. What do I mean by causality? So let's see an example
+of a system moving from one global state
+to another, or one glob-
+global snapshot to another via a series of causal steps. In this system I have two
+processes only, Pi and Pj with two channels
+going each way. Uh, C goes from Pi to Pj,
+and C goes from Pj to Pi. Uh, so, uh, here is an
+example of global snapshot. We call this Global Snapshot 0
+of the system, where Pi's state has
+$1,000 and 100 iPhones, and Pj's state has
+$600 and 50 Android phones. The states of the channels
+C and C are both empty. Uh, these four put together, uh, are, comprise
+the global snapshot 0. Now a development might happen
+in the system. For instance, uh,
+Pi might send $299 and an order for
+one Android phone over to Pj. This changes, uh,
+the state of, uh, Pi. It also changes the state
+of the channel C, which now has
+a message in transit. So, uh, with this one event happening in the system, uh, uh, because s-uh, somewhere in the system
+some state has changed, the entire global snapshot has also changed, 'kay? So we call this new snapshot
+as a Global Snapshot number 1. Next, another event
+might happen in the system, which might be, the fact that, Pj might send an order for an iPhone, along with $499 to Pi. This results in the balance
+at Pj going down to $101, and also, uh, the state
+of channel C changing, um, uh, to have
+one message on it. So once again, this changes
+the state of the entire system, so this is
+Global Snapshot number 2. Uh, then, uh, the message
+from Pj is received at Pi. Uh, the state of the channel
+Cbecomes empty now, Pi's balance goes up, it has an outstanding order
+of one iPhone, and so the state of channel
+Pi also changes. This is a third global snapshot
+of the system. In moving from one global
+snapshot to the next, what you're seeing is that an event happens somewhere
+in the system, and, uh, this is, uh, a s-a series of causal events, um, uh, in the system. Nowhere here, uh,
+in the snapshots are we talking about time at all, or physical time at all. Uh, next what happens is that, uh, Pisends the iPhone, uh, order over to the channels, um, to, uh, Pj, and this is sent
+on channel C. The channels are ordered FIFO,
+which is first-in, first-out, which means that C will deliver the first message sent on it first, and later messages
+will be delivered afterwards. Uh, but, in any case, here
+the state of channel Picha-uh, the state of the channel
+Cchanges because it has one extra message which it has to deliver now, and the state of Pihas also changed because it's now fulfilled
+its outstanding order, and so this is another Global Snapshot number 4 in the system. The Android, uh, order
+is received from Pi at Pj. Uh, Pj's balance goes up and it has the outstanding Android order, and then, uh, the iPhone
+also is received at, uh, Pj, and both of these result in two different global snapshots. And the system
+continues like this, moving from one
+global snapshot to the next via a series of events. Essentially these are causal, uh, paths that global snapshots, uh, move, uh, through. So, whenever an event happens
+anywhere in the system, whether a process
+receives a message, a process sends a message, a process takes a step, one event is enough for the entire global state to change, because the global state captures everything
+in the system. Um, and so the state to state
+movement obeys causality. Uh, next, uh, lecture we'll see,
+um, uh, um, an algorithm to actually calculate this global snapshot, uh, uh, b-uh, in, uh, concurrently with the application still, uh, running, 'Kay, that's called
+the Chandy-Lamport, or the Global Snapshot Algorithm.

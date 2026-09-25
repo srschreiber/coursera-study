@@ -1,0 +1,107 @@
+[SOUND] [MUSIC] Well we're in the National Petascale
+Computing Facility on the campus of the University of
+Illinois. This is a facility that houses one of the
+worlds most powerful computers. Not just for computation, but also for
+data analysis. So it's unique in the sense of it's the
+most intense data analysis system. As well as being one of the most highly parallel computers in the world
+doing projects. For science and engineering and other types of scholarly work for the nation's
+scientists. This is the twentieth super computer that
+I've been involved with making work. I worked at Berkeley laboratory. I was the general manager of a, a system called NERSC, the National Energy Research
+Scientific Computing Facility. And we had a number of supercomputers in,
+in in NERSK. Before that, I worked at NASA/AMES.
+Again making very large systems work. So when I heard of the Blue Waters project
+I thought it was the best possible thing going on in
+high-performance computing. And it was changing the way people were
+thinking about these computers. It was converting from this idea, well we'll just worry about the peak
+performance of the system and assume that I can make
+use of all that, that power. Turns out that that's not the case, that
+if you have to focus on what real work comes
+out of the system rather than some theoretical
+number And that was the entire philosophy of the Blue
+Waters Project. To get real science work done at a scale
+never before seen. Faster than anybody else could do it. And I thought that was great. Because that's really what motivates
+people for, for helping do this.
+What science impact is there. So I came and talked to some colleagues here, and eventually we worked out the
+fact that I came from California, the Bay area, to
+Illinois about five years ago, to make Blue Waters
+work. And I've enjoyed it very much since then,
+Illinois a great place. Well, we have about 60 projects that use
+this system. And those projects are, come on to the system after stringent peer review by
+different agency's. The largest amount of time is controlled
+by the National Science Foundation. And they have about 35 research teams from
+around the nation working on a variety of, a large variety of different areas.
+So there are people that are doing astrophysics, how do how did the
+universe form? How did galaxies form? What happens when galaxies collide? Another example is a recently announced
+result, one of the first really ground breaking results
+from the system. Because we've only been running it in
+service now for about six months, and that result is how the AIDS virus infects a cell. And this is the first time such a high
+resolution complex simulation has been done, and that was in the cover
+of Nature at in May. Another example is climate studies, severe
+weather in terms of what happens, what's going to happen
+with our climate. But, at resolutions that have never been done before.
+Resolutions where actually clouds form. [COUGH] At first principles rather then estimating how they form kilometer
+resolutions. For the severe weather calculations they
+are down to ten meters so that they can actually predict things like tornadoes
+or gusts of wind in, in hurricanes. The system was used to run the biggest simulation ever of a
+hurricane, Hurricane Sandy. And how that was different then other
+different from other hurricanes, how the tracking was different, and why it
+went the way it went. We are also doing a lot of chemistry
+applications, material science, and some other things like how
+does disease spread. Other biomedical applications as well. Well, it's the largest system that Cray
+has ever built. It's about 50% larger than the next largest systems, which happens to be at
+Oak Ridge National Lab in terms of size,
+number of cabinets, the scale of all the
+components. It is a system that has tremendous
+processing power. We term that power in terms of sustained
+performance, the time it takes to solve problems. And our mission here is to shrink the time
+it takes to solve problems by a variety of science and engineering teams into
+something that used to take years or decades in two months, or
+even, sometimes, weeks. So these are problems that cannot be done
+elsewhere. They're bigger than has ever been done before. They're more complex than has been done
+before. So that's our job, that's why this system
+is here at the university, serving the nation as a
+national resource. It also has more memory than any other
+system I know of in the world 1.7 petabytes of memory that all can be
+accessed simultaneously [COUGH] by any of this,
+the, the nodes. It has, the most intense data system not only
+because of the size of the data system but also because
+of the bandwidth. The amount of data that can move back and
+forth from the parts of the, the system, the compute nodes, to
+online disk, and then the online storage. So it has almost a half of an exabyte of
+storage capacity in the system as well. And surrounding all that is one of the most highly
+connected systems in the world with 100s of gigabits of networking bandwidths
+coming from or leaving this facility, going to places in Chicago, and then being
+connected throughout the entire world. So what we have here is the arrogation of
+many, many components together that are designed all
+to operate for single programs. So but they're really made of the same
+components that are in your, your cell phones, or your
+laptop computers. As a matter of fact it's almost a fractal
+type relationship. Because while in your laptop computer you
+have a processor that may have two or four cores in it.
+We have processors, 288 racks of processors, that we use as a
+computational unit. They have about 800,000 cores. That all operate simultaneously on the
+same applications. We have the interconnects that go between
+all those processors, so they all can communicate
+with each other. They all can coordinate the work. And they're put together then with
+linkages to our hard disk storage system, our rotating disk storage system.
+That's about 36 petabytes of storage, as opposed to one or two terabytes that you
+might have in your local machines. And then we have more storage that's near
+by. It would be the equivelant of you plugging
+in a USB drive as a secondary drive. We call that Near Line Storage, and that's about 500 petabytes, almost half an
+exabyte of capacity. All connected together with a network, the
+same as you do on your cell phone, or your other appliances, and to do that, you also need things like power supplies, like
+cooling. So if you think of the chip in your, your
+local computer it has a heat sync on it, you
+have a fan. Well, we have a tremendous amount of
+infrastructure to cool the heat coming off of this machine because it
+produces it loses a lot of energy to do all these calculations as
+fast as it does. We also have a tremendous infrastructure
+for the power that comes into the building and then is distributed, very
+efficiently, to all the devices here. So in one way it is just a much, much
+bigger, combination of the equipment that you would have, but you have to be able to program it so it all operates
+simultaneously on a single application. Which means that there's been a lot of
+communication that goes on between the cores, between the processors,
+in order to do these simulations. So what we have is very, very tightly coupled communication across hundreds of
+thousands of cores. And that's how the programs are written on this system with some specialized
+communication protocols. And this all happens very, very quickly. So that we can make progress and be very
+efficient.

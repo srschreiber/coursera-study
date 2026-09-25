@@ -1,0 +1,92 @@
+Okay, so in this, uh, next,
+uh, series of lectures we'll be looking at the technical details
+of grid computing. Uh, in this first lecture
+we'll, uh, start with, uh, what grid applications typically look like. Uh, here is a sample application that you might want
+to run on top of the grid. This application is called the Rapid Atmospheric Modeling System, uh, or RAMS. It was developed
+at Colorado State University. It's kind of a nice name 'cause their sports team
+is also called, um, uh, Rams. But in any case, RAMS
+is essentially a, uh, meteorological application, which models weather phenomenon. So, in 1998, uh,
+when a major hurricane, uh, the hurricane Georges
+hit, uh, the U.S., uh, RAMS was used to model, uh, and predict the movement of, uh, the hurricane itself, and, um, uh, the predictions that RAMS had, uh, tallied with the actual, um, uh, occurrence
+on the ground itself. And RAMS essentially used, uh,
+a, um, uh, a grid spacing, um, a two-dimensional grid spacing with 5 kilometer, uh, spacing instead
+of the usual 10 kilometers. It was able to do this because it used a fairly large number of processors. It used more than
+256 processors. Essentially, this is an example, of a weather
+prediction application, uh, so you know when you see weather forecasts on television, essentially, uh, all of the data that you are seeing, in fact, all
+of the, uhwa, visualization and the simulations that
+went into the visualization and the prediction, uh, are examples of high-performance
+computing applications or computation-intensive computing applications. Uh, these are the kinds
+of applications that might be run on the grid. So, HPC is a term that is used,
+uh, to denote such applications, uh, which are high-performance
+computing applications. Typically high-performance
+computing application, uh, uses a lot
+of the CPU resource, uh, because essentially, uhm, as compared
+to data-intensive computing an HPC application, uh, would have
+a lot more computation in compared to the data,
+uh, that it transfers. So there is less data compared
+to data-intensive computing, but a lot more computation,
+uh, compared to data- uh, compared
+to data-intensive computing. Now the question, uh, that, uh,
+the grid, uh, answers is can you run such a program, such a large parallel, uh, program, uh, without access to a
+supercomputer, without actually having access
+to a machine that has 256 processors? Can you run it on resources
+that are widely available anyway across multiple sites? And that's where
+the grid comes into play. So here is what grid
+resources might look like. Um, uh, a particular university,
+say the University of Wisconsin, uh, -Madison, might have, uh, a
+set of work stations which are typically used
+by students, but, uhhmma, at certain times
+of the day, like at night, for instance, uh, the work stations
+are relatively free and they could be harvested
+for running, uh, some of these, uh, tasks of your grid job. Um, a different site, MIT,
+might have, uh, some work stations
+like this, it might also have certain dedicated clusters. The National Center
+for Supercomputing Applications at the University of Illinois might also have certain, uh, dedicated clusters to run it. In a sense, you have, uh, computation resources available at these three different sites, and what you want to do is you want to run your application, uh, across these
+three different sites, using resources wherever
+they're available, potentially using resources at multiple sites at the same time. So, this is what, uh, the resources
+in the grid infrastructure, uh, would look like, typically. And again, here,
+I've drawn only three sites, but of course, there might be many tens of sites involved in a grid,
+uh, infrastructure. So what does an
+application, uh, look like? So an application, that might be
+quoted by a meteorologist or a physicist or a biologist would look something like this. It would essentially,
+consist of several jobs. In this example, I have 4 jobs,
+job 0, job 1, job 2, and job 3. Uh, and these jobs are connected
+in a Directed Acyclic Graph or a DAG. In this case, you notice that, the output of job 0
+serves as input to job 1, and some of the output of job 0 also serves as input to job 2. Similarly, the outputs
+of job 1 and job 2, uh, these arrows over here,
+uh, serve as inputs to job 3. So you have this
+Directed Acyclic Graph. Now in this, uh, DAG,
+uh, Directed Acyclic Graph, uh, jobs 1 and 2
+can be run concurrently; so for instance, you wa-you might be able to run job 1 on the Wisconsin site and job 2 on the MIT site,
+uh, parallely. So, a little bit more
+on the details of this job. So, the data that goes
+from one job to another, the output of one job, which
+is the input of the next job, may be several gigabytes. Typically, it's not
+much larger than this. However, the jobs themselves,
+uh, may be very long lasting, so each of these jobs,
+each of these nodes in this DAG, might take several hours
+to several days. Uh, each of these, uh, jobs is computation-
+intensive, of course. It uses a lot of the
+CPU computing resource. Each job has essentially four,
+m-maybe a fifth optional stage. There's the
+initialization stage. There is a stage
+in the phas-uh-s, uh, phase where it
+brings in data from its predecessor jobs
+in the DAG. There's execution phase,
+which itself lasts for, um, uh, hours, sometimes days. There's a stage out, where it sends out data
+to the next jobs in the DAG, and if the user requires, uh, certain, uh,
+partial results, uh, intermediate results
+from this job, those are published as well. These are computation-intensive
+jobs which mean that, um, uh, which means that they are,
+embarrassingly parallel, which means, that, essentially, they're processing some amoun-
+uh, some amount data and they are doing
+quite a bit of computing on it, but this data can be split up, uh, and, the entire compilation can be parallelized into tasks. So each job can, essentially,
+be split into tasks, maybe thousands, uh, maybe even more tasks, and these, uh, tasks can be run, so that each task runs on one machine, or on one processor, somewhere. These tasks typically
+do not talk with each other, because they are
+highly parallelized. When they are done, they return
+their results, uh, uh, to the job itself
+which then aggregates it. So, the main question here
+is a scheduling problem. How do you, given such a,
+uh, DAG of, uh, jobs, each job consisting
+of certain tasks, how do you schedule this horal-
+overall application across, um, uh, the grid resource, which might be distributed out over, uh, the wide area?

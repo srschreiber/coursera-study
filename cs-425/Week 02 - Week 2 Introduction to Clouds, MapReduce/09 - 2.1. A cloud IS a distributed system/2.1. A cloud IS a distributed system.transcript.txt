@@ -1,0 +1,66 @@
+[MUSIC] As you know, this course is
+titled Cloud Computing Concepts. However a major portion of this
+course is going to be spent discussing Distributed Systems Concepts. So what is the relation between clouds and
+distributed systems? In this lecture and the next one, I argue that a cloud
+is in fact a distributed system. So a cloud consists of hundreds
+to thousands of machines on the data center side collected
+in an integrated center. This we call as a server side. On the client side there might be
+thousands to millions maybe even more machines which are accessing services
+that are hosted by these servers. Maybe web pages, maybe websites,
+maybe objects that are being stored, and maybe a variety of different services. So that's on the client side. The servers on the data center side
+on the server side communicate amongst one another. So there is communication going on there. The clients, of course,
+directly communicate with the servers. Each client can communicate with one or
+more servers. For instance, every time you
+access your Facebook profile, your client process,
+whichever browser you're running your Facebook client on is going to
+access multiple Facebook servers. Some for the photos, some for the profile,
+some for the wall, and so on and so forth. The clients, of course,
+may also communicate with each other. This is, of course, something
+that happens in a cloud, as well. Now all these communications
+that I described mean that a cloud is in
+fact a distributed system. The fact that servers communicate
+amongst one another means that, that is a distributed system consisting
+of many different servers sending and receiving messages amongst one another. We call this as a cluster. A cluster is a collection of machines that are communicating with
+one another over a network. The clients communicating with the servers
+also make a distributed system. A very large scale distributed system. The clients communicating with each other,
+for instance in a peer-to-peer system like Bertard also mean that is a very
+large scale distributed system. So all these different aspects
+that I've described for a cloud are also aspects
+of a distributed system. In fact if you remember the last lecture
+where we discussed the four distinguishing features of clouds, all these features are in fact features
+of distributed systems as well. The fact that you have
+many servers in a cloud, massive scale,
+means that that is a distributed system. The fact that you can access multiple
+servers any where, the on-demand nature of clouds, means that again that's a feature
+of distributed systems as well. And that means that clouds are a special
+class of distributed systems. The data and its nature. When you have lots of data you need to
+cluster many different machines to store the data and
+again that means a distributed system. And of course the programing paradigms
+that exist today Hadoop/Mapreduce, NoSQL storage systems. All of these require clusters. All of these require many different
+machines communicating with each other. So what I'm essentially saying is that
+a cloud is a special kind of distributed system, and in fact a cloud is the latest
+nickname for a distributed system. Previous nicknames that you have
+already seen in a previous lecture have included peer-to-peer systems,
+grids, clusters, and time-shared computers when we
+saw the data processing industry. All of these are distributed systems, so
+every one of these is a special kind or a special class of distributed systems,
+and so is a cloud, cloud is no exception. And so nicknames come and
+go and different kinds or classes of distributed systems come and
+go but the core concepts that underlie
+distributed systems stay the same. And these core concepts continue
+to be used decade after decade. As an example Lamport timestamps which you
+will study later on in this course were invented way back in the 1970s and 80s but
+they still continue to be used today in almost all the cloud and distributed
+systems that are implemented today. They're a very core concept and that's
+why it's important for us to know it. And this is why this course is really
+about these distributed systems concepts. We do not want to be restricted
+only to the cloud but in fact want to study the core concepts
+that underlie distributed systems. Not just the cloud
+computing systems today. But the systems that have existed for
+many decades in the past, and that are going to be around for
+many decades in the future. For instance, a few years from now,
+there may be a new nickname, a new generation of distributed systems. However, the core concepts will
+likely remain the same, and they will continue to be
+used in real systems. And that's why we focus and
+study these core concepts in this course. So our next goal is going to be to try
+to define the term distributed system. We'll do that in the next lecture. [MUSIC]

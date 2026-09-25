@@ -1,0 +1,102 @@
+Today we'll discuss, uh, another, uh, peer-to-peer system
+that came out of academia. Um, this system
+is called Pastry. This system was, uh, designed
+by Anthony Rowstron from Microsoft
+Research Cambridge, and Peter Druschel from, uh,
+Rice University, um. And just like Chord, uh, this, uh, system
+assigns IDs to nodes using a consistently-consistent
+hashing function, so again, you can imagine a virtual ring
+where peers are hashed onto a point on the ring. But the way in which, uh,
+neighbors are maintained is slightly different in Pastry. Uh, the first kind of neighbor
+that, uh, Pastry nodes maintain is a leaf set. So each node knows
+its successors and predecessors, multiple successors,
+multiple predecessors. This is kind of similar to the Chord successors
+and predecessors. Uh, however, uh,
+the routing tables, uh, instead of using the N+2^i rule that we used for Chord instead use prefix matching. This is sort of like
+hypercube routing. So routing is based
+on prefix matching and turns out to be O(log(N)) because a hypercube with N points is O(log(N)) in diameter. In addition Pastry, unlike
+Chord, also pays attention to the underlying
+network, uh, topology and tries to make, uh, the neighbor, uh, edges to be short in the underlying
+neighboring topology as well. We'll see how that works, uh. So in Pastry
+let's consider a peer with ID, uh, shown, 01110100101. Uh, this peer maintains,
+uh, a neighbor peer with an ID matching
+each of the following prefixes. Okay, so the first
+prefix is a star (*). Essentially when I say a *,
+I mean that the first bit is a bit that differs from this
+peer's corresponding bit. So essentially this would be
+any of the peers that starts its ID with a 1 instead of a 0. Uh, then, um, the next, uh,
+neighbor it maintains, uh, this peer maintains,
+is one that starts with a 0, and then the next bit
+is different from this peer, so the next bit
+would essentially be a 0, okay, so a 0, 0 and
+then followed by whatever, else. Similarly, the next one
+is a 0, 1 and a 0, because that differs
+from this bit, uh, here, and, uh, so on and so forth. 'Cause, essentially,
+if there is a, uh, peer with an ID that contains m bits, the peer might have
+up to m, uh, neighbors, one for each
+of the prefix matches. Now, given this, when you
+need to route, ah, a message to a peer, say, suppose,
+this peer with the ID that we considered earlier needs to route it
+to a peer that is 01110111001, the first, uh, mismatching bit
+that is different is, uh, this, uh, seventh bit over here
+which is 1, okay? So the 0111101
+is the matching prefix, and the next bit 1
+is a, uh, differing bit. So this, uh, peer
+that has the message, uh, destined for this
+given IP address, uh, starts by forwarding it
+to that neighbor of itself which has
+the largest matching prefix. So in this case, it would be the neighbor
+that starts with 011101, and then a 1, and
+then followed by whatever. Uh, it might also have neighbors that have a larger
+matching prefix, and if it does, then it forwards a message
+to that neighbor. You can show that, uh,
+this, uh, results in a O(log(N)) routing time
+for messages in Pastry. Once again,
+I hope you, uh, notice that this prefix routing
+is fairly different, uh, and is, uh, unlike the routing
+that was used in the Chord DHT that you saw earlier. Now, prefix matching is nice because it allows you
+to be, uh, aware of the underlying
+network distances. So for each prefix, uh, that a node wants
+to maintain a neighbor for, say 011*, there
+are many potential neighbors, all of which have, uh, a prefix
+011 that start, uh, at their ID. Uh, among all these
+potential neighbors, uh, you select that neighbor which has the shortest
+round-trip time in the underlying network. So this allows the hop from you
+to one of your neighbors, in this case 011*, uh,
+to be, uh, the closest among all the potential neighbors for 011*. Now, since shorter prefixes, uh, mean, um, that there are, uh, many more, uh, candidates, shorter prefixes mean that there
+are many more possibilities for the, uh, for the suffix, uh, it's likely that the closest one of these is much closer to you than, uh, it is
+for a longer prefix. So in essentially, uh,
+you're saying that, uh, going back to the previous slide the candidates
+in these shorter prefixes are likely to be very close
+to you in the round-trip time in the underlying network, as long as you select
+the closest candidate among all. So when you use prefix routing, essentially this means
+that the first few hops, the early hops
+in the, uh, in the query are in fact very short hops, and the later hops
+are much longer hops in the- uh, in the
+underlying network. However, you can show, uh, as the original authors
+and designers have shown, that the overall stretch compared to the
+direct internet path between the querying node and
+the eventual destination node is in fact very small and, uh,
+is just a constant factor, which means that Pastry,
+in spite of being able, i-in spite of routing via
+many, ah, intermediate peers, is able to get you, uh, an
+end-to-end, uh, round-trip time which is comparable, uh, to the underlying
+internet round-trip time between the querying node and
+the eventual destination node. So summarizing Chord and Pastry; Chord and Pastry are both more structured than Gnutella. They are essentially distributed
+hash tables in the sense that they, uh, enable you to do
+Insert, Lookup, Delete, Update, and essentially any operation
+on the key in O(log(N)) time. Uh, the lookup algorithms are
+essentially routing algorithms, so they are black
+box algorithms. Uh, the churn handling
+can get complex. Uh, Pastry also uses similiz-
+similar stabilization protocol, um, or I shouldn't say similar, it uses a stabilization protocol uh, which has
+the same goals as Chord. The memory is O(log(N)), because you maintain
+O(log(N)) neighbors to look-up cost
+results of O(log(N)). Um, uh, yet the O(log(N))
+lookup costs may be high. We did say that log(N)
+was a small number, but it's not 1, it's not 2. It's still maybe 10, 20, 30, uh, and, uh, if you're considering log(N) log base 2 and you're still saying order, which means that there is
+a constant factor on top of it. So the next question that
+arises, can we really design a system that has just
+an O(1) lookup cost, just a constant number
+of hops for the lookup? That's the next
+system we'll discuss.

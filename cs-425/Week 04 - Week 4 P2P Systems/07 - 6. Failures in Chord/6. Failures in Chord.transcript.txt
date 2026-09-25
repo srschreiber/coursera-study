@@ -1,0 +1,242 @@
+Following from our, uh,
+previous, uh, lecture on, uh, Chord, uh, today we'll discuss, uh,
+the effects of failures, um, on Chord and how Chord tackles,
+uh, failures and churn. So when you have, uh,
+peers that fail, the lookups might go wrong. So for instance,
+in our previous example, where N80 was trying
+to route to 42, if one of the intermediate
+nodes, 32 in this case, uh, had failed and
+the corresponding successors and finger table entries
+had not been updated, then 16 does not even know
+about the existence of 45, and it cannot forward it to 45. In fact, it can't forward it
+to anyone because, uh, the next hop would in fact be the origin
+query node in this case. So in this case the-the query
+would in fact, uh, be lost and would never
+receive a response. So one of the solutions to this is, uh, for nodes to maintain not just one successor entry but multiple successor entries, so, uh, the nodes maintain
+up to r successor entries where r is
+a fixed number systemwide but is a configurable number. How large does r need to be for, uh, queries
+to be routed correctly in spite of a large number
+of failures? Well, it turns out
+that r=2log(N) or O(log(N)) suffices to maintain
+lookup correctness with high probability;
+that's what w.h.p. means. Uh, in other words, a ring stays
+connected, uh, in spite of this. Why is this? Well, essentially remember that
+the mechanism we are using here is that a node
+goes through its successors, and if it finds
+at least one successor alive, then it forwards
+a query to that successor, and if this happens
+at every node in the system that is alive, then we consider
+that the query gets forwarded. Suppose as me is 50%
+of the nodes fail in the system simultaneously. Yes, this is not
+a common occurrence, but let's say this happens. Then, at a given node, the probability that at least
+one of its successors is alive is 1 minus the probability that
+all its successors are dead. Since 50% of the nodes fail, this probability
+is (1/2)^2log(N). That's the probability
+that all its successors, all its r=2log(N)
+successors are dead. And so 1 minus that is the probability that at least
+one of its successors is alive, and if you calculate this, because you're taking
+log base 2, this is 1-(1/(N^2)). You want this to be true at all
+the nodes that are alive that have not failed, and so the probability
+of that happening is just this, uh, quantity raised
+to the number of alive nodes, which is N^2, and there's a well-known limit
+theorem that shows that this is e^-(1/2N), which is actually equal wa-to 1-(1/2N)
+when, uh, N is large enough. And again, this is a well-known
+limit theorem over here. And so you'll notice that this
+number goes to 1 very quickly as N goes to infinity. So this is saying that
+as the number of nodes or peers in your system scales up
+as your system becomes larger, the probability
+of lookup correctness will in fact increase and
+go closer and closer to 1, which is a very good thing. This shows that the system
+is fairly scalable. The other thing that could go
+wrong is that the node or the peer storing the file
+might itself fail. If 45 fails, then there is no copy
+of the file cnn.com/index.html, and so no matter
+where you route the query or what intelligent
+routing you use, you'll never get
+a copy of the file 'cause it doesn't exist. So the way to combat this
+is to replicate the file. So you store multiple copies
+of the file, uh, one at N45, but also some at its successors
+and predecessors. So in this case you store
+it at one successor and one predecessor, so N80 has a copy of the file and N32 also has
+a copy of the file. In this case because N80 has
+a copy of the file, its query becomes moot,
+so it can just do a local search and the query is answered, but if N96 were sending
+the query instead, then the query might
+be able to hit N32 and, uh, N32 could respond back directly. So this has the second
+additional advantage, other than fault tolerance,
+of also load balancing. If you have a key that
+is very popular, for instance, you are storing a file
+that is an mp3 of a recently-released song
+that is, uh, in the top 5 on the, um, uh,
+Billboard top 100 list, then this file is likely to
+receive a lot of, uh, queries, and so if you spread this file
+out over multiple replicas, uh, the load on each of these
+replicas also goes down. So load balancing
+is a very important concern over here as well. So, so far we have discussed,
+uh, peer failures, but no, uh, but peers
+can also join the system and also leave the system. In general
+this is known as churn, which is a high rate of, uh, peers or nodes joining, leaving and failing
+from the system. Churn could be as high as 25% in
+some, uh, peer-to-peer systems such as eDonkey, and as high as
+100% in systems like Gnutella. Essentially this means that if
+you had a Gnutella network, uh, if 10 million nodes were,
+uh, in-in the Gnutella system at the beginning of the hour,
+by the end of the hour, uh, 10 million nodes would have, uh, joined, left and failed away
+from the system. It may not be the same set
+of 10 million that were there
+at the beginning, but it's a total count
+of 10 million. The churn is lower
+in managed clusters and in, um, in-in, uh, clouds such as, um, experimental clouds like PlanetLab and Emulab, and also, uh, clouds
+such as the AWS, uh, but it's still present;
+it's not zero. So when churn does happen,
+essentially you need to update successors and finger table entries. Why, because you want to get
+O(log(N)), um, lookup cost for your, uh, queries
+and for your other operations. Also, you may need
+to copy some keys. Um, you'll see why in a moment. So when a new peer joins, um, here's how it initializes its, uh, uh, membership list or its finger tables
+and successor entries. Remember that the new peer
+joins the system by contacting a well-known introducer using a DNS, we discussed this
+a few lectures ago, and the DNS, um, uh,
+the server that it contacts gives it the, uh, IP address
+of some peer in the system. And now, you can use this peer
+to route to its own ID, so the peer that is joining,
+say, has an ID of 40. It routes a message to N40 using the regular
+Chord routing protocol, and this makes its way to N45, because 45 is the first,
+um, uh, peer that is immediately
+clockwise of N40. Assuming that 45 knows its
+predecessor, at this point N40, when it receives back
+the acknowledgement from N45, knows its successor as well
+as its predecessor in the ring. At this point, uh, the N32 upda-updates
+its successor to N40, the new node, N40 initializes
+its successor to N45, and it copies the finger
+tables over from N45, okay? So it just doesn't copy it over;
+it uses the population of, uh, peers that N45 knows about and considers that as the
+entire population of the system, and uses those, along
+with its finger table rules, to initialize its finger table. However, these finger table
+entries may not be correct, because N45's neighbors were only a small subset
+of the entire system. So in order
+to, uh, have N40 know about more and more peers
+in the system, a stabilization protocol
+runs in the background. Essentially, the stabilizing
+protocol, uh, which runs periodically
+at each node, the node asks
+its immediate neighbors, finger table entries
+as well as successors, for their finger table entries
+and successors. This, uh, gives it a larger
+population of, uh, peers to consider
+as its potential neighbors, and this will, uh, over time lead to more and more correct finger table entries and successors for the node. This stabilization protocol
+is run by a newly joined node periodically as well as by all the nodes
+that are there in the system. Essentially, any node
+that is there in a Chord ring will have to run
+the stabilization protocol periodically forever. So essentially,
+as the churn happens, the stabilization protocol is always trying to play catchup and update the finger table entries and successors to the correct values in spite of churn already
+happening in the system. So if the rate
+of the stabilization protocol is fast enough, then it can-it can keep up
+with the rate of churn. The other thing that needs to
+happen when N40 joins the system is some keys need
+to be copied over. Remember that the invariant
+for keys was that the key, or the files stored
+at the first peer that is immediately
+to the clockwise of the key. So keys like 34 and 38 which
+were previously stored at N45, will now need to be stored
+at N40, because 40 is now, uh, the first peer immediately
+to the clockwise of 34 and 38. So some of these keys will need
+to be copied over, and this might mean
+file transfer between, uh, the successor
+of the newly joining node and the newly joining node. Now, over time the stabilization
+protocol affects not just the newly joining nodes, finger table entries and successors, but also the finger table
+entries and successors of some of the existing nodes. Why is this? Well let's go back
+to the previous slide. Say some node was over here
+and it's N+2^i for its ith finger table
+entry fell at 33. Earlier, that ith finger table
+entry was, um, of that node, was 45, but now it needs
+to be updated to 40. How does this happen? Well over time 112 as is run- as it runs
+its stabilization protocol, gets to know about
+N40 eventually, and then it says "Aha! N40 is a better
+finger table entry- ith finger table entry
+than N45," and it updates
+its ith finger table entry. So you can show that, um,
+a new peer affects O(log(N)) other finger table entries
+in the system on average. This is because of the symmetry, um, because every node
+points to O(log(N)), uh, finger table entries. Um, then you can show that, uh, a newly-non, an,
+because a newly joined peer has O(log(N))
+finger table entries or the log(N)
+other finger table entries throughout the entire system
+would get affected and, uh, point
+to the new peer on average. So the number
+of messages per peer join is about O(log(N)*log(N)). Uh, and we have so-
+we have discussed so far the, uh, the, uh,
+messages required, or the techniques required
+for dealing with failures as well as with node joins. Dealing with the peers
+leaving voluntarily is similar to dealing
+with failures, um, uh, uh, and, um, and-and essentially, uh, i-it has a similar
+set of operations as we have-
+as we've discussed so far. In order to deal with failures, you also need
+a failure detector, uh, which we have discussed, uh,
+elsewhere in, uh, the course. So a little bit about
+the stabilization protocol. Uh, essentially, when you
+have concurrent peer joins, leaves and failures, you don't just have one node joining and leaving
+in the entire system. Because th-the scale
+of the system is very large, you might have nodes simultaneously joining and leaving the system. To tackle this, uh, Chord peers
+run the stabilization algorithm, which updates
+the pointers and keys. It ensures non-loopiness
+of fingers, uh, so that queries are not
+just looping around forever but they actually make progress, and it ensures eventual success of, uh, lookups and, uh, efficient logarithmic lookups with high probability. Each stabilization round
+at a peer involves a constant number of messages. Uh, essentially, uh, it
+either queries a small number of, uh, its successors and finger table entries, or it queries all of them and log(N) can be considered
+to be a constant. Now a notion of strong stability which means actual correctness of all finger table entries and, uh, um, finger table and-and successors, it takes
+O(N^2) stabilization rounds. So once churn has stopped
+in the system, you'd need another
+O(N^2) stabilization rounds. Now, even though
+the stabilizations were run periodically at nodes, uh, one of the things
+is that, uh, the stabilization at each node is independent of the stabilization
+at the other nodes, so they are not synchronized
+with each other, and yet it takes
+O(N^2) stabilization rounds, um, across nodes. So essentially
+it takes O(N^2) time for the system to stabilize, and some have argued
+that this is fairly high. There are more details on this if you're interested in knowing about O(N^2), uh, on the, uh, Chord web page, uh, where there is a tech report
+that outlines these. So churn, as we have discussed,
+uh, can be very high, uh, 25% to 100% in the system, and this could leave to-
+lead to excessive copying. Remember that whenever nodes
+join, leave and fail from the system, you need to, uh, transfer
+some files over so that the file storage
+invariants are maintained. Uh, the stabilization algorithm might also consume
+more bandwidth to keep up, partly because
+of these file transfers. If you're transferring mp3s
+and MPEGs around all the time due to churn, uh, this is a fairly high uh, bandwidth usage. However, you can fix this
+by using a level of indirection. As they say, uh, solution
+to a lot of problems in computer science is to use
+another level of indirection. Essentially, in this particular
+case it means that instead of storing, uh,
+the file at a particular peer, that is, to the clockwise of it, you store a pointer to the file. The file stays, for instance,
+at the peer that uploaded it, but a-a pointer to it is the one
+that is, uh, stored at, uh, the peer immediately
+to the clockwise of the file ID, and whenever, uh, this peer, uh, is affected by a failure
+or a-or a peer leave, uh, only the meta information
+or the pointer about the file is changed around. This leads to a reduction
+in the bandwidth that is used for copying keys when you have
+no churn in the system. The other option is, uh, to push
+this all the way through, uh, into the system itself and to replicate the entire
+metadata as you will see, uh, with the Kelips system which we'll discuss
+in a couple of lectures. Uh, one of the tricks
+that Chord uses, uh, to achieve more load balance, uh, is that, uh, uses
+the notion of virtual nodes. Because the hash, uh, function is not guaranteed
+to be uniform, uh, this may lead
+to bad load balancing, where if you have a long segment between you and your predecessor on the ring, you being a peer, uh, there a very large number
+of keys may be assigned to you. In order to prevent this, every node pretends
+to be multiple virtual nodes and joins as multiple
+virtual nodes in the ring, and when you have
+a larger population, this leads to a more, uh, load balanced set of segments, um, and so a more evenly load balanced, uh, distribution of, uh, keys or files across the, uh, peers in the system. So virtual ring and consistent
+hashing that we studied in Chord are widely used
+in key-value stores today, uh, Cassandra, Riak, uh, LinkedIn's
+Voldemort, and Amazons DynamoDB, and a variety
+of other key-value stores. Even though those
+key-value stores no- don't necessarily use
+all the techniques of these, um, of the Chord
+peer-to-peer system, a lot of the techniques are
+used, uh, as we'll see later on. Uh, the Chord project has been
+used to build file systems such as CFS,
+and Ivy on top of it, uh DNS system on top of it, uh, and an Internet Indirection
+Infrastructure on top of it at Berkeley, uh, and it has spawned many
+interesting, uh, research ideas and issues about
+peer-to-peer systems. For more information, you can refer to this
+URL noted on this, uh, slide.

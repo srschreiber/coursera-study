@@ -1,0 +1,139 @@
+In this lecture
+we continue our discussion of how to implement
+multicast ordering. Uh, in this lecture
+we'll look at how to implement,
+uh, causal ordering. Once again, just to remind you,
+causal ordering ensures, uh, that if two multicasts are such that their, uh, send events are causally related, meaning that there
+is a causal path between them, then, uh,
+the, uh, received order of uh, those multicast messages, uh, should obey causality. In other words, if the
+multicast send of a message M happened before multicast
+message of a message- multicast send of a message M', then M should
+be delivered first, and only then M' at all correct
+processes in the system. So, uh, here's how
+to implement causal ordering. Uh, each receiver, again,
+maintains a vector of per-sender sequence numbers. Uh, these are integers. This is sort of like FIFO
+multicast, uh, but the meanings of, uh, the, uh, um,
+sequence numbers are different, and updating rules
+are slightly different. Once again we have
+processes P1 through PN. Uh, Pi maintains a vector, eh,
+of N elements, uh, Pi[1...N]. Initially, all the elements
+in the vector are zeroes. The jth element of Pi's vector
+is the latest sequence number that Pi has received from Pj. This is very similar, again, to the FIFO example you have
+seen in the previous lecture, but again, the interpretations and the updating rules
+are going to be different. So here are the rules,
+in all their gory detail, and then we'll see an example
+that discusses these rules. So when you want
+to send a multicast message, uh, at process Pj, uh, Pj looks at the jth element
+of its vector and increments it by one, then it sends out
+the multicast message. However, unlike FIFO
+it includes the entire vector in the multicast message
+as a sequence number. The entire vector is important
+because we want to check for causality. We wanna make sure that
+all the receivers are in fact obeying causality. So what do receivers do when they receive
+a multicast message? When Pi receives
+a multicast message from Pj, and there is a vector M
+in, uh, the multicast message, which is the timestamp
+of that multicast message itself then, uh, you buffer
+that multicast message until two conditions are true. First, this is the next
+multicast message that Pi is expecting from Pj. In other words, the jth element
+of the message's vector is in fact one more than
+the jth element of Pi's vector. So that's the first condition. Second, you wanna make sure that the receiver
+satisfies causality. All the multicasts
+anywhere in the group which happen
+before this message M have already been received
+at Pi, okay? In other words, you want
+to make sure that for all k, uh, not equal, uh,
+to j, the sender, the kth element
+of the message's vector is less than or equal
+to the kth element of the receiver
+Pi's vector, okay? This makes sure that
+the receiver has already seen all the multicast messages
+on which Pi already depended, or in other words, all the multicast
+messages that happen before M's. When these two conditions
+are true, then you can deliver the multicast message M
+to the application, and you can set the jth element of Pi's vector to the jth element
+of M's vector, showing that this message
+has been delivered. You do not update any
+of the other elements of the-of the- of Pi's vector, because you
+don't necessarily know of the other multicast messages that have been sent out in the group. So let's see an example again. Here is a timeline with four
+processes, P1 through P4. Time runs from left to right. Each process maintains a vector. The vector contains
+four elements, because there are four processes in the group. P1 sends out a multicast,
+uh, which is received by all the other processes. Notice that P2 receives
+P1's multicast first and then sends out
+another multicast. So P1's multicast
+here happens before; causally happens
+before P2's multicast, and so we want to make sure
+that these two multicasts are delivered in the same order
+at all the recipients. Similarly, P1's multicast
+is received at its P4, at P4, and then P4 sends out
+a multicast, so again, these two multicast sends from
+P1 and P4 are causally related. However, P2's multicast send
+and P4's multicast send are concurrent, and so they
+are not causally related. So let's look at the vectors. So P1 then sends out
+a multicast, simply increments
+its sequence number, which is
+the first sequence number, and that entire vector 1
+followed by three 0 is included as the sequence nu- as the timestamp of
+the message when it is sent out. When receivers receive
+this multicast message, they use this to check whether
+or not to deliver the message. P2, when it receives
+this message, in fact checks that this is
+in fact the next, uh, vector is-it is expecting from P1, and it in fact
+satisfies causality because all the vectors, all the elements, all
+the other elements are 0, and so it can deliver
+this multicast message from P1. P4, uh, the rule is likewise,
+and can- it goes ahead and delivers P1's
+multicast message. Now, when P2 sends out
+its multicast, it increments the second element of its vector, so the vector
+for uh, the time stamped vector for this multicast message
+from P2 is 1,1,0,0. When P1 receives
+this multicast message from P2, it sees that in fact this is the next sequence
+number it is expecting from P2, and that the receiver
+satisfies causality because all the other elements are identical to the incoming message, and so it can deliver
+this multicast from P2. However, when P3 receives
+this message from P2, it sees that the first element
+in the incoming vector is one. However, the first element
+in its local vector is 0. In other words, P3 has not yet
+gone beyond the causality and has not yet received
+some messages on which P2's send
+is dependent upon. So because it is missing
+the sequence number one from P1 uh, it buffers
+this multicast message from P2. Subsequently, P4 sends out
+the multicast message, which now has vector, uh,
+timestamp of 1,0,0,1. P1 and P2 both
+receive this message, and they are able to deliver it because the receiver
+satisfies causality. You can verify
+this for yourself. However, when P3 receives
+this multicast message, it sees that it is missing, again uh, the message 1 from P1 which is included in
+the incoming multicast from P4 because P4's first element is 1. However, P3's first element
+is a 0, and so it buffers
+this multicast from P4 as well. Uh, thereafter,
+when P1's multicast is finally received at P3, it sees that this is in fact the next multicast message
+that it needs to deliver, because causality is true, and so it updates its timestamp to be 1 followed by three 0, and at this point it can deliver
+both P4's buffered multicast as well as
+P2's buffered multicast. It can deliver these two
+multicasts in any order, because these are, uh,
+not causally dependent on each other, otherwise
+the vectors would show it, and so it goes ahead
+and delivers this, and it updates its, uh,
+vector to be, uh, [1,1,0,1]. And finally of course P4
+receives the multicast from P2 and it can go ahead and
+deliver this multicast message and update its final vector
+to be 1, 1 and, ah, 0 and 1. So, uh, that wraps up
+our discussion of multicast ordering. Uh, the ordering
+of multicast is important because it affects correctness of distributed systems that use multicast
+as a building block. On the stock exchange floor, uh, you want to make sure that all the stockbrokers are receiving, uh, the stock trades in the same order as everyone else. Uh, this ensures fairness
+in the marketplace. Uh, in, uh,
+the air traffic control system, you want to make sure that all the, uh,
+air traffic controllers' are seeing the updates
+in the same order as all the other
+air traffic controllers. This ensures correctness
+and safety of the airplanes. There are three popular ways
+of implementing ordering. Uh, these are, uh, FIFO,
+or first-in, first-out, causal, and total ordering. We have seen what these mean. We have also seen how
+to implement them. What we have not seen
+so far is reliability and, uh, fault tolerance. What happens when, uh, some of
+the processes in the group fail? How do we ensure that all the
+correct processes in the group still continue
+receiving multicasts? We'll see this in the next two
+lectures, uh, in this series.

@@ -1,0 +1,327 @@
+# Week 01 - Week 1 Course Orientation and Basic Computer Science Fundamentals
+
+## 01 - Orientation Towards Cloud Computing Concepts Some Basic Computer Science Fundamentals
+
+Slides: C3_Orientation_CSRAfinal.pdf
+
+### Transcript
+
+Welcome to this
+Cloud Computing Concepts course. In this lecture, we'll be covering several
+concepts that are zoomed as a part of the topics that we'll be discussing
+in the Cloud Computing Concepts course. So we'll be covering several of the basics
+they are considered to be the basics in computer science. Typically some of these concepts are
+concepts that computer science students learn in the first couple of years in
+the computer science undergraduate degree program. So for those of you who are already
+familiar with this material this could be a refresher or you could just
+skip it if you already know this stuff. In any case, you can always use this
+orientation lecture as a reference to keep coming back to if you encounter
+a term during the regular lectures that doesn't make sense to you, or
+that you'd like to be reminded about. So we'll discuss a few topics. We'll discuss some basic data structures,
+what processes are. We'll discuss a little bit about computer
+architecture, and then a little bit of math with big O() notation, basic
+probability, and a few other basic topics. So let's get started here. So basic data structures, we'll
+discuss two different data structures. The first one is a queue. A queue is essentially a first-in
+first-out data structure. Elements of the queue
+could be any data types, in this example here I have
+elements that are in T years, so in this example right now the queue
+has five elements, 3, 5, 8, 0, 7. This is an ordered list of elements. When you remove an element from the queue,
+you remove it from the head of the queue. In this case, the head is the element 3. When you insert a new element,
+you insert it at the tail of the queue, which means that if I insert
+a new element, say 1, it's going to get inserted
+right after 7 in this queue. So removal always come from the head, while insertion always
+happens at the tail. So for instance, given this particular
+queue consisting of five elements, if you dequeue or remove an item,
+then that item would be 3. At that part of time,
+the queue will only consist of 5, 8, 0, and 7, with the head pointing to 5. The next item that you dequeue or
+remove will be 5. After that, the queue will
+consist of only 8, 0, and 7. Then the next item that you dequeue
+will be 8, and so on, and so forth. Dequeues, or removals, as well as
+insertions can occur concurrently. So you can remove an element,
+but at the same time, also insert an element at the tail. So that's a queue, which is
+a first-in-first-out data structure. A different data structure is the stack, which is the first-in-last-out
+data structure. Imagine a stack of dishes that you place
+on your table, the dish that you put on the top, that you add the last will be
+the first one that you're going to remove, all right, and that's essentially a stack. So remove, or also known as a pop,
+happens from the top, and insert or a push also happens at the top. So, in this case, if you push a new
+element into this particular stack, say 9, then 9 will go above 3. After that, if you pop or
+remove an element that's going to be the last element that you added,
+which is 9 in this case. The next pop after that will get 3,
+because 9 was just removed, and 3 is now the top of the stack. After you remove 3, the next pop or
+removal will get you 5, and so on, and so forth. After that, you get 8, and then 0, and 7. So once again, the removal always returns
+you the last item that was added and insertion or push adds an item
+right to the top of the stack. So these two data structures,
+queue and stack, are used very widely in computer science, and in fact, we'll
+be using the notion of a stack right away when we discuss processes soon in this
+particular orientation lecture and stuff. What is a process? A process is essentially
+a program in action, for instance, you might write a program in a language
+like C, C++, Java, or Python,, or Ruby and [INAUDIBLE], whatever it is, it doesn't
+matter what the language is, and when you execute that program,
+say from the command line or from a GUI, that executing
+program is called a process. For instance, here I have a C like
+program, which has a function main, which in turn calls a method f1,
+which in turns calls a method f2. This is shown pictorially
+here f1 main calling f2. When you instantiate this program and
+execute it, it becomes a process, which here in this case is labeled as P1. So this code part shown here
+is only program itself, the process itself consists of
+wonderful other components. The code typically doesn't change,
+but the other components might change. What are these other components? Let's look at them one by one. First of all there is a program counter,
+which is an index into the code, which says where the program is right now. What is the exact line
+number with in the code, where the program is executing right now. Next you have a stack, which is used by the functions to
+pass arguments and returned values. For instance, when the main function
+calls f1 any arguments that it needs to pass to f1 are passed via the stack by
+pushing an element on top of the stack. F1 can then pop that element off and obtain the arguments
+that are passed to it. Similarly when f1 calls f2 it then pushes
+on top of the stack, the arguments that it has for f2 and f2 can retrieve these
+arguments by popping the top of the stack. When f2 is done,
+it can return the return values to f1 also by pushing the return values on
+top of the stack, so that when f1 resumes, it can pop the top of the stack to
+obtain the return values from f2. Similarly, f1 returns its return values
+to main by pushing on top of the stack. Now the functions themselves might declare
+variables, some variance might be local variables, and local variables are also
+typically maintained on top of the stack. I'm not showing them here, and
+this is the reason why when a function or method is completed in its execution,
+any local variables that are declared inside are then gone, because that
+part of the stack has been popped. In addition, function that might
+also create new memory by for instance calling myLocalNew. In this case, I'm showing such as a
+variable x, and such variables are stored in a separate data structure associated
+with the process known as the heap. Also, associated with
+the heap are also registers, which typically refer to the recently
+accessed variables in the process itself. So, for instance this variable
+x is present in the heap. Such or new variables need to be
+explicitly freed in most cases, however, some programming languages have
+automatic garbage collection. Now the reason we are discussing
+the process here is, really the main reason is that,
+when we talk of distributed systems, we're going to talk about multiple
+processes communicating with each other, and we'll mostly focus on process
+to process communication, and then later on we will also talk
+about how procedure calls or function calls can cross
+process boundaries. In addition, the other reason we're
+discussing the process here is that when we take a snapshot of a process, when I
+say a process takes it's own snapshot, this essentially includes everything
+that I'm showing here on the slide, and maybe a few more elements. It includes the code, the program counter,
+the current status of the stack, the current status of the heap, and the
+registers, and then a few other elements. Essentially this information is enough to
+resume this process from here onwards. Speaking of computer architecture, let's discuss a simplified
+version of computer architecture. Computer architectures today
+can be very complicated, but typically when we think of how a process
+executes on a computer architecture, we can think of the simplified view. So there's the CPU,
+which executes the actual instructions, which are present in your code. There are also a bunch of registers
+that are code located with the CPU. These are small pieces of memory that
+can be accessed very quickly by the CPU. Typically there's only
+a small number of registers, typically not more than
+a few tens of registers. There is also a cache, which is a slightly
+larger memory than the collection of registers, and the larger a piece of
+memory is, the slower it is to access it. So accessing a cache is slower than
+registers The next is registers but accessing the cache is still pretty fats. Then beyond the cache there is the main
+memory or the Random Access Memory or the RAM,
+which is even larger than the cache and the memory itself, therefore, it's slower
+than the cache but still it's pretty fast. And then, finally, there is the hard disk
+or if you would like solid state drive, flash driver or whatever, which is
+a lot more memory than the main memory. But of course, it's much slower. So as you go up from disk to memory, to
+cache, to registers, the speed increases. The total amount of storage
+space that you have decreases So when you write a program such as C++,
+or Java, or C and you compile that it gets compiled
+to low level machine instructions. These machine instructions might
+be specific to the architecture of the machine on which you're running. Or it might be a virtual machine
+like a JVM kind of code. In any case, these low level machine
+instructions are the executable version of your program, and this is stored
+in the file system on your disk. When your program starts executing, when it becomes a process,
+the CPU loads instruction in batches. Or more simplified way,
+it loads instructions one by one. It loads them into memory, and
+then into cache, and then into registers. Typically the cache and the registers
+contain the last few access instructions, so they follow what is known as
+the least recently used principle. Now, as it executes each instruction,
+the CPU, which is executing the process, loads the data that is necessary for
+the instruction into the memory, and then is necessary into the cache and
+the registers. And if there are any necessary changes
+that happened to a variable like x, then these are stored first into cache and
+then in to memory. Once in while you may need to
+store something on disks so that you have a permanent storage. So in case the process goes offline
+then you still have some data. Say, for instance, the program might open
+a file and write something into the file. So in this case, you may want to write
+those updates to the file onto the disk. Now of course,
+this is a very highly simplified pictures. Computer architectures can be far
+more complex than this today. But for our practical purposes,
+in this course, and as far as explaining how
+processes work, this will suffice. So next we move on to
+a few mathematical topics. The first mathematical
+topic is a Big O Notation. A Big O Notation is one of the most
+basic ways of analyzing algorithms. When I give you an algorithm and I say
+analyze the algorithm mathematically, essentially I expect you to come up
+with at the least a big O notation analysis of that algorithm. The big O notation describes an upper
+bound and the behavior of an algorithm. As some variable is scaled or increased
+in value all the way till infinity. Typically, this variable
+is the size of the input, maybe the number of input elements. You'll see a few examples of this. So essentially,
+this big O analysis tells us how does the algorithm itself scale as
+the size of the input is increased. This analyzes the run-time or typically
+another performance metric as well. Most of the time, we analyze run-time. Sometimes, as you'll see in the course,
+we'll analyze things like number of messages, even bandwidth that is
+exchanged in the total network itself. The important thing about
+big O notation is that it captures worst case performance, okay? So this is not expected performance or best case performance,
+big O is worst case performance. Given this algorithm, what is
+the worst that it can do in terms of this performance metric
+that we're measuring? So essentially when I say
+an algorithm A is O(foo), this means that algorithm A takes less
+than c * times foo time to complete, assuming time is the metric
+we're measuring, for a fixed constant c,
+beyond some input size N, okay? Typically this foo that is present
+in this definition is some function of the input size N. For instance,
+I could say that an algorithm is order N, which means that algorithm A takes less
+than c times N time to complete for some constant c beyond some input size N. Similarly the algorithm might be order N
+squared which means that it is quadratic in time, and it takes time less than c
+times N squared, for some constant c. Once again, when we say order N squared or order N, notice that we do not include
+the constant c in the definition itself. This is because the consonant is
+irrelevant, as long as there is a some fixed constant, that is good enough for
+us as far as Big O notation is concerned. So we do not state the constants
+in Big O notation. So let's see a couple of examples. So first, I give you an unsorted list of,
+say, integers and I ask you to search for
+the specific element in the list. This is actually means that you have
+to iterate through the list one item at a time and search for the element by trying to match it with
+each element already present in the list. What is the worst case performance? That's what we need for
+the big O notation, right? So the worst case performance happens when
+either the element is not there at all in the list, so you return a false or the
+element is the very last one in the list, the very last one that
+you matched against. Therefore, the worst case performance
+involves N operations and the number of operations involved
+is less than c times N, where c = 2 because the number of operations
+is N where N is the size of the list. Okay, so the time as well as
+the number of operations assuming each operation takes at one unit of time. Both the time taken for this algorithm, which iterates through the list as well as
+the number of operations are both order N. That's why we say order N over here. Let's take a different example
+to see how big O notation works. This deals with insertion
+sorting of an unsorted list. So suppose I give you a list of elements,
+let's say integers, and this is unsorted, and I ask you to sort them, say,
+in increasing order of the elements. An insertion sort
+algorithm works as follows, first, you create a new list that
+is empty, then you iterate through the elements in the unsorted original
+list, you remove one element at a time. And you insert the element in the new
+list at the appropriate position. Essentially, you sort through
+the new list linearly searching for the right position where
+this element should be. So if you do this, the first element of
+course takes one operation to insert, that's one insert operation. The second element in the worst case
+takes two operations to insert, one operation for the comparison with
+the one element that's all ready present in the new sorted list,
+and one more operation to insert. Imagine the worst case where this second
+element is inserted right at the very end of the list. Similarly, the third element will
+take three operations to insert where the first two elements compare it with
+the two already existing elements. And the third operation inserts
+it at the very end of the list. If you go on like this and the i-th
+limit takes i operations to insert and you can calculate that as
+the total time required to insert all the N elements as 1 + 2 + 3,
+so on till N. And this is a well-known sum which
+comes to N (N + 1) divided by 2, which is less than 1 times N squared. So where the value of c equals 1,
+this insertion sorting example is an algorithm that takes
+order N squared in time, and also order N squared in
+the number of operations. Next, we will look at a little
+bit of basic probability. Before probability we need to
+discuss a few definitions. The first definition is a set. A set is essentially
+a collection of things. So, for instance,
+a set S might be a set of all humans who live in this world at this current moment. A subset is another set which is
+a connection of things that is a part of the larger set. So I might describe a set S2, which says the set of all humans
+who live currently in Europe today. S2 is a subset of S because every element that is present in
+S2 is also present in S. But the reverse is not necessarily true. Okay, so now probability,
+any event has a probability of happening. So let me give you an example. If you wake up at a random hour of the day
+Say you just wake up at some random hour of the day. Say you're jet lagged or something, and
+I ask you what is the probability that the event at the time is between 10 AM and
+11 AM? Let's try to calculate this. Well, there are 24 hours in a day, so you have a set that consists of
+24 elements, one for each hour. 12 AM, 1 AM, 2 AM,
+all the way through 10 AM, 11 AM, 11 PM. And so when I say an element like 1 AM,
+I mean the hour between 1 AM and 1:59 AM. Similarly, 10 AM means 10 AM and 10:59 AM. Out of the set of 24 elements,
+you pick one at random. And the probability that you're going to
+pick 10 AM is essentially 1 divided by 24. Because you're picking one
+element at random, and there are 24 elements in the set. And the probability that you pick
+that one special element to 10 AM is 1 over 24 because you want to
+be lucky to pick that 10, okay? So the probability that if you
+wake up at random hour of the day the time is between 10 AM and 11 AM,
+then that probability is 1 over 24. Now there are multiple events, and you
+might need to calculate the probability of conjunctions or
+disjunctions of these events. I'll describe what these are soon. So say E1 is one event, and
+E2 is another event, and E1 and E2 are independent of each other. This means that E1 does not influence E2,
+E2 does not influence E1. Then the probability that E1 and E2 both happen is essentially
+the multiplication of these probabilities. So you take the probability of E1,
+multiply it by the probability of E2, and that gives you the probability
+that both E1 and E2 are true. Let's discuss an example of this. Suppose you have three shirts,
+they're colored blue, green, and red. And also you wake up at a random hour and
+blindly pick a shirt. You put your hand into your closet and
+you blindly pick out a shirt. What is the probability that you
+woke up between 10 AM and 11 AM, and that you picked a green shirt to wear? Well, the first probability of the first
+event, that you woke up between 10 and 11 is essentially 1 over 24,
+like we calculated on the previous slide. The probability that you picked the green
+shirt is essentially one out of three because there are three colors of shirts,
+you have three shirts. And you want to pick the green one. You want to be lucky to pick
+the green one, so that's 1 over 3. And so the probability that
+both these events are true, that you woke up between 10 and
+11 and that you wore the green shirt, is the multiplication of
+the probabilities of those events. So that's 1 over 24 times 1 over 3,
+and that gives you 1 over 72. One of the things that you have to be
+careful about here is that if E1 and E2 are not independent, meaning that
+they influence each other in some way, then you cannot multiply
+the probabilities with each other, okay? And so for instance, if the shirts that
+you have in your closet change from one hour to another, because say someone
+in your house changes them around. Then you can't necessarily multiply
+these probabilities as they are here. A different thing that you may need to
+do with two event probabilities is to order them. So if I give you two events E1 and E2, and I ask you the probability of either E1 or
+E2 happening. Then you can say that the probability
+of E1 or E2 is the probability of E1 plus the probability of E2 minus
+the probability of E1 and E2. Okay, so
+this is the intersection probability here. If you do not know probability of E1 and
+E2, this last term over here, then you can write the inequality
+probability of E1 or E2 is less than or equal to the sum of
+the constituent probabilities. Sometimes we use these
+inequalities to upper bound the probabilities of these
+junctions as we see here. DNS refers to Domain Name System. It's essentially a name resolution system. It is run as a collection of
+servers throughout the world and it helps you to translate URLs,
+actually domain names, into IP addresses. So the input of the DNS is a domain name,
+so just coursera.org. And this is a human readable string
+that uniquely identifies the object. So we humans can easily remember
+a name like coursera.org. Actually we really remember URLs
+like class.coursea.org/foo. And when you enter this into your browser,
+your browser extracts the domain name from this URL, and then sends this off
+as a query to the DNS system. The DNS system then returns to you the IP
+address of a web server that potentially hosts that content. And the IP address is, essentially,
+a target, or an address, or an ID. And it is a unique string
+that points to the object. The difference between an ID and a name,
+the output and the input to a name resolution system like DNS is essentially
+that IDs are harder to remember. It's harder for
+us human beings to remember IP addresses. It's much easier for us to remember names. Also, IP addresses change but names don't. Now, the IP addresses might
+refer to a actual web server, a unique web server that
+actually hosts that content, so that now your client browser can send
+a DCP and HTTP request to that server. Or it might refer to an indirect server or even a group of servers such as a content
+distribution network, such as from Akami. The funny thing about names in your
+system is that they can be changed. So the ID or the address
+obtained from one name entered in your system can be given as name to
+another name in your system, and that can return a different address,
+and so on and so forth. And you can keep doing this until
+you reach your final object itself. Graphs, so
+when we say graphs in computer science, we don't necessarily mean
+plots which have X and Y axis. A graph is essentially a network. So here I'm showing you a graph
+of some cities, Amsterdam, Boston, Chicago, Delhi, and Edmonton. And the travel times between those cities
+by air, rounded up to the nearest hour. Okay, so travelling from Amsterdam
+to Boston takes about six hours. Travelling from Chicago to
+Delhi takes about 14 hours. Say these are the flights that
+are available on some particular airline, right? So you see both cities here as well as
+connections between pairs of cities. And also some values
+along those connections, which are the number of hours that it
+takes to transit between those cities. These all have names in
+the world of graphs. So each city would be a node or a vertex,
+each connection between a pair of nodes will be called an edge, and the value
+along an edge is called the edge weight. Also when I say that A is adjacent to B, this means that A has an edge
+that connects it to B directly. Typically an edge goes between
+two nodes or two vertices. An edge does not cross three nodes. So here, for instance, I have one,
+two, three, four, five vertices. And how many edges do I have? I have an AE edge, an AB edge,
+a BE edge, a BC edge, and a CD edge. So I also have five different edges,
+each with its own edge weight. So in this lecture we have covered
+the basic data structures such as a queue and a stack. We have seen that processes
+are programs in action and that they consist of
+multiple different pieces. Processes of course run on
+a computer architecture. And it's important for you to know at
+least a simplified version of the computer architecture so that you know what's
+operating where when you run a process. We've seen some mathematical topics such
+as O()notation, which analyzes the worst case performance of any given algorithm,
+and then some basic probability. And finally,
+we have seen a few miscellaneous topics. I hope you can keep coming back to this
+as a reference whenever you need it throughout the course. [MUSIC]
+
+## Quizzes
+
+_No transcript available._

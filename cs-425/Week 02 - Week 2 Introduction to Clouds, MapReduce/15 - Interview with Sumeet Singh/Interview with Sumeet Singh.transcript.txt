@@ -1,0 +1,239 @@
+So I've been at Yahoo
+for about three years. Um, I am currently a senior
+director of product management for the cloud and
+bigger platforms. Uh, it's a pleasure
+speaking with you here. When you think about cloud at
+Yahoo, uh, or perhaps any other consumer internet company that operates at web-scale
+or the scale we operate at, obviously one
+of the first things you would think about is scale. Um, and some the other things
+that come to mind are, eh, i-if you ask us or the people across
+Yahoo it would be service, would be an attribute
+that would come to people, service level agreement, SLA, or latency is another thing
+that would come to mind, um, a-and then performance. So these are the types
+of attributes that people would associate
+to cloud computing right? Ease of use of consuming
+technology, um, y-y'know, um, expectations around services, those are the types of things that would come to people, um, peoples' mind, uh,
+or our developers' mind because it's a private cloud. Our services are
+for internal consumption to Yahoos and Yahoo developers so the products and
+applications that we host, uh, or the-the platform services
+that we provide to our developers
+are for our developers, y'know, and our applications. So Yahoo Mail, uh, some
+of our mobile applications, search and all kinds
+of other things we do or-or the businesses
+we operate in, is what our cloud is supposed
+to serve or expected to serve. Uh, we don't offer retail
+services to, let's say, y'know, consumers outside of Yahoo or
+our publishers or anybody else. So that's what I mean
+by a private cloud it's really in my mind, it-it-th-the stacks and
+the technologies that we put together are more or less the same,
+as let's say, a leading public cloud, but the
+primary difference here is, um, what we focus on versus
+what they focus on. Uh, and the second is that, uh,
+it's not a retail service in any sense,
+the IP space is private. Not just Hadoop but if you think
+about the big data space we have all kinds of other
+services now, um, that either run on the same Hadoop infrastructure like Storm or Spark, um, we have introduced those
+years ago, um, at a least
+a couple of years ago, uh, when it came to Storm uh, and now have some
+of the largest clusters, um, for streaming technologies and other things. So it not
+just Hadoop anymore, uh, and that's why I like
+to call it now, Hadoop and band big data
+platforms a-as our group, uh, and then when you come to more
+traditional cloud services, which are beyond big data, uh, particularly
+on the serving side, um, a lo-a-lot of it is,
+y'know, infrastructure services so we work a straight
+back through open stack. Uh, we are a gold
+foundation member of the open stack,
+uh, consortium. Um, I talked
+about storage services, about structured and unstructured services, we also talk about hosted search
+service, dynamic serving something, um, that-that we're pretty proud of uh, or is really essential
+to a consumer web company is th-the serving stack,
+um, so we have o-orchestrated the full serving stack
+through our cloud services. Uh, we have a set of shared
+services like, y'know, messaging across applications, across data centers, hosted messaging services, um, monitoring services, so a-a lot and-and complete ed services
+like suite of, y'know, video hosting service, um, dynamic streaming, we have our own CDM, we have our own prox-cloud
+proxy infrastructure so it's a full suite
+of service, um, just as you may look at,
+let's say, something else which is more
+trust-bearing to people outside like Amazon web services and if you look
+at their suite of services, our suite of services
+look exactly the same. So we live and die
+distribute computing, um, and we're the ones
+who are building, let's say, the Hadoops,
+the Hive, and th-the Hbase and things like those
+for our company, alright, as well as contributing to the
+open source community, uh, across all of these technologies so for us
+it's extremely important, but for a user of Hbase, uh,
+for a user of Hadoop it may or may not
+be equally important. For them, I guess, what's
+more important to know is the capabilities
+of these platforms, rather than, um, y'know,
+what underlying algorithm does the, uh, does the storage
+technologies based off of. So I'll give you a good example we had, eh, we have a storage system called Sherpa. Now Sherpa is based
+off of a work that was done out of Yahoo labs a long time ago, um, and it was one of the largest
+no-SQL installs anywhere in the world
+at that time, it's called Peanuts. Um, and, um, now Sherpa
+also uses some of the LSM technologies
+and LSM's common across, let's say, Sherpa and-and Hbase. Um, now does a person outside
+of our platforms organization need to know about these
+things, I'm not quite sure? What they ought
+to be worried about is like what's my read latency, what's my write latency, what's my read throughput, what's my write throughput if I'm using this storage system
+versus that storage system, is this optimal for my use case, is that for optimal
+for my use case. And I think
+we help our customers a lot in making those decisions, but at the same time I think customers ought
+to be smart enough to disseminate the
+nuances between, y'know, a million different DB's and-and
+no-SQL stacks up there. Yeah I think-I think we have
+a philosophy, I mean we both
+contribute heavily to the open source technologies, we have open sourced a lot
+of our own technologies, uh, for the benefit
+of the community. Hadoop being one that we open
+sourced in 2009, which is probably one of
+the most successful, um, I would say stories, um, that Yahoo has as far
+as open source is concerned. ATS is another one,
+Apache Traffic Server, which was earlier Incoming Traffic Server, later became and that's widely used across
+companies that operate in the cloud computing space. Um, we're doing a lot of work,
+um, in open source as well, um, on technologies that were
+not developed at Yahoo. So, I'll give you an example
+like Storm, like Spark, like Hbase, like Hive a lot of these were not invented
+at Yahoo, right? So we brought them from outside
+and we contribute, um, um, a lot to those as well, um, we have done, um, pretty, um, I
+would say important work when it comes to Hbase in terms
+of developing multi-tenants in security in, y'know types
+of things that Yahoo needs, types of things
+that our customers need from the platform, we've gone ahead
+and built those and these open
+source technologies to have brought from outside and in the process of,
+or have already contributed a lot of that back
+to the community. So, I think the philosophy really is about what's useful for Yahoo, uh, be it, eh, the decision of open sourcing something
+that we have developed or bringing something from
+outside and contributing to it, uh, and it works both ways. Uh, but really the-the essential
+idea behind making that decision is to how it's going
+to benefit Yahoo, um, and then how it's going
+to benefit the community and what would be
+the impact to Yahoo as well as the technology
+landscape in the longer term. Y'know the question
+can be answered, again as I said earlier to you, uh, in-in, two
+different, uh, sort of realms. Um, the enterprises think about
+cloud in somewhat different way, uh, particularly
+in the industry, um, as we the web-scale cloud
+consumer internet companies think about cloud, um, an-and I think if you ask
+those people, like the enterprise-centric
+people about cloud they would talk about, um, y'know, the debate between
+public and private cloud and how everything is evolving
+as a hybrid model, uh, where workloads can seamlessly transfer
+on-and-off premise. Um, they would talk about things
+like, y'know, multi-cloud, and private
+an-and, members cloud, and, uh, uh, all kinds
+of other notions around, um, how these clouds services,
+the public cloud services, will be consumed
+by the enterprises, the security models
+and things like that a-and I think
+the general consensus is this hybrid model, uh, is
+how it's going to evolve into. But again, with a
+services-centric view, not a technology-centric
+view, um, as far as technology
+itself is concerned, um, obviously a-a company
+that operates on that space will promote its own
+technology and agenda, a long-term view of how
+things are going to evolve. Some would say it's all gonna
+be open or based on open stack or based on something else. Um, somebody will have some
+other notion, um, if, but, y'know, as far as
+Yahoo is concerned and where things are headed I think, um, we're, um, g-we
+will to continue to focus on things
+that we're focused on today i-in my opinion that battle
+will never cease. A-and I think one
+of the primary battles we have in this space
+is around latency. Everything we do,
+within the data center all the way to the end customer, really reducing
+that serving time, from when the request was made, to when the response was served, uh, is something we're going to
+continue to focus on, a-across our stack,
+across our services. Um, I don't think that will ever
+go away, uh, tha-or that focus will ever go away. Ah, this-this notion
+of instantaneous response, you click something
+and you have the answer, that will never go away. Um, so our technologies, uh,
+our services will continue to focus on that. We will continue
+to refine our SLAs that we make with our customers, around throughput,
+around latencies, um, and they are going to stay
+as our focus. Um, I think, I also think that
+from a technology standpoint, um, there is a-a blurring
+of boundaries between the backstage, um,
+infrastructure or platform, as well as the serving
+in-infrastructure or platform an-and there now sort
+of, eh, eh, converging, right? So Hadoop was sort of our, y'know, asynchronous
+processing platform, we had a bunch
+of proprietary technologies in this serving stack,
+and as you can see a lot of these
+are now merging, right? People are demanding
+real-time responses from Hadoop type infrastructure as well as people are expecting
+more and more, um, y'know, deep edge capabilities, um, deep
+analytics capabilities, right? And the edge would be
+an event of Internet of things a-a-a-and, um, eh,
+and that's not quite possible, um, um, given the,
+given the, um, size and the processing powers
+of these edge devices. So, eh, I-I think there is a
+lot of blurring of this boundary between asynchronous processing
+and serving infrastructure and I think technologies will
+evolve in both of these spaces, um, that would try to do
+more, uh, uh of both. Um, so integrating analytics
+on the edge, uh, we can't send everything
+back to the data center and expect real time response back to the edge, um, those types of things
+will not happen so you will develop
+new types of capabilities. As I said our cloud covers
+everything from the edge, back to the data center, so there will be
+a lot of invention, a lot of, I would say, e-evolution of technologies that we use today, uh, both in our
+video infrastructure and CDN in objects. CDN infrastructure
+will evolve a-a lot to take care of things like
+the-the, um, the evolution of, eh, y'know, internet
+of things and other things and as we as consumer
+internet company latches on to some of those. Um, so, eh-eh it's-it's, five to ten years is definitely
+going to be extremely exciting. That is all I can say. Um, this-this space has, y'know,
+millions of possibilities where things will head, uh, but one thing I can say for
+confiden-with confidence is that, um, it will-it will
+extremely interesting. Absolutely, um,
+a-and not just again Yahoo, I would say it's the foun-the
+platforms, the cloud platforms, the foundation
+of any consumer web company, I mean, not just for Yahoo. Um, in many a cases platforms
+and technologies become competitive vantage, um, and so the-the-the usage of
+cloud, the importance of cloud, the importance of platforms
+have not gone down, it's only becoming
+more and more important as we try to bring more, um,
+I would say, innovative user experiences, mobile experiences out in the
+market at a quicker pace. The role of platform only
+impro-, um, I would say increases, um, so i-it actually helps us get
+things out on the market faster. Um, a-and that's exactly where
+we're focused on right now in terms of delivering new and
+interesting user experiences. Um, that, um, eh, as we call as will become
+the daily habits of people. Um, and the importance of cloud,
+the importance of platform, eh, has really, really increased,
+uh, it has not gone down. Wh-so, eh, for me the whole
+platform space, the cloud, um, th-the big data space
+was very interesting. So when I was making
+the transition into Yahoo, um, that was the space
+I wanted to get into, so I was somewhat
+domain-centric, less company focused. Um, and, um I got all of that,
+I got to do all of that and I got to work in cloud, I got to work at scale
+that is unbelievable. We have, y'know, give or take
+how you-how you define the users 800 to a billion unique users, a-and that drives a lot of interesting scale challenges on the technology side,
+on the platform side. You get to see all of that. Um, the other interesting thing
+I find, uh, which keeps me extremely happy here is this idea of, so when it comes to big data
+or Hadoop, remember, this was the birthplace of Hadoop right? So you have a very strong
+development team that has, let's say, more than 50% of it's, um, eh, eh, members as committers or PMC's
+in leadership roles in the open source community. Um, so they control a lot of,
+um, y'know, what happens, uh, in the, uh,
+open source community, um, so-so it's always interesting
+to work with them, uh, on the development side and then al-we also have one of
+the world's largest footprints in the world when it comes to
+the infrastructure itself, uh, and the services we offer
+to rest of Yahoo. Uh, pretty much the entire
+business runs on the platform, so, y-you to get see both these
+sides, uh, at the same place, in the same job, uh,
+which is pretty exciting. So, tha-that to me
+has been invaluable. I don't think
+I-I'm going to get that in a pure software
+distribution house, uh, or in a pure
+public cloud company. Um, over here I think
+I get to see both, th-the all the engineering
+and development aspects of the technology, as well the services aspect. When you deploy
+a lot of what we develop on one of the world's largest private cloud infrastructures. So, um, no issues,
+no complaints. [laughs]

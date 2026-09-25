@@ -1,0 +1,311 @@
+Hi there. So we are here in the, uh, Siebel Center
+for Computer Science which is the Department
+of Computer Science at the University of Illinois
+at Urbana-Champaign. This is the building
+where I work and a lot of other, uh, students and a lot of other
+faculty work, uh, here, in Computer Science. So, uh, here we are talking with, uh,
+Professor William Gropp. And he is gonna tell us some
+juicy pieces of information and opinions about, uh, uh,
+what he works on and how that relates
+to cloud computing, so, thank you for talking
+with us, uh, uh, Bill. Uh, why don't you start
+by saying a little bit about, uh, yourself? Sure, so, uh,
+I am a-a professor here in the Department
+of Computer Science. I've been here
+for about seven years. Before that, I was a scientist
+at Argonne National Lab, and before that I was, uh,
+on the faculty at Yale. Uh, I've been doing what we call
+high performance computing, uh, since I was a graduate student, and I think it's really cool
+and exciting. Uh, one of the, uh, things I got
+to do just last year was to be the general chair
+of the biggest meeting in the high performance computing field which has a little
+over 10,000 people attend. So it was a really exciting time in, uh, the Denver
+convention center, and so. Uh, our field is very active,
+uh, very vibrant, has a lot of cool opportunities, uh, and has a lot of overlap
+with cloud computing, so I'm happy
+to talk about it. Alright, so you mention high
+performance computing, uh, w-can w-can you say a little about what high performance
+computing is? Yeah, it's one of these things
+that's sorta hard to define. It's like, you know
+it if you see it. Uh, one way to define it is it's computing where performance is important. Uh, and then that's maybe
+the broadest definition. Uh, definitions also used is that it's computing that involves supercomputers, or machines
+that are like supercomputers. And so you could ask
+what a supercomputer is. Uh, the definition of that
+has also changed over time, but one way to define it is it's about the most expensive
+computer you can buy. [Indy laughs] Um, it was once defined as a
+machine that cost $12 million but there's
+been inflation since then. Um, but a supercomputer is,
+is a computer that, uh, allows you to tackle problems that are just oth-otherwise uh, out of reach, and a typical supercomputer
+or computer of that class, is made up of thousands
+to hundreds of thousands of the kind of fast processors you might find in a server node. What are the similarities or
+the differences between high performance
+computing and cloud computing, as you see cloud computing? So the, let me start
+with the similarities. Um, in both cases,
+you're taking advantage, uh, getting more performance by having large
+numbers of processors that can attack some collection
+of problems. Maybe a problem,
+maybe a collection of problems. The- maybe
+the biggest difference, between high performance computing and cloud computing and this is a difference that is, uh, definitely
+a shade of gray, is that in high
+performance computing, well, first, as I mentioned, the, uh, focus on performance, is quite important. Many high performance computing
+problems require the, uh, coordinated work
+of all of those processors on this same problem
+at the same time. Uh, high performance
+supercomputers tend to have, uh, very high performance networks that have low latency
+and high bandwidth and these networks are
+significantly more powerful than the ones you find
+in the cloud system, there're also significantly
+more expensive. [laughs] But they're needed for
+the kind of tight coordination. I often use a-a symphony
+orchestra sort of analogy. The kind of programs that we run
+in high performance computing are often like symphonies, in they have to be
+well-coordinated. Y'know, maybe not
+by a single director, but they have to work
+very closely together. In fact, uh, anybody who's a
+m-musician knows that, uh, even the stage
+for a symphony orchestra has to be defined well so that the musicians
+can hear each other well, and keep things coordinated. Um, clouds can do that
+under some circumstances, but they're much more optimized towards independent work that's, um, less
+frequently coordinated; it's not uncoordinated,
+but less frequently. And so you don't have to, uh,
+have the same tight control of what's going on. And so, these communities, uh, HPC, high performance
+computing community and the cloud
+computing committee, um, are sort of, they sound
+very similar to each other from what you're describing. Can they learn from each other
+in terms of techniques? Uh, uh, I think they can. Uh, and definitely
+in both directions. So, it's interesting there was a recent paper
+from people at Google, where they had discovered stuff about, uh, performance
+irregularities in codes that we have known
+in high performance computing for decades. Uh, and we also have solutions
+for the those problems. [laughs] Uh, at the same time, uh, um, the access model
+that clouds provide is something
+that I find an increasing number of computational scientists
+clamoring for, the ability to get resources
+on demand that scale to the size
+of their problem, uh and that's requires
+a different way of thinking about how you
+provide the access. Um, I think also the, uh, a lot
+of high performance computing has been designed
+around applications that take advantage of the fact that each of those
+compute elements runs at the same speed
+as the other ones. Uh, this is no longer true, although, uh, a lot
+of applications still think that it is, and it's going to become
+less true over time. And this is exactly
+the sort of situation that cloud systems are already
+operating in, and so, they, um, they've looked at that from some different viewpoints. And finally, another issue that
+has been coming up as we're looking at taking
+extreme scale computing and high performance computing, uh, beyond where
+we're at now to systems that are a hundred or a thousand times faster than current systems is that it's gonna become
+increasingly difficult to require that the system
+be completely reliable. And, another thing is that, uh, has been developed
+in cloud systems is, uh, exploiting cheaper,
+less reliable components, which made sense there, but in the scientific computing you don't need to go cheaper. But as we looked
+at the extreme scale systems, it's gonna be
+increasingly expensive to be, the sort of ultra-light
+reliable that you need. And so again,
+there's an area where what's going on
+in cloud computing will offer some insights,
+maybe not to solutions, because the problems
+have different characteristics, but some insights
+on how to attack them. So can you say
+a little bit about, uh, what kinds of research problems
+you are working on now? Sure, so, they're really
+in-in two groups, so, one of them is
+a computational science problem. So, I'm the lead PI for, uh, the Center on Plasma
+Coupled Combustion, here, which is funded
+by the Department of Energy. What it's looking at is trying
+to understand, uh, what is, uh, really a new way
+to control combustion by using plasmas and you might use this
+to, uh, hold onto the flame in a hypersonic jet engine. Where one of the big problems is that the fact
+that it's hypersonic means that it's very hard to keep
+the flame from being blown out. Plasma gives you a way
+to hold onto the flame. Uh, also allows you to guide
+where the combustion happens, so you might be able
+to make a far cleaner, more efficient burning
+internal combustion engine. But the problem is, that, uh, no-one really knows
+what's-how that works. You know, you can do it
+in a lab, uh, set up a little experiment and we can do that here, it's really great, and it's part
+of our, uh, project as we have people
+who do these experiments. We can set them up
+and they can do them and they can measure stuff, but if you want to design, uh,
+an engine that uses this, um, you need to have some
+insight into what's going on. You need to be able to do
+predictions about, uh, how effective it's going to be, you need something to help you optimize the design, and for that,
+we-we do this by computing, and the kind of computing that's required
+for this is enormous, because you hafta understand
+what's happening on link scales that
+you can see in your hand, and you need to understand
+what's happening at link scales which are the atoms bouncing off
+the electrodes that are creating the plasma, and everything in between. And that's a problem that's too
+big for any one, uh, processor, or even ten or a
+hundred processors. And so, in fact, the Department
+of Energy is interested in this, less because of the science,
+although it's interesting, but more because
+they're interested in understanding the techniques both computer science techniques the applied math techniques to handle problems
+of this complexity, which are really at-at the, uh,
+at the edge of what we can do. And then, the other part
+of my research is focused on say, the computer science part of that, which is, how do I express
+those programs? Uh, how do I write the programs
+so that it's efficient, and it has to be efficient,
+on an individual node, and it has to be efficient running across a hundred thousand
+or a million nodes. And, um, I think you'll be
+asking me a little more about that later,
+so I'll-I'll wait for that. But that's the two parts
+of my research at this time. Okay, um, let's move on
+to a different topic, uh, MPI, which is pretty close
+to your heart, uh. You are of course,
+one of the inventors of this very popular
+programming paradigm, MPI. Can you say a little
+about what MPI is? Sure, so, MPI's, um,
+very boringly stands for Message Passing Interface. Uh, it's a, uh,
+standard, if, well, maybe sometimes called
+an ad hoc standard because it wasn't an official
+organization behind it. Uh, but it's a ad hoc standard that codifies communicating sequential processes. Uh, at least it started
+like that. Over time it's added
+more and more, uh, techniques for doing the kind
+of parallel computing that we do
+in high performance computing. So one of the features of MPI
+is it's designed for reliable systems, designed for systems,
+uh, at very large scale, and I'll say a little bit about
+what that means in a minute, uh, and it's designed
+for, uh, systems that need to get
+the utmost in performance, um, out
+of their applications. Um, it's not a high level,
+easy to use necessarily model. But it's been a very powerful
+and very flexible one. Uh, and astoundingly, it's now
+over 20 years old, which, uh, even I have trouble
+believing at times. Uh, never expected it
+to succeed so well. Um, to give everyone a sense of,
+um, the scale which it's used, there are MPI programs now that typic-that run
+on over a million processors. [laughs] Uh, so it scales, y'know,
+well past what, uh, current cloud systems look like. Uh, the cost
+of moving data from, uh, user process to user process
+in this message passing model is typically on the order
+of a microsecond or less on, uh, a HPC system, and the bandwidths
+for the data that's being moved, uh, exceeds y'know, on this-on the-the slowest systems it's several hundred
+megabytes per second, and, uh, exceeds gigabytes per
+second, uh, on the best systems. Uh, and the bisection band,
+with the ability of, um, say, half the-half
+of those million processes taught the other
+half a million processes, uh, is often, on today's systems
+well over a terabyte per second, uh, and all of that is
+achievable, uh, with MPI, and MPI programs
+that were written 20 years ago, some of them are still running
+today and doing good science, which, um, I think speaks to the flexibility and
+generality of the design. And is MPI, would you say MPI
+is applicable in, uh, data centers,
+and clouds as well? Can the programming model
+be used just as easily there? Yes, it is, and I mean, I run
+MPI programs on my laptop. The-one assumption
+that MPI makes, that is maybe awkward
+for some cloud systems, is it does assume that there's
+reliable communication layer, um, and it doesn't have
+built in facilities to deal with, uh,
+a lack of reliability, um, so that's an issue. It also, uh, tends to assume a
+static group of processes, uh, although there are
+features in it to add and subtract processes, but I would say
+that they're weaker than what you might want
+if you were doing it a lot. But, uh, for example,
+the reduction operation that you might have talked
+to people about, uh, MPI provides a number
+of different versions of that, depending on how
+you are doing your reduction. And those reduction, uh,
+im-those reduction operations and the algorithms behind them
+had been tuned over the decades, to be very, very fast, um, there's some very clever
+ways to do that. The same is true
+for the sort of reverse of that to do a broadcast, um, we can, um, move data from one process
+to all other processes, uh, pretty much at that
+terabyte per second rate. But, and it sounds like from
+what you are saying, that MPI could be combined with
+things like membership services, which already exist, had to-to build a system that would be oriented
+more towards clouds? Absolutely. Absolutely. And there are people who were
+running MPI on clouds now, so it's not, uh, something
+that's terribly strange. The, uh, the biggest thing
+is not so much MPI, but the kind of applications that are written with MPI that, as I mentioned before,
+tend to assume, uh, uniform performance
+of their computing elements. What were the motivating factors behind coming up with the paradigm in the first place? So the, uh, the situation when
+um, MPI was developed was that there were
+a number of vendors, uh, large and small, so, um, start-up companies, um,
+IBM, uh, Intel, uh, and they all had their own APIs, their own
+programming interfaces. Uh, mostly built around
+this communicating, sequential processes model, message processing model, um, for writing these programs. And, uh, Ken Kennedy is well
+known in parallel computing, particularly in, uh, compilers, was working on a par-, uh, compiler for a parallel language and he wanted
+to just have one API for, for, as a compiler target. And he got a bunch
+of us together, so us, meaning people
+who were developing one of these
+different interfaces. And we all explained why they
+all had to be different, and Ken, uh, said,
+this is great, looks like we're all
+in agreement that we can find
+a common standard. Um, this is sort of
+a mark of a great man, who, uh, uh, and he was right.
+[laughs] Um, so over the next, uh, year,
+or so, uh, a proposal was made, uh, many of us reacted
+to the proposal by saying we have to do
+better than this. Um, and I'm, should say,
+it was not a bad proposal, but it wasn't good enough. And a lot of people
+got together, uh, the vendors
+sent their best people, um, the research group
+sent their best people, some application groups, uh, who had the same
+sort of desire that Ken did, they wanted to s- you know,
+they wanted to put their time into writing
+a better application, not importing
+from system to system. And over about a year
+and a half, we came up
+with a s- uh, standard, and as part of that, I had committed my group to developing and implementation, so as we were
+developing the standard we had something that
+ran, that we could, explore and experiment with and make sure we were making
+the right choices. And, uh, that came up with what
+became the MPI1 standard, um, we took advantage of, uh, people who had been working
+on the standard for high performance FORTRAN, which was another
+ad hoc standard. Uh, we even used the same hotel
+in north Dallas which really encouraged you
+to s- um, stay there and work. [laughs] Um, and, we developed
+a careful standard. We got it published. It was published by, uh,
+International Journal of High Performance
+Computing Applications. Um, we made it freely available so, uh, you can
+download the pdf, and you can do that now,
+with MPI3, you can go
+to the MPI-forum.org website and get the standard, so, we don't charge
+any-anything for it. And the- um, there was also
+an implementation available, and, uh, with that,
+people could start using it. We also wrote, uh some books,
+there's Using MPI, Using MPI2. Um, Using MPI is
+in its second edition, and its third edition was sent to the
+publisher last month. Um, another, um, thing that's
+hard to, uh, hard to believe sometimes that it's
+been around that long. Uh, and that produced a standard that applications people could start programming to and that meant that they had,
+they could no longer they no longer had to worry
+about, um, spending time every time a new parallel
+machine came out, moving their code to it. And, because we had in,
+had a very open process, the meetings were open, because we involved
+application developers, as well as the vendors
+and as well as people who were doing research into these parallel
+programming systems, we made sure that the design was fast, efficient,
+and complete enough so that over the years
+the application, uh, developers have not really
+needed anything else. They made one
+and a few other things, and there is an MPI2
+and an MPI3, both of which have added
+features, but by and large, uh, applications
+have been able to write whatever they needed to in MPI. And that's different than
+some other efforts where, for example, uh,
+what was provided was what the people
+doing the development provided, but it wasn't,
+it didn't have the breadth, didn't have the completeness that was needed
+by the applications. Sounds like, uh, standardization was one of the
+motivating factors for the development of MPI. I-i-it was, and I-I wanna say
+that it wasn't the first effort to standardize this kind
+of parallel programming. Um, eh, one-one challenge
+for people is standardization sounds great,
+sounds like, uh, you would, it's amazing
+the number of people who wanted
+to standardize something because they look
+at the success of MPI and they want
+to duplicate that success. Uh, but what they forget was, that there were several efforts to standardize message passing before MPI that failed. Um, and it's important to have
+a mature enough system, a mature enough community
+of understanding the issues, before you start
+to standardize, um, but yeah. Once you have that knowledge, then it's time
+to standardize and move on. Well, um, that's the last
+question I have for you. Thank you for, uh, taking
+time to talk with us. It's my pleasure. Thanks, Bill.

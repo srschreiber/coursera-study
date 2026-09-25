@@ -1,0 +1,69 @@
+In this lecture, we will see,
+uh, how close, uh, the failure detectors we have discussed come to the optimal, and in fact what the optimal is. So what does optimal mean? Optimal is derived
+from the main properties, the correctness properties: completeness and accuracy, as well as, uh,
+the time projection, known as speed, and the scale. Essentially, we wanna
+guarantee completeness always. We will denote, uh, the time
+projection as T time units, and we'll denote
+the accuracy as, um, or rather,
+the inaccuracy as PM(T) which is basically a probability
+of mistake in time T. Essentially this says that, uh,
+this is the probability that a mistaken detection will be
+made in, uh, T time units. Given these requirements,
+we will then compare the, uh, message load across
+all the protocols, and that becomes the, uh, base for comparison across protocols. So let's do this, uh, comparison
+for all-to-all heartbeating. Uh, you'll notice, uh,
+that essentially, uh, T is the time-out period
+or the, um, direction time. Uh, the-the period at which
+heartbeats are sent out, uh, typically the time-out period
+is, uh, a constant, uh, times, uh, the, uh, period at which
+heartbeats are sent out, and so the load essentially is,
+uh, N heartbeats sent out every T time units
+per process pi. So the load per process
+is linear in N, uh, for the all-to-all
+heartbeating approach. For, uh, the, uh,
+gossip-based approach, uh, this slide should, uh, the time
+should be gossip based approach, you have, uh, T equals, um, a log(N) times
+some constant times tg. tg is the gossip period, the period at which
+gossips are sent out to all the other
+members in the group. We're assuming here, uh, th-of
+course that the gossip message contains the entire
+membership list. So essentially the load on, uh,
+each member per gossip period is O(N) because it sends out
+N entries from its membership list, so the load is N/tg. But tg we can obtain from
+the earlier equation, which essentially says
+that gossip takes order log(N) rounds
+to propagate, and if you plug it in,
+you see that L is N log(N)/T. You'll notice here automatically that the gossip-based heartbeating protocol here has a higher load
+than the all-to-all heartbeating we discussed
+in the previous slide. That's natural because gossip
+is trying to get a slightly better accuracy
+by using more messages. So how close are
+these to the optimal? What is the optimal? Well, you can, uh, show
+that if, um, uh, you're given the values
+of T, PM(T), and N, as well as a, uh, probability
+of losing a message, called pml, this is an independent message
+loss probability applied on every single message
+independently of other messages, then, uh, you
+need to send out at least
+log(PM(T))/log(pml) messages, uh, outside
+from every single process so that that is a, uh,
+probability that, um, at least one message makes it
+across to, uh, the other side, meaning to the other N-1
+processes in the system. Essentially, you can show that
+the worst case load has to be at least this value, log(PM(T))/log(pml)*1/T, uh, for you to satisfy
+the PM(T) requirement. You'll notice that here
+this value of L*, the worst case load, is in fact, uh, not dependent on N at all, so it is, uh, scale independent
+or scale free. So the all-to-all and
+gossip-based heartbeating are in fact suboptimal because they have, uh, at least, um, an O(N),
+um, uh, requirement. In fact they are O(N) log(N) for
+the gossip-based heartbeating. The, uh, key here is to realize
+that these two protocols mix up the failure detection and
+the dissemination components. Essentially they are trying
+to have all the processes in the system detect
+the failure by themselves and not really
+using dissemination, uh, component, uh, separately. So the key to getting
+closer to this bond is to separate
+the two components and to use a failure
+detection, uh, component that is not based on heartbeats, in fact is based on the inverse, uh, c-, uh, um, uh, an approach that a lot of you
+will be familiar with. We'll discuss that
+in the next lecture.

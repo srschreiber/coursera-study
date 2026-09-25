@@ -1,0 +1,94 @@
+In this lecture and the next we'll look
+at reliable multicast. So what is reliability? Uh, a multicast protocol that
+is reliable, uh, loosely means that every process in the group
+receives all the multicasts. Now, reliability is orthogonal
+to ordering that we have seen, um, uh, so far, which means that you can implement a reliable multicast that is FIFO ordered, or you can implement
+a reliable multicast that is causal ordered, or you can implement
+a reliable multicast protocol that is total ordered, or a reliable hybrid, uh,
+ordering protocol as well. Okay, so reliability, what we are discussing
+is completely orthogonal to, uh, the ordering,
+uh, that you have seen earlier in this lecture series. So coming back
+to the definition, uh, reliable multicast loosely says that all the processes in the group receive multicasts. However, when you have
+process failures, you don't necessarily know
+what the failed or the faulty processes uh, did, so the definition becomes
+a little bit vague. So we need
+to spruce up the definition. We need all
+the correct processes, meaning all the non-faulty process in the group, to receive
+the same set of multicasts as all the other
+processes, okay? So faulty processes are, uh, not
+necessarily, uh, predictable, and we don't necessarily know
+what happened to them, so we won't worry about them. We were seeing is that
+in a single run of the system, uh, at the end of the run when you have a small set
+of correct processes, uh, which are-which
+did not fail, uh, the set of multicasts received at any one of those processes in that small set is the same as the set
+of multicasts received at any other process
+in that same set. So, uh, essentially,
+reliable multicast sends that- says that all the multicasts
+that are sent to the group are either received
+at, um, all the processes that are correct or none of
+the processes that are correct. That's what reliability
+really means. Uh, so let's, uh, see how to
+implement reliable multicasts. Let's assume
+that underneath we have as a, um, uh, building block
+a reliable unicast protocol such as, say, TCP, which allows
+us to send point-to-point or process-to-process messages
+in a reliable, uh, way, uh,
+that is also, say, ordered. It-the ordering is really
+not important to us. All that is important to us is that when we send a unicast message from one process to a single recipient process,
+it is delivered. So the first-cut way to
+implement the reliable multicast is the following. Uh, the sender of the multicast
+process runs in a For-loop where it, uh, goes through, uh, all the addresses of the other, uh, processes
+in the group, and to each process it sends
+a reliable unicast message, uh, that contains
+a multicast message. Well, this, uh, works as long
+as the sender is alive. Uhm, uh, if the sender
+is alive, in fact, uh, all the correct processes will receive
+that multicast message. However, if the sender dies
+halfway through the For-loop, then you are in trouble because, uh, some correct processes
+in the system would have received
+the multicast message M, but the others that, uh,
+were not touched by the For loop before the sender's failure, uh, would not have received
+the same multicast message M. And, so this is not really
+a-a multicast protocol that satisfies reliability,
+so we eliminate this. So how do you really implement
+reliable multicast protocol? Well, you can implement- you can ex- you can extend the,
+uh, exa-the protocol that you saw
+in the previous slide, and, um, uh, make it reliable. How do you do this? Well, you do this by having the receivers
+also help the sender process. Uh, once again, in this,
+uh, new multicast protocol that is reliable, the sender process
+sequentially through a for loop sends a reliable unicast, uh, to each
+of the group, uh, processes. However, when a receiver
+receives a multicast message M for the first time, it, uh,
+also, uh, uh, goes through a for loop where it sends out
+the multicast message M to all other processes
+in the group. In other words, if for instance
+if all the, uh, processes in the group are non-faulty, then you end up with N copies
+of the multicast being sent, one by each of the processes
+in the group. Of course this could
+be fairly inefficient. This is not
+the most efficient protocol, but it is-it is reliable. Uh, it says that, uh, if at least one correct process receives a multicast message M, then every other correct process will also have received that same multicast message M. The proof of this
+is by contradiction. Suppose we have
+two correct processes Pi and Pj. These are the two processes
+in the small set that are, uh, non-faulty
+at the end of the, uh, run. Uh, and, uh, say a multicast
+message M was sent to the group and Pi received M but Pj
+did not receive M, right? This is the contradiction
+which says that this protocol does not, uh,
+guarantee reliability. Well, then when Pi received
+the multicast message M the first time, it would have,
+uh, gone through a for loop, and because Pi did not fail, the for loop
+would have touched, uh, Pj, and Pi would have directly sent
+a reliable unicast message to Pj and Pj would have received
+the multicast message M, okay? This means
+that we have a contradiction which means
+that our assumption is not true, and so, uh, the, uh,
+opposite must be true, which is that,
+uh, any correct- any pair of correct processes would have received the same set of multicast, uh,
+messages, um, M. Okay, so this just shows
+that our extended protocol, though slightly
+inefficient, wasteful, still does, uh, preserve reliability in, uh, the system. Now of course there is a variety
+of other protocols that are- that have been invented, uh, since this early
+classical protocol that are reliable
+and far more efficient. In the next lecture we'll see
+how to combine fault-tolerance as well as, uh,
+multicast, uh, reliability.

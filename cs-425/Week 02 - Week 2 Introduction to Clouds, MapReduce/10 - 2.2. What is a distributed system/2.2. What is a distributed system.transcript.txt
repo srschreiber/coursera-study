@@ -1,0 +1,238 @@
+[MUSIC] In this lecture we're going to try to
+define the term distributed system. It won't be a perfect definition, but
+it will be a definition that will work for us in this course. Before we do that, let's take a step
+back and define a different but related term that is the operating system. What is operating system? Well if you have used a machine, if you've
+used a device, whether it's a tablet or a smart phone or whether it's a laptop or
+a computer or a server, all these devices, each of these devices runs an operating
+system also known as an OS. So if you've used a computer,
+you have used an operating system. The operating system
+runs on the device and it manages the different
+components of the device. So let's, before we define
+the term operating systems, let's name some examples
+of operating systems. Here are some names, some OS's for
+big devices included Linux, Mac OS X. Of course there are many
+different versions of it. Windows, of course again there
+are many different versions. And Unix and FreeBSD. And there are many, many examples of OS's for
+large devices which I'm not listing here. For small devices like the handhelds and
+the tablets, you have operating systems like Android from Google,
+iOS from Apple, TinyOS, which runs on small sensor nodes which
+you'll see later on in this course and, of course, many other small operating
+systems that I'm not naming here. Now let's try to define
+the term operating system. Before we jump to some
+well-known definitions, let's try to summarize what we
+know about operating systems. The operating system, essentially,
+it provides a user interface to hardware. Your computer, any device, any computer,
+consists of multiple devices. For instance, your computer
+consists of a keyboard, a mouse, a monitor, a hard drive,
+maybe multiple hard drives. And of course, the CPU,
+and the memory, and many other peripherals
+attached to the mother board. All of these hardware
+pieces need to be managed. And these are managed by the software
+known as the operating system. The operating system runs
+a special piece of code for each of the devices
+that is attached to it. This piece of code is
+called a device driver. So essentially, as a user you do not need
+to interact directly with these devices. It's very rare that as a user, we think
+you know, I'm clicking the mouse, and now I need to worry about The message
+being sent from the mouse to the CPU, all of that is taken care of by the OS. The OS also provides abstractions, for instance if you store your piece of code,
+you're rarely thinking of hey how does this code get
+stored as blocks on the disk. You're thinking of files,
+you're thinking of directories or folders. When you run your code, you're thinking
+of programs being initiated as processes. You're not thinking of where
+does this run on the CPU? Where does this store memory? And so on and so forth. Those abstractions
+are provided to you by the OS. So essentially the OS abstracts away
+the hardware specific features and provides to users features that are
+understandable and usable by the users. The operating system of course has to
+manage these different resources that it is responsible for. Which processes run when on the CPU, which files get accessed when on
+the hard drive and so on and so forth. And of course OS is also a means of
+communication, whether it's sending and receiving email or
+whether it's accessing the web. Or just communicating in
+a distributed system. Here is the definition of OS from
+the Free Online Dictionary of Computing, also known as FOLDOC. FOLDOC defines an OS as
+the low-level software which handles the interface to peripheral hardware,
+schedules tasks, allocates storage, and presents a default interface to the user
+when no application program is running. And so for instance when you start up your
+machine and there's nothing running on it, the OS is running on it, so
+it's going to occupy the CPU. I won't go through the rest
+of this definition. You can read it by either
+pausing the video here, or going to the FOLDOC page online. But essentially this definition seems to
+capture the characteristics that we said were true of operating systems
+in the previous slide. Let's try to repeat the same exercise,
+but for the term Distributed System. Let's name some examples
+of distributed systems. Here are some examples, a single client
+machine communicating with a server, for instance if you know NFS, if you have
+used NFS, Networked File System. Single client may communicate
+with a single server, that's a distributed system. A BitTorrent, which BitTorrent is a peer
+to peer overlay which consists of many millions of clients
+communicating with each other is again another example
+of a distributed system. The Internet where you have many
+servers and clients and routers and switches communicating with each other is
+another example of a distributed system and the web where you have servers and
+clients communicating amongst and with each other is an example
+of a distributed system. Hadoop which we'll study
+later in the course and data centers are all examples
+of distributed systems. What are not examples
+of distributed systems? Well, if you have a collection of humans,
+say in a party, interacting with each other,
+that's not a distributed system. At least, that's not the kind of
+distributed system that we want to study in this course. I mean they might be interesting,
+of course, in other courses but not in this course. A standalone machine not connected to the
+network and with only one process running on it is, again, an example of something
+that is not a distributed system. Birds out there interacting
+with each other, that's again an example of something
+that is not a distributed system. It's an interesting, I guess,
+social phenomenon which biologists study. But not in a computer science course. So is there a good definition out there? Well FOLDOC, the Free Online Dictionary
+of Computing was helpful to us for the OS definition, so let's go back to FOLDOC for
+its definition of a distributed system. FOLDOC says that a distributed
+system is a collection of automator, when it says automator it essentially it
+means programs, whose distribution is transparent to the user so that
+the system appears as one local machine. It's saying that essentially the collection of machines appears as one
+machine rather than as multiple machines to the user who is using
+the distributed system. This is in contrast to a network, where the user is aware that there
+are several machines and their location, storage replication, load balancing and
+functionality is not transparent. Distributed systems usually use some
+kind of client-server organization. So this is the follow up definition for
+distributed systems. I claim that this definition is wrong. It's just wrong. And in fact,
+there are two mistakes in this definition. The first mistake is that the definition
+says that in a distributed system, a collection of machines
+appears as one local machine. But if this is true,
+then the web is not a distributed system. For instance, on the web, it's often the case that a website A may
+be up while a different website B is down. And at a different point of time website
+B is up while website A is down. It's never the case that both A and
+B are up and both A and B are down. So essentially these two web servers
+do not appear as one local machine, yet the web is a distributed system. The second mistake in this definition
+is the last sentence which says that distributed systems usually use some
+kind of client-server organization. This is not always true. Peer to peer systems like BitTorrent, and
+many other peer to peer systems before it, rely largely on the clients
+communicating with each other. That's why they are called
+peer to peer systems. They do not rely, on a server, except for
+some very minor, functionalities. Essentially without the server, these systems would continue
+functioning just as normally. So unfortunately the formula
+definition doesn't work for us. Well, let's look at a couple
+of definitions textbooks. Andrew Tanenbaum in his
+textbook on distributed systems defines it as a collection
+of independent computers that appear to the users of
+the system as a single computer. Again, the same issue, the same error that
+we saw in the previous slide as appears in this definition as well,
+so it doesn't work for us. Michael Schroeder, another famous
+distributed systems researcher defines a distributed system as several
+computers doing something together. Thus, a distributed system has
+three primary characteristics: multiple computers,
+interconnections, and shared state. This definition is closer to what we want,
+but it's missing some components. For instance, it doesn't talk about
+servers or clients failing, and so that's a little bit worrisome here. So this definition doesn't work for
+us either. So all these definitions are short and
+looking inadequate to us mostly because we are interested in
+the insides of a distributed system. We don't want to behave like
+users of a distributed system, we want to go under the hood. We want to go Inside a distributed system,
+and study what algorithms run there. How do you design a distributed system, how do you implement a distributed system,
+how do you maintain, and of course what are the real
+characteristics of distributed systems? As you have seen,
+as I've mentioned before, there are some examples that when you see it you
+know that it's not a distributed system. Humans or birds interacting with each other, a stand
+alone machine not connected to a network. So we know it when we see it, and
+this is captured very nicely in a quote by Justice Potter Stewart in a case in
+1964 where he said that essentially, I know it when I see it, but
+it may be hard to define it. So we're going to venture
+forth the definition, and this is my working definition. This will work for
+this version of the course. So a distributed system,
+this definition says, is a distributed system is a collection
+of entities, each of these entities being autonomous, programmable,
+asynchronous and failure-prone, and these entities communicate through
+an unreliable communication medium. So let me through this definition and
+explain each of these objectives here. The entities are essentially processes. So each entity is a process
+that is running on some device. Each entity is autonomous,
+meaning it's standalone. If left to its own devices, pun intended,
+if left to its own, it will run just fine. The entities are programmable. Of course, you have written code
+that is running underneath and inside these processes,
+so they are programmable. Notice that this is the term
+that eliminates humans or birds interacting with each other
+as being distributed systems. You can't really program human beings or
+birds interacting with each other so that's why those are not
+distributed systems. Asynchronous is very important, this
+essentially means that each process or each entity runs according to its own
+clock and these clocks are different entities are processes,
+are not synchronized with each other. They are not always showing
+the same time as each other and you will see a lot more and
+more of this later on in the course. And finally is these
+entities is failure prone, each entity may crash arbitrarily
+at any point in time. At any color for instance,
+at some point of time. And these entities are communicating
+through an unreliable communication medium whereby they send and
+receive messages through each other. However, these messages that are being
+sent may be dropped completely, or they may be delayed for
+inordinately long periods of time. Okay, so that's the definition that
+I have for a distributed system. So, entity, when I say an entity, again,
+I mean a process on a device, would be it a small pc or be it a pc or a laptop,
+be it a tablet or a small sensor mode. And a communication medium may be
+a wired network or a wireless network or some combination thereof. So, once again, the programmable objective eliminates
+humans interacting with each other. The asynchronous objective distinguishes
+distributed systems from parallel systems. Parallel systems include multiprocessor
+systems and super computers. But essentially, very large numbers of
+processors share the same motherboard. They communicate with each other
+over a tightly coupled network, and they all have a synchronized clock. So all the processors are showing
+the same clock at all points of time. A distributed system is
+very different from that, a distributed system has asynchrony, which
+means that clocks are unsynchronized. And that's why distributed systems
+are harder to design algorithms for, and implement for. You might remember a process, which
+you've seen in the orientation lecture. A process in all its gory detail,
+with its code, its stack, its program counter, pointing to where
+the code is currently executing, heap and registers and
+a whole bunch of other things. Now process is an important
+entity in a distributed system. In fact, a distributed system,
+as we said, consists of many processes. In this example,
+I have a three process P1, P2, P3 but there might be thousands of processes
+involved in a distributed system. You have an unreliable communication
+network involved underneath. In this course, we are not interested
+in the insides of the network, just the fact that we are able to send and
+receive messages via this network. So P1 might be able to send a message
+m to P3, which then gets delivered at some point of time to P3,
+and that receives the message. Okay, so this is essentially what we
+see as a distributed system, multiple processes communicating by sending and
+receiving messages from each other. When you think of distributed system for
+working purposes for this course,
+that's really all you need to think about, processes, sending and
+receiving messages amongst one another. A caveat here, that's only a working
+definition good for this course. You should feel free to come up with your
+own definition for distributed systems. I would especially encourage you to try
+this exercise after you have seen the many many examples of distributed systems
+as you see them in this course. So try it at the end of this course. So, given this definition,
+there are many interesting problems for distributed systems people like us,
+you and me. Peer to peer systems, which we will
+study many of, Cloud Infrastructures, which we'll see some of,
+Cloud Storage systems, software systems, Key-value stores and NoSQL, we'll see some
+of those, Cassandra and HBase as well. Cloud programming including MapReduce,
+Storm and Pregel. Some of this you'll see soon. Coordination including consensus. Protocols like Paxos, leader elections,
+snapshots and many others. And of course, managing these many clients
+and servers that are interacting with each other via concurrency control techniques
+and application control techniques. All these topics that I've listed on this
+slide are relevant to this course and you will see them as we move along
+in this course in both part one and part two of Cloud Computing Concepts. When we solve these problems, we need to
+be aware of several features that are true in the distributed systems underneath and
+we need to design for these features. Failures are no longer the exception but
+rather a norm. As we've discussed before,
+when the scale of your system grows, failures become very, very common. When you have thousands of machines and
+terabytes of data, we need to be able to scale any algorithm
+you design for a distributed system, this needs to be able to
+scale very well to many, many machines at really
+large amounts of data. Asynchrony again is a very important
+challenge that you have to deal with when designing distributed algorithms. The fact that different processes
+have unsynchronized clocks means that you will have a difference
+between clocks, clock skew. You'll also have clocks moving apart from
+each other that's known as clock drift. Again you'll see these
+later on in the course. Of course concurrency is
+something we have to deal with. Thousands of machines
+accessing the same data, interacting with each other,
+are bound to create to risk conditions and are bound to create conditions
+where data might be inconsistent. And so we have to be careful to make sure
+the data stays consistent even while machines are interacting with each
+other and are accessing the same data. So over the next few weeks we will see
+several core concepts of distributed systems. Next week you will see gossip and
+membership. And then we'll see distributed
+hash tables as well, which are an important building block for
+peer to peer systems. And we'll alternate the core concepts with
+the use of these core concepts in real systems, So when we see distributed hash tables we'll
+also see they're in peer-to-peer systems. We also see how some of these building
+blocks are used in key-value stores and NoSQL storage systems. For instance these NoSQL storage
+systems use distributed hash tables, they use, gossip, they use membership. That's why you study concepts first and then we see how they're
+used In real systems. [MUSIC]

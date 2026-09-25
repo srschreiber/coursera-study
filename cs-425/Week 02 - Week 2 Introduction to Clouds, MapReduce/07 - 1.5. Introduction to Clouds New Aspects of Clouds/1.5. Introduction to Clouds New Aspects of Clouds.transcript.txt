@@ -1,0 +1,136 @@
+So let's continue discussing, uh, the, uh, new aspects
+of clouds. We've distinguished them
+from previous generations of distributed
+computing systems. We discussed massive scale
+in the last, uh, lecture. Today, we move onto
+the second aspect, which is the on demand access, uh, and we'll discuss here
+as part of this the aaS classification
+that is popular industry. So on demand access
+basically means that you pay for exactly what you use rather than paying
+an upfront cost or buying something upfront. This is sort of like, um, uh, renting a cab versus
+what used to be previously, uh, renting a car, where,
+uh, you might have to, uh, pay some upfront cost
+for using ba- to use servers that others own, or buying a-a-a car which essentially is analogous- analogous to, uh,
+buying your own, uh, datacenter. Instead, today's, uh,
+services allow you to, uh, pay a few cents
+to a few dollars, uh, per CPU hour, and you can use
+as many CPUs as you want, as your application needs. For instance,
+this is what AWS, uh, EC2, as well as Microsoft Azure provide for you. Or you can pay a few cents
+to a few dollars per gigabyte month
+that you store. Once again, AWS and Azure
+provide these services for you, and there's a variety
+of other companies providing similar services
+for you at competitive rates. Now in industry
+there's often classification of the cloud services
+that are provided, uh, based on, uh, the nature
+of the services themselves. These are often classified as, um, an aaS classification,
+or "as a Service." So HaaS stands for
+"hardware as a service." Essentially this means that you get access to
+the bare bones hardware machines and you can do whatever you want with them. For instance, if you buy
+your own cluster, your own private cloud, then, uh, you're running
+a hardware as a service. Uh, but exposing hardware as a service
+to other users, especially those that
+you don't trust, may not be a good idea because of the security risks involved, uh, with giving, uh,
+root access, uh, on your machines
+to untrusted users. Infrastructure as a service
+allows you to get, m, access, uh, to machines, uh, and,
+uh, install your own, uh, operating systems and machines, but without having the security, uh, uh, holds
+of the hardware as a service. Essentially, uh, this uses
+virtualization so that, uh, you can spawn up
+your own VMs and instances, and essentially AWS, uh, Microsoft Azure, uh, and a variety of other players, uh, offer services
+that are infructure- infrastructure as a service, and this is one
+of the most popular ways of using public clouds,
+uh, today. Oftentimes this is said
+to subsume, uh, HaS, uh. The, uh, knowledge
+of these terms in industry is not uniform; there are conflicting definitions, but, uh, you might often hear that IaaS, uh, subsumes hardware as a service. There are two other
+classifications. Platform as a service essentially is, uh, uh, a more of a tightly congealed or, um, um, o-or consolidated service form of IaaS. You don't get access to VMs
+but you write your, uh, your, uh, your code, and it's tightly integrated
+with the software platform. For instance, Google's AppEngine
+allows you to write code in Python, Java or Go, and then it autoscales out your, uh, your, uh, application depending on
+the incoming load, but you don't necessarily
+think about VMs at, uh, that point in time, and you don't necessarily
+need to think about, um, um, installing VMs
+or provisioning VMs. A lot of the provisioning
+is done for you. So it's easier,
+but it's less flexible than, uh, than IaaS. Uh, Finally,
+a software as a service, and essentially this gives you access
+to software services when you need them,
+and again you pay on demand. Uh, this includes Google docs, which I'm sure a lot
+of you have used, and also Microsoft Office
+on demand and many others, uh, that are out there. Uh, service
+oriented architectures, which have been popular
+for many decades, are often, uh, said to be subsumed under
+the software as a service, so SaaS a-as a definition
+is a little bit broader than what I have talked about
+on this slide because it also includes
+the SOA architectures. The third aspect
+that is new in cloud, uh, clouds today
+that distinguishes it from previous generations
+of distributed systems is that we are dealing
+with large amounts of data. And so previously, while, uh, there was computation intensive computing, for instance, uh,
+the message passing interface, or MPI based computing, and high performance computing, where you would have a relatively
+small amount of data but you'd run fairly intense computations on it, for instance, weather modeling is a computation intensive, uh, uh, computation,
+uh, and this includes of course, uh, datacenters such as
+NCSA Blue Waters, but data- but data intensive computing
+is sort of the reverse, where you have large amounts
+of data that are stored in datacenters, and you need to use
+compute nodes that are nearby, just because you're dealing with ex- enormous amounts of data, petabytes or terabytes
+or exabytes, um, and these computation runs n-, uh, nodes run computation services that
+allow you to process the data. So the shift in
+computation intensive, uh, computing toward
+data intensive computing is a shift away from, uh, computation to the data. You need to pay
+more attention to the data; you need to bring compute cycles closer to the data. And then when you look
+at the servers themselves, CPU utilization,
+which used to be the main metric for measuring,
+uh, resource utilization in computation intensive,
+uh, clouds, is no longer
+the most important metric. Instead, uh, I/O is. This includes, um, uh,
+disk I/O and also network I/O. Oftentimes in datacenters
+you will find that the disk or the network I/O is
+close to being maximized out, while in computation
+intensive clouds, uh, the CPU utilization
+is going to be fairly high. Once again, this is not
+a hard and fast rule. After all, data centers
+are just, uh, uh, very super large, uh, clusters, and so,
+you can use them to run both computation intensive, uh, jobs
+as well as data intensive jobs. Finally you have new pra-
+cloud programing paradigms. This includes, uh, ways, uh, in which you can
+process the data, which tend to be the bulk of new cloud programing paradigms, and also ways in which
+you can store and query the data,
+fairly quickly. Google include, uh, uh,
+in-induced, uh, in-, um, uh, introduced MapReduce as well as other engines like Sawzall, uh, and these were open sourced, uh, uh, um, or rather open source versions
+were written of these, uh, by, uh, Yahoo,
+that became Hadoop. It was later open-
+unopen sourced, and it is now an Apache,
+uh, project. It is also then spun off
+as a separate company by Yahoo, uh, as of, uh, this date. MapReduce itself was offered as an elastic MapReduce service
+on Amazon, again, as you pay as you go,
+uh, as you process your data, and MapReduce is useful for processing very large amounts
+of data. For instance, uh, companies, uh, use it, uh, to, uh, uh, process a lot of the data
+that is part of their core, uh, mission. So for instance, Google, of course Google is known
+for its search engine, but in order to, uh, provide results to you in the search engine, th-they need to index the,
+uh, data, the websites, that are crawled
+by their crawlers. This indexing, uh, in 2006 was done by a chain of
+24 MapReduce jobs. Uh, it, uh, processed about
+50 petabytes per month and was using
+200,000 MapReduce jobs. Yahoo similarly has
+a web map application which is a chain
+of 100 MapReduce jobs, uh, process- it processed
+280 terabytes of data in 73 hours
+when you use 2500 nodes. There's also
+another engine there called Pig, uh, which is, uh, uh,
+developed on top of Hadoop. Facebook uses Hadoop as well
+as another engine called Hive, developed on top of, uh, Hadoop, uh, and once again
+they were processing, uh, 55 terabytes per day, uh, and adding 2 terabytes per day
+back in 2008. There's a variety
+of other companies that use MapReduce to process, uh, their, um, their, uh, data sets
+and the daily logs, including companies like
+eHarmony.com, which actually use it
+to do overnight runs where they match, uh,
+dates with each other. Essentially,
+that's a MapReduce job. So that's computation. There's also new
+cloud programing paradigms where you can store
+and query data fairly quickly. MySQL is an industry standard, but, uh, NoSQL
+and Key Value Store systems, which are the new
+cloud storage systems, are, uh, many orders
+of magnitude faster, and you'll see why as we go along later on, in the course. [electronic music]

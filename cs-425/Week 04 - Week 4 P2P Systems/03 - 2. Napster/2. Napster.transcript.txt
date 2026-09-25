@@ -1,0 +1,111 @@
+So today we'll, uh, look
+at the internal details of, uh, uh, of Napster. So Napster, essentially, has, uh, all, each of the users
+run a Napster client, and so these clients
+are called peers. We just call them as peers
+because, essentially, uh, they are treated equally as far as the system is concerned. So these are denoted as the
+green circles on this figure, with a "P" in them. Uh, now, when you upload a file, so you may upload a file
+that is the song "Penny Lane" by Beatles, you upload it
+to your Napster client. It doesn't go anywhere;
+it stays on the machine, on the workstation or laptop, where your Napster client
+is running. The files are stored
+by the peers. Uh, they are not transferred
+by default. There are also
+a bunch of servers, in this case denoted
+as red circles with "S", which are run by Napster.com, and these servers store directory information with file pointers
+and peer pointers. Uh, essentially, uh, here, uh, in this figure, uh, we are showing, uh, the, uh, file, uh, PennyLane.mp3 as being stored at a particular IP address and a port number, and there's some more key f-key word information about that file such as the artist's name. This is the information
+that is stored at, uh, the Napster.com servers. The Napster.com servers do not
+store the files themselves; they only store
+directory information. So when a client starts up, it first connects
+to a Napster server. This was shown on the previous slide as the lines in between, let's go back
+to the previous slide, uh, the line going in between
+a peer and its server, essentially, is the connection between, uh, those two. Notice that the servers
+also talk with each other; we'll come to that in a moment. Uh, when, uh, the client
+connects to the Napster server it uploads a list
+of music files that, um, that client wants to share, and the server maintains,
+uh, tuples, which are <filename, ip_address, portnum> tuples. There might also be
+other information, such as, key word
+associated with it, and the server
+does not store any files. So when a client
+wants to search, suppose you want to search
+for a particular song, essentially, you
+would type in your, uh, key words
+and you hit "Find It." When you hit "Find It," a message goes out to the server that your client is talking to, uh, with these key words
+in them. The server, or the group
+of servers rather, talk with each other and search their
+directory information lists with these key words. They find all the matching <ip_address, portnum> pairs that have information
+about this keyword and return it
+to the querying client. The client when it receives this directly pings each
+of the hosts in this list, to find the bandwidth or the transfer rates
+from these hosts. Then, uh, the results
+are visible to you, then when you double-click
+on one of the results, the client starts
+fetching the file directly from the peer
+or from the host. In none of this communication is
+the server actually involved in transferring the file. It is used in searching
+where the file might be, but it is not used
+in transferring the file. Now all along,
+whenever I have said "messages," uh, I meant messages sent
+using TCP sockets or transmission
+control protocol, which is a reliable, uh, transport level,
+uh, protocol. So here's a pictorial
+depiction of, uh, how the query processing works. When you type in your keywords, a query message
+goes out from your peer to the server it's talking to, containing those key words. The servers maintain
+the direct information using a ternary tree. Essentially, a ternary tree is a sorted dictionary
+data structure, uh, where, um, every internal node in the tree has three children. A binary tree has every node
+with two children; ternary tree has every node
+with three children. And so this is useful for
+searching for, uh, information, uh, using, uh, the, uh, key of, uh, the objects being searched. Then when the objects
+are, uh, ready, a response is returned
+with all the, uh, <ip_address, portnum> pairs
+to the, uh, querying peer, and then the querying peer pings the individual
+candidates directly, finds out
+the effective bandwidths, and then when you select
+the best host, the download starts directly from the best host. Now, one question
+that arises oftentimes is how do peers join
+a peer-to-peer system? How do they know
+which server to contact? Servers, after all,
+have IP addresses. Essentially, uh,
+the set of servers might be changing all the time, uh, and so, uh,
+what you want to do is you want to have a well-known, um, uh, URL, uh, such
+as my myp2pservice.com. This might be Napster.com
+for Napster, for instance. And so when a client starts up,
+it sends a message, uh, or rather it sends
+a DNS, uh, query, or a domain name system query, to this URL,
+which returns an IP address, in this case
+of a Napster server, and then the peer starts talking to that particular
+Napster server. Uh, in other
+peer-to-peer systems, the domain name system
+might return, um, uh, say a well-known server maintaining some recent, um, IP addresses
+of recently joined peers, or it may return the IP address of one of the peers that is already in the system. In any case,
+the DNS is a great way, uh, to, uh, get introduced
+into the system, um, or communicate
+with an introducer node or introducer peer,
+that will, uh, then, um, uh, uh, tell you some
+of the recently joined peers or some of the existing peers
+in the system, and so you can
+bootstrap your own, uh, uh, neighbor list
+using that. And again, this technique
+is useful not just for Napster for a newly joining peer
+to know about, uh, one or more of the servers, but is also used later on
+by our Gnutella system for a newly joining peer to know about some of the existing peers in the system. Now, some of the problems with
+Napster included the fact that, uh, the servers are a
+centralized point of congestion. If the servers are
+overloaded with queries, uh, even though they
+did not transfer files, the queries might
+overwhelm them. Uh, then the entire system
+might become slow because, essentially,
+search has become slow. The server is also
+a centralized point of failure. If someone took out one
+or more of the servers, uh, then the system
+would be compromised. Also, the original
+versions of Napster did not have any security, messages and passwords
+were all plaintext. However, none of these
+was a reason that Napster actually was brought down. Uh, the main reason
+it was brought down was the fact that the court declared that Napster, even though it was not directly infringing copyrights because it was not
+transferring any files, it was instead helping users, uh, "indirectly
+infringe" copyright. So "indirect infringement" is
+a legal term, and Napster was, um, uh, found
+to be guilty, of that. So, some of this, uh,
+gave rise to a new system, Gnutella, which overlapped with Napster, in terms of timeline, um, uh, and, which
+we'll study next, which addressed some
+of these issues with Napster.

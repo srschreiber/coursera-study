@@ -1,0 +1,172 @@
+Hi there. So, uh, in, um, uh,
+the next couple of lectures we'll be seeing how to implement the flavors
+of multicast ordering which we saw
+in, uh, the previous lecture. Uh, these flavors were FIFO,
+causal and total ordering. In this lecture, uh, today we'll
+see, uh, how to implement FIFO as well as, um, uh,
+total ordering, and in the next lecture
+we'll see, uh, causal ordering. So here's how
+to implement FIFO ordering. Each receiver in the group maintains a per-sender
+sequence number. These sequence numbers
+are integers, uh, starting from zero. Uh, suppose we have N processes
+in the group, P1 through PN. Uh, essentially, Pi,
+which is the ith process, would maintain a vector of sequence numbers, uh, Pi[1...N]. Initially, all these,
+um, elements in the vector are, uh, zeros. Uh, Pi[j], which is
+the jth element in Pi's vector, is the latest sequence number
+that Pi has received from the process Pj. If j=i, remember
+that Pi will have, uh, its, uh, an, uh,
+a sequence number for itself. This would be
+the latest sequence number that Pi has sent out to the, uh, other processes
+in the group. So, uh, what do you do? How do you update these vectors? So, um, uh, when you want
+to, uh, uh, send a, uh, multicast message, uh, from a process Pj, uh, the first thing you do,
+uh, at process Pj is that you set the jth element
+of Pj's vector, uh, to be one more than itself, so you increment
+the j's element, j-j's element-jth element
+of P's vector. Uh, then you include, uh, this,
+uh, jth element, the new Pj[j], in a multicast message
+as the sequence number of that multicast message. You also say that of course Pj
+is the center of this multicast. Now what does
+the process, uh, Pi do when it receives
+this multicast message from Pj? Uh, it looks at, uh, the sender,
+which is Pj, it looks at the sequence number in the message, which, say, is S, uh,
+it checks whether or not, uh, S is, uh, equal
+to the jth, uh, element of Pi's, uh, sequence number
+vector, plus 1, okay? Essentially it checks whether or
+not, uh, the sequence number S being received from Pj
+is the next sequence number that Pi expects
+to receive from Pj. If so, then it can deliver, uh,
+the, uh, multicast message to the application, and the m-and the application
+can do whatever it wants with this particular
+multicast message, and then it can-it can set,
+uh, the jth element of its own, uh, vector, uh,
+to be, uh, 1 plus its old value. However, if this condition
+is not true, uh, if this is not, uh, the next, uh, element
+in the vector, uh, then it buffers
+this multicast, uh, message. Now it buffers it,
+essentially we are assuming here that, uh, the sequence number is going to be
+later on, um, in the series. So for instance,
+if the next sequence number that Pi is expecting
+from Pj is 5, and it receives, uh,
+the sequence number um-uh-uh, 7 then it needs to wait until, uh, 5 has been received and delivered, and then 6 has been received
+and delivered, and only then can it deliver 7. However, if duplication
+is possible in the network, for instance, if the next,
+um-uh, message that Pi is waiting from, uh, Pj should have a sequence number 5, but you receive, uh, um, uh,
+a multicast from Pj with the sequence number 3, then you can drop
+that multicast message, uh, and, uh, safely,
+because you already know that you have delivered
+that to the application. Okay, uh, let's look
+at an example of, uh, how the
+FIFO ordering algorithm works. So here are four processes
+P1 through P4. Time moves from left to right
+for each of the processes. Each process maintains a vector. The number of elements
+in the vector is 4 because there are four processes in the system. Remember that the jth element
+at, say, process P1 corresponds to how many
+multicasts P1 has received so far from, uh, Pj. So here are all the multicasts
+that are sent out in the group. P1 sends two multicasts, uh,
+one followed by another, and then P3 later on
+sends another multicast. So let's see what happens with
+the first multicast from P1. P1's sequence number, uh,
+for this first multicast is 1 because it's sent
+no multicasts so far. P1's first element
+of its vector is 0. That's incremented to 1, and that, uh, new value
+is assigned as a sequence number to the multicast message. When P2 receives
+this multicast message, it checks its first element
+of the vector, which is zero, and so in fact
+the sequence number is the next sequence
+number it's expecting, and the multicast is delivered, and the vector-
+the vector is updated to be 1 followed by three 0. The same is true at, uh, P4, which also delivers
+a multicast message and updates its vector to be one
+followed by three zeros. Uh, however, when P1's multicast
+is, uh, received at P3, P1's second multicast
+has already been received, and if P3 delivered
+these multicasts in this order
+shown in the slide, then you would violate
+FIFO ordering, because, uh, P1's two multicasts are delivered
+in the wrong order at P3. So let's see what happens with
+the second multicast from P1. When it's sent out it has
+a sequence number of 2, because P1's first element
+is already one. That's incremented to be two, and that is included
+as sequence number. When this multicast is received
+at, uh, P3 early, uh, it sees-P3 sees
+that P1-its element for P1 is in fact 0, and the next
+sequence number it is expecting is, uh, 1, and so
+the sequence number 2 message that has just been received
+needs to be buffered. However, later on at some point
+of time soon after, uh, P3 receives
+a first multicast from P1. This is in fact the next
+sequence number it is expecting. It then delivers this second
+multicast message immediately, and then after this, the sequence number that it's
+expecting from P1 is now 2, because P3
+has updated its vector to be one followed
+by three zeros. And at this point immediately
+the sequence number 2 message from P1 can be delivered
+right away. After P1's sequence
+number 1 message, the vector can be updated to be 2 followed by three 0, and we have satisfied
+FIFO ordering. When, uh, P2 receives P1's
+multicast, second multicast, delivers it because that's the next sequence
+number 2 is expecting, then, uh, P3 sends out
+its multicast message. This is a sequence number of 1 because P3 has not sent
+any multicasts yet. P3's third element,
+uh, is in fact 0. That's incremented to 1,
+and that is included as a sequence number
+in the multicast message. P1 and P2, when they receive
+this multicast message from P3, they check that their third
+elements of the vector are 0, and so the sequence number 1
+is in fact what they're expecting from P3, and they deliver
+the multicast message and update
+their vectors accordingly. However, P4, when it receives
+this, what does it do? Well, when P4 receives
+the multicast message from P3, first it can deliver it, because it's the next sequence
+number it's expecting from P3, and that's fine, and then later on it, uh, receives the sequence num- the sequence number 2 message
+from P1, and it can deliver it right away and update its vector
+to be 2,0,1,0. This is fine;
+this satisfies FIFO ordering, even though the P3 sequence number 1 message was delivered first at P4 before P1's sequence
+number 2 message, while this ordering of
+deliveries was reversed in P3. But this is fine, because FIFO
+doesn't necessarily look at the order-ordering
+of messages sent by different
+sending processes. So that was, uh, FIFO. Next, uh, we'll look
+at total ordering and how to implement it. Once again, just to remind you,
+total ordering ensures that, uh, uh, the, um, ordering
+of deliveries of messages at all the processes
+are the same, uh, somewhat independent
+of what order they were sent in. So a-a popular approach
+to implement total ordering is to use sequencer- uh,
+is to use a sequencer. Uh, a special process is elected
+as a leader or a sequencer. Uh, you will, uh, have seen
+leader election elsewhere in this course, um, and essentially in order
+to send a multicast message, there's what
+the process Pi does. It simply sends a multicast
+message M to the group, along, uh, with sending it
+to the sequencer as well. The sequencer in turn maintains
+a global sequence number S, which initially
+has a value of 0. When the sequencer receives
+the multicast message M from any process, it increments S and
+then it multicasts M along with the
+sequence number S. Okay, and this is multicast
+to the entire group again. What does the process Pi do when
+it receives a multicast message? Well Pi maintains a local received global
+sequence number, Si, okay? This is only one integer, not
+a vector, just a single integer. This, um-uh, represents
+the next, uh, globally ordered or totally ordered multicast
+that Pi is expecting to receive. If Pi receives a multicast M,
+uh, message M from Pj, it buffers that
+multicast message M until it receives
+the sequence number message for that same message M
+from the sequencer, so until it receives, um, a message
+from the sequencer that says "Hey, for the multicast
+message M, the sequencer i -the sequence number is S(M)," and, um, but
+receiving this mult-this, uh, sequencer message
+doesn't necessarily entail that the multicast
+can be delivered right away. The sequence numbers
+have to match up. In other words, it has to wait
+until the S(M) value in, uh, the message from the sequencer
+is one more than, uh, the global sequence number Si that Pi is waiting for, okay? So this ensures that in fact,
+uh, the multicast message, uh, that Pi delivers next
+is in fact the next one that Pi is waiting for. Once it, uh, once this is true,
+it can then deliver the message, this multicast,
+to the application, and then it can increment Si,
+and then at this point of time, if any buffered messages,
+uh, satisfy, uh, these two conditions here, then in fact they
+can be delivered as well, and Si can be incremented. So next, uh, lecture we'll see
+how to implement, uh, causal ordering for multicasts.

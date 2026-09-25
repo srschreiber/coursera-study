@@ -1,0 +1,204 @@
+In this, uh, lecture today,
+uh, we will, uh, look at Lamport Timestamps,
+or logical timestamps, one of the most important building blocks in cloud computing systems and any kind of distributed systems. So, what we've seen so far, uh,
+is that synchronizing clocks, uh, across, um, uh, processes
+is a very hard problem and the reason we are doing
+this is, essentially, because we want to order events, uh, across a distributed system, event that, events that occur
+at different processes. So, uh, because, uh, proximate
+relation is so challenging, why not, uh, just avoid doing clocks synchronization and instead, uh, directly assign timestamps to events. Uh, for this, uh,
+the idea used here is, uh, the idea of causality. So, as long as the timestamps,
+timestamps obey causality, uh, assigning, uh, the timestamps,
+uh, to events might just work. Uh, this means, causality means, that if an event A causally happens before another event B, then the timestamp assigned
+to A is less than the timestamp
+assigned to B. What does causality mean? Causality means that one event
+leads to another, that is there is
+a path of events from the first event
+to the second event. For instance, um, I can enter
+a house only after I unlock it, so, the unlocking event, happens before the entering
+of the house event. Similarly, you receive a letter,
+only after I send it, so, the, uh, sending event
+of the letter uh, happens before the, uh, receiving event,
+of that particular letter. So, uh, logical or Lamport, um, uh, ordering and timestamps were proposed by Leslie Lamport in the 1970's, almost all distributed systems use it, uh, today, uh, and all cloud
+computing systems, uh, or almost all of them, uh, use some form
+of logical ordering, if not, Lamport timestamps, some variant of, uh,
+Lamport timestamps is used. So, uh, the logical
+or Lamport ordering defines a Happens-Before,
+uh, ordering, uh, among pairs of events. Happens-Before is denoted as
+a forward or horizontal arrow. There are three rules, uh,
+that are used, uh, to determine whether or not two events are, uh, related by this
+Happens-Before relationship. If the two events, a and b
+are on the same process, uh, and, uh, the, uh,
+time, uh, at event a, um, is less than
+the time at event b, notice that this is the time using that processes
+local clock, which only increases,
+uh, eh, forward, which only moves forward, uh, if time a is less than time b
+then a happens before b. 'Kay, this is fairly common
+sense, y'know, this is like saying, uh, I, um...open the house, uh, I unlock the house and then, uh, uh, and then that event happens before me entering the house. Now, events might also happen
+at different processes, so if, um, process p1 sends
+a message m to process p2 then, uh, the, uh, sending
+of the message is an event, similarly the receiving
+of that message, is an event. The sending of that message m,
+is an event that occurs at p1, while the receiving
+of that message is an event that occurs
+at a different process, p2. But we say, that the send of
+that, uh, message m, that event, happened before the receive
+of that event message m. Okay, this is like saying
+I sent the letter and that happens before you receiving that letter. The third rule is transitivity
+and essentially, it says, that if there are three events a, b, and c, such that, a happens before b
+and also that b happens c, then it's also true
+that a happens before c. And, this allows us to relate
+very far away events, uh, to each other using
+the Happens-Before relationship. The Happens-Before relationship, uh, creates only
+a partial order among events, this means that, uh,
+only some events, uh, only some pairs of events
+are related to each other while a Happens-Before relationship, uh, not all events are. So, for instance, if processes, uh, never exchange messages
+with each other, then all the events,
+um, are, um, uh, essentially called
+as concurrent events, they're not related
+to each other, uh, at all, across different processes. Events within a process all
+stid-are still related using the Happens-Before but across processes, you do not have the Happens-
+Before relationship, at all. You'll see this, uh, notion
+of concurrent events coming out as we discuss, uh, the examples. 'Kay, so these are the three
+rules for, uh, using, uh, for, uh, deciding when
+two events are, uh, logically related or causally related to each other. Let's see an example, here is
+an example of three processes, P1, P2, P3, um, the time
+goes from left to right. Uh, notice that the clocks
+may not be synchronized here, at all. Uh, P1 executes
+a local, uh, step, which we, uh, label
+as an event A, then it sends a message to P2, the send event is labeled as B, the received event
+is labeled as F, uh, P1 then executes
+another instruction, C, uh, it receives a message
+from P2 and the receive event
+is labeled, as D, and then it sends
+a message to P3, which, uh, is an event, uh, labeled, as E. 'Kay, and similarly P2
+has a bunch of, uh, events, three events there, E, F, and G and P3 has three events,
+H, I, and J. And a dot over here,
+is an instruction or a step and an arrow here
+shows a message. So, uh, here's what the
+Happens-Before might look like, in this particular example,
+uh, A clearly happens before B because these two are events
+at the same process, P1 and the time at A
+is less than the time at B, similarly B, uh,
+happens before F, because B is the send of, uh, message and F is a received, of that same message. And now using our transitivity
+rule, we can now say that, because A happens before B
+and B happens before F, it's also true
+that A happens before F. 'Kay, so essentially, what we
+need is, we need a path, from one event to another, uh, in the causal space, uh, so that we can say
+that the first event occurred before the second event. 'Kay, so let's see
+some other examples of the Happens-Before relationship. Uh, the event H, which is at P3,
+over here, uh, happens before, uh, the event G, which is at P2. Why is this? Well, there is a causal path that goes from H, to E, to F, to G, and therefore, H happens before G. Similarly, the event F at, uh,
+P2 happens before, uh, the event J at P3. Why is this? Again, there is a causal path
+that goes from F, to G, to D at P1,
+to E, to J at P3. Similarly, H happens before J,
+because again, there is a path that goes
+H, E, F, G, D, E, and J. And finally, C happens before J
+because, again, there's a path that goes from C, D, E, to J. So, you see several
+examples here of, uh, the Happens-Before relationship, uh, being cleared out,
+among pairs of events. So, how do you
+assign timestamps? Which is what we really
+wanted to do, right? So, how do you assign
+these timestamps, so that, uh, thes-this causality
+that we said, the logical ordering
+is actually obeyed. Uh, so there are a few rules
+that Lamport laid down, uh, to, um, assign timestamps, uh, each, uh, process uses
+a local counter, which is an integer, we call this
+as the process clock, 'kay. Uh, the clock is not the system clock, it's just an integer, the initial value of the counter
+is zero, at each process. Remember that this is
+a local, uh, counter so each process is the only one that can access and update its counter. Uh, now a process, uh, whenever
+it executes an instruction or sends a message,
+it increments it counter by one. 'Kay? And it assigns this new
+timestamp to the, um, uh, uh, instruction event or
+the sent event of that message. When it sends a message, the send, uh, message also carries the timestamp that was assigned the send event of that message. 'Kay, why is this, uh,
+carried with the message? This is used
+by the receiving process. When a process receives
+a message, it looks at the timestamp
+in the message, the send, uh, timestamp. It also looks at its local clock
+value, it takes the max of those and then it adds one to it,
+and it assigns this, uh, uh, value as the timestamp
+of the receive event of that particular message. Why is this max operation done? Well, this is done because, you want to make sure that if two events are causally related, they get timestamps, uh, Lamport timestamps that obey that causality order. That the event that occurred
+later on in the causal space gets a, um, higher,
+uh, timestamp value. 'Kay, so let's see this, uh,
+played out, uh, in action, uh, using our, uh, example. 'Kay, so this is the same
+example as we had before, I removed the event names, uh, for-uh, so that
+it's not cluttered. So initially, uh, all the processes start with, uh, uh, counters, uh, clocks which
+are initialized to zero. Uh, then, uh, uh, process P1
+executes a step, it assigns it a timestamp of 1, it increments its local clock, assigns it its timestamp of 1. Uh, P3, at the same time, um,
+uh, sends a message, again it increments
+its local clock to 1, it, uh, assigns this as
+the send uh, uh, event timestamp and the message also carries this timestamp value of 1. Now, when P2 receives
+this value, it looks at the, uh, message, uh, uh, timestamp,
+which is 1 and its local clock, uh, which is 0, max
+of those is 1, plus 1 is 2 and this is assigned as the timestamp of the received event, of this particular message. 'Kay, this insures
+that the sent event, um, which happens before
+the received event, uh, uh, uh, are getting timestamps, uh, which obey the causality and also, any event that occurred before, here, at P2, uh, would , uh, have
+a lower timestamp than, uh, the received event
+of this message. Now, carrying this forward, uh,
+next what happens is that, uh, uh, P1 sends a message, uh, which it does by incrementing its, uh, local clock, uh, from 1 to 2, assigns this as
+a timestamp to the send event, of that message and the message carries this timestamp. When P2 receives this,
+uh, message it notices
+that its local clock is 2, the message timestamp is 2, um, and the max of those 2
+is 2 + 1 = 3 and that is assigned as the received timestamp, over here. Uh, similarly when, uh, P1
+executes, uh, an instruction, it assigns it a timestamp of 3, uh, when P2 sends
+a message to P1, uh, it increments its local clock from 3 to 4 and sends 4 as the, uh, timestamp
+along with the message, when P1 receives it, it takes max of (3,4)
+it adds 1 and that is 5 and that gives it,
+the-the local clock, uh, value at its received event, that's also the timestamp
+of the received event. Notice that, uh, P1
+jumps from 3 to 5 from going from one event
+to the next, and that's fine, as long as, the, uh, timestamp
+of this event 3 is less than the timestamp of the next event, we're obeying causality. Carrying this forward, um, uh,
+P3 gives a local instruction, which gets a timestamp of 2
+because 1 is incremented by 1. When P1 sends a message to P3, it goes from a timestamp
+of 5 to 6, it includes this in the message, when P3 receives this, it looks at the timestamp
+in the message, 6, which is, uh, more than
+the local clock value, 2, and so 6 + 1, 7 is assigned as
+a timestamp to the receive, uh, event of, uh, this particular message from P1 to P3. So, that completes our example, but let's see, uh, a little bit, uh, how, uh, the timestamps
+are assigned to the events that we said
+were causally related. So, earlier we said
+that A happens before B and you notice that here they get, uh, timestamps, uh, that obey that ordering,
+so, 1 < 2. B, uh, happens before F, we said
+earlier, and they get timestamps 2 and 3, which are, ordered
+in that manner, 2 < 3. Similarly, A happens before F,
+we said earlier, because the transitivity
+and they are assigned times, times 1 and 3, respectively, and 1 < 3, which obeys causality. Uh, we saw a few other, uh,
+causal relationships, H happens before G,
+and they get timestamps, times 1 and 4, respectively,
+and 1 < 4. Similarly, F and J get
+timestamps of 3 and 7, which obey causality. H and J get timestamps of 1
+and 7, which obey causality. And, C and J get timestamps of
+3 and 7, which obey causality. However, there are some events, uh, which may not
+be causally related. So, consider the two events
+C and F, over here. There's really no causal path
+that goes from C to F and also, no causal path
+that goes from F to C, you can try to find a path, but, if you go forward
+from C you'd only go to P3, over here, with J. If you go forward from F, again,
+you'd only go forward to J. Uh, there is no causal path that
+goes from C to F or from F to C. However, they get
+the same timestamps, uh, these two events, which have no causal path,
+from one to the other, are known as concurrent events. Consider these two events,
+H and C, H over here at P3 and C at, uh, P1. They get timestamps 1 and 3, respectively. However, there is no causal path that goes from H to C
+or from C to H, and so these 2, uh, events
+are also concurrent events. However, they got Lamport
+timestamps of 1 and 3, respectively, uh, at H and C, and this might seem to imply that these are causally related, but that's not necessarily true, uh, so this means that if two
+events are causally related then there Lamport timestamps obey the causality, however, if you get Lamport timestamps for two events, uh, then that doesn't necessarily mean that the, uh, causality is in fact true
+in between those two events. So, putting it in another way,
+a pair of concurrent events doesn't have a causal path
+from one event to the other, either way, uh, in the pair, and the Lamport timestamps are not guaranteed to be ordered, or unequal for such pairs
+of concurrent events, um, they might be equal,
+they might be different, it doesn't really matter. Uh, but this is fine, because these concurrent events are not causally related, so we're not violating causality by, uh, leaving this ordering
+up to the air. So, essentially,
+what I've been telling you, over the last few slides
+is that, if two events, E1 and E2 are such that, E happens before E-
+E1 happens before E2, using our logical ordering, then it's true
+that the timestamp, the Lamport timestamp assigned to E1 is strictly less than the Lamport timestamp
+assigned to E2. This is what I mean by saying
+that, Lamport timestamps obey, uh, the causality. However, the reverse
+is not true. If I give you two events, E1
+and E2, so that the timestamp, according to Lamport timestamp, uh, of E1 is less than
+the Lamport timestamp of E2, this means that either E1
+might happen before E2 or E1 and E2
+might be concurrent. 'Kay, the only, uhh, possibility that this is eliminating is that E2 happens before E1, that's definitely not true, but either of the other
+two possibilities, uh, maybe, uh, the case, over here. 'Kay, so, the Lamport timestamps
+are very causality but they don't always identify concurrent events, uh, so in the next lecture
+we'll see a way of, uh, assigning timestamps to events so that, you can actually distinguish con- uh, concurrent events from ones
+that are causality related.

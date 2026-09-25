@@ -1,0 +1,18 @@
+[MUSIC] >> Congrats you've completed C3 Part 1 and
+you're onto C3 Part 2. If you recall,we ended C3 Part 1 with a
+discussion of some of the core theoretical concepts that underline distributed
+systems and that are used in Clouds today. This week in the first week of the C3 Part
+2 course, we complete the remaining theoretical concepts that
+are core in distributed systems. This include Leader Election and
+Mutual Exclusion. And we'll also see not
+just the algorithms, but also some examples of the use of these
+algorithms in real Cloud systems today. Also, I wanted to remind you that at this
+time if you'd like to do the programming assignment for this C3 Part 2 course,
+please make sure that you complete the programming
+assignment for C3 Part 1 course first. This is very critical because the C3 Part
+1's programming assignment is a component or a building block for
+C3 Part 2's programming assignment. Recall that C3 Part 1 is meant
+as a prerequisite for C3 part 2. So, if you have not taken C3 Part 1 so
+far, I would highly encourage you to go through the concepts in that course and
+also to do the programming assignment if you intend to do
+the programming assignment for C3 Part 2. [MUSIC]

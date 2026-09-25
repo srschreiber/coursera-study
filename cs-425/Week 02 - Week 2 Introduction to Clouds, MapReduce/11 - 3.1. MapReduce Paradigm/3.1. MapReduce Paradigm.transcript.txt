@@ -1,0 +1,183 @@
+[MUSIC] Hello, in this lecture series,
+you will get to see what MapReduce is, the paradigm, what it is. And we'll look a little bit
+into the internal details of how MapReduce scheduling works as well. We'll also see a few examples of how
+Different applications can use MapReduce, and you'll get to see
+a little bit of code as well. So in this first lecture here,
+we look at the oral paradigm and I'll try to introduce you
+to a very basic level. So the terms map and
+reduce which comprise the portmanteau term MapReduce are borrowed from
+functional languages such as Lisp. For instance here's how you would
+calculate the sum of squares. Suppose we have in teacher say one,
+two, three, four. And you want to calculate one square
+plus two square plus three square plus four square. The map so first of all square
+is a function which can be applied on any one of these integers,
+one or two or three or four And at least to
+the square of the corresponding digits. So square of 1 is 1, square of 2 is 4,
+square of 3 is 9, and so on. So square takes its input 1 in teacher and
+spews output 1 in teacher. Map essentially is a metafunction which
+applies the function squared to a list of inputs. In this case 1, 2, 3, and 4 are in a list. This is using Function
+language terminology. And the output of map square forward
+by the list is also a list where the ith element of the list is a square
+of the ith element of the input list. So map here essentially is a meta
+function which processes each record. When I say record,
+I mean integer over here. Sequentially in this particular case, but more importantly it
+processes it independently. So the square of 1 can be calculated
+independently from the square of 3 and
+neither of them follows from the other. So that's the first part. The second part is an addition function
+which takes as input again a list of the corresponding squares of
+the integers and just sums them up. Reduce here is again a metafunction which
+applies plus to a group of records, in this case the records
+are just integers. And adds them up and the output in
+this particular case is just 30. So once again, as far as we are concerned,
+reduce is a metafunction that processes a set of records or a group
+of records This may be all the record this may be a subset of all the records and
+in group it processes it in batches. So that's a very gentle
+introduction to how map and reduce work in the small scale. However if you're given a sample
+application word count which happens to be one of the more
+popular applications and widely used applications of map reduce And
+you're given a huge data set, say, all of the text in Wikipedia or all
+of the text in all of Shakespeare's works. And you're asked to produce a count for
+every word that appears in that data set. So for instance the word Richard, which
+appears in many of Shakespeare's works. How many times does it
+appear across the entire and across the entirety of all of
+the text in Shakespeare's works? You want to produce a con for that. Similarly you want to produce a con for every single word that appears
+in that entire data set. How do you do this? Especially when you're dealing
+with large amounts of data? The large amounts of words
+the large numbers of words and the large amounts of Text that might
+be contained in Shakespeare's works. Well that's where our MapReduce
+paradigm comes into place. So the map as a task or as an entity processes individual records,
+in this case the records are just words, each record is a word,
+to generate intermediate key/value pairs. Okay, so here I have simpler file that
+consist of four records or four words. Welcome everyone, hello everyone. And when MAP processes this, it produces the each of
+the records one key value pair. So for instance the record Welcome
+it produces a key value per Welcome comma one. This essentially means that the word
+Welcome was encountered once. That's a key/value pair. Similarly, Everyone, the first Everyone,
+generates a key/value pair of Everyone, 1. Hello generates Hello, 1. And everyone again, the second
+occurrence indicates everyone comma one. This everyone comma one, the second one, is independent of the generation
+of the first everyone comma one. So, once again, these records can be processed
+completely independently of each other. In this particular case I
+just have one Map Task, so it runs through these
+records sequentially. But you can paralyze this
+process fairly easily, especially when you have a large data set. You can parallelly process individual
+records to generate intermediate key/value pairs and the output is going to be
+the same as if you had just one map task. In this example, I have two map tasks. The blue one in the top processes
+the first line of input, and produces two key value pairs for
+each of the two records in its input. And the bottom green map task produces,
+again, two key/value pairs for the two records that are in this input. So once again, output of this is
+the same as that in the previous slide. If you have a very large dataset,
+you can split up your input dataset. You can shard your input dataset or
+split it up And have map tasks assigned to each shot or
+each split and the corresponding output will be
+the same as if you had one map task. And so you process a large number of
+records by using multiple map tasks, and You can scale up the amount of
+map tasks with the amount of data. In this particular case I've just shown, each map task's been assigned
+just a couple of words. But of course, map tasks are assigned
+much larger chunks of data, typically in several megabytes as you'll
+see later on this lecture series. because in this particular case,
+I have many map tasks processing a fairly large file, and producing output. And output is indistinguishable
+from when we had just one map task. Why do we have parallel map tasks? Well, it helps speed up the process. So in the ideal case,
+if you double the number of map tasks, the time to complete all the map tasks
+will Go down by a factor of two. So you'll process your
+input twice as fast. So that's the first step of word count,
+but we still don't have a word count for each word. For instance, every one which appears
+twice in this carpus still doesn't have a count two associated with it. That's where the reduce comes into play. So the reduce takes this input,
+the output of the map Phase. So all the key value pairs that you
+saw in our small example earlier are reproduced here. This is the output of the map phase, and that has given us input
+to the reduce phase. The reduce processes and merges,
+that's the important word here, all the intermediate key value pairs
+associated on a per-key basis. So for instance, here it takes all the key
+value pairs that have Everyone as the key. In this case,
+there are two such key value pairs. And it sums up their values. In this case,
+the value turns up to be two. Similarly, it does the same thing for all the key value pairs that
+have Welcome as the key. In this case,
+there's just one key value pair. And so that output is over here, Welcome
+[INAUDIBLE] Similarly Hello comma 1, there's only one instance of it,
+and that leads to Hello comma 1. And this is the final output
+of the reduce phase, and this is the word count
+that we were looking for. So the word Everyone that appears
+twice is associated with a value of 2. That's over here. Well again,
+how do you parallelize this reduce phase? The reduce phase is not Does not
+process these records independently in other words the record everyone
+comma one the second record here and the fourth record here need
+to be processed together. Their values need to be summed up here. And so
+this is not independent processing here. Instead what happens here is
+the keys are being grouped. So you want all the key value
+pairs with one given key. To appear at one reduce task, so
+that their values can be merged together. So the way you do this is by
+assigning keys to reducers. So you assign each key to one reduce,
+you do this by partitioning the keys. So for instance, this example over here, the key everyone is assigned
+to reduce task number one. And so all the key value pairs
+that have key equals everyone will arrive at reduce task number 1,
+which then will sum up the values for that given key and
+produce the outboard Everyone comma 2. Similarly, the keys Welcome and Hello
+are assigned to reduce task number 2, which receives those as inputs. For the key Hello, it just outputs Hello comma 1 because
+that's the only key value pairs received. And for
+the key Welcome it outputs Welcome coma 1. There are different ways of
+partitioning keys across reduces. In this case the partitioning has assigned
+everyone to reduce Task 1, and Hello and Welcome to reduce Task 2. One way of partitioning is
+called hash partitioning. You take the key, you hash it by using
+a consistent hash function, say, simple hash algorithm one one, or message
+I've used five MD five, or just any other hash function, as long as it's the
+same hash function applied to all keys. Then you take modular
+the number of reduced servers, the number of servers that are assigned,
+and that will give you the number of
+reduced tasks, in this particular case. And than will give you the new server on
+the reduced task number to which that reduces assign. Why do we use hashing? This leads to fail uniform load
+balancing of keys across the reduced tasks in the system. Let's go get some code from Hadoop which
+is the open source implementation if map produce. Map produce was of course implemented
+by Google and they never. Open source the original implementation
+but they wrote a paper on it and published it, and engineers from
+Yahoo decided to write an open source implementation of MapReduce,
+and that became Apache Hadoop. Apache Hadoop today is widely available
+and widely used, as many of you know. A company called Hortonworks
+has been spun off from Yahoo, which does a lot of the code
+development for Hadoop. So here's what a map might
+look like in Hadoop. You have a MapClass which
+extends a well-known base and implements a well-known interface. It's a templatized interface for
+those of you who are familiar with the Java language. And the main function here is the map. The map text inputs the key and
+the value tells us an OutPut Collector. And in case you wanted
+whole things into the user. Essentially what it does here is that
+it takes the value which in this case is text. So the value might be one line
+of text in the input file. And it tokenizes it into strings so here you have the line which is
+consisting a collection of strings. Each string is a word. The StringTokenizer essentially
+iterates through all the words. In this case they are tokens. And for each word, you output a key value pair which
+is that word comma the value one. Okay, and here we have said
+that one is the new IntWritable value over here and so that's output
+as the intermediate key value pair. So for every word that You encounter in
+the line, this map function takes us, produces output that were comma one
+as intermediate key value pair. Now this line may not be a line, it may be, in fact be an entire
+large block of text over here. And the map would work just fine So
+what does a radius look like? Well, here you have the ReduceClass
+again here, which has one reduced function and again, that has input
+key which is Text over here. And values, because you may have multiple
+values associated with a given key You have multiple values over here. This reduce function is called once for every key that is assigned
+to that reduce task. So suppose that reduce task is assigned
+ten keys, that reduce task is going to call this reduce function ten times, once
+for each of the keys that is assigned to it, and the values, in that case, will
+be all the values that it has received. From the intermediate key value pairs that
+are associated with that particular key. So [INAUDIBLE] essentially, this call
+of reduce will simply go through all the values and sum them up and produce as
+output key-value pair where the key is the same as the input key and the value
+is in fact the sum of the input values. And in fact,
+this implementation is an implementation, a correct working implementation of
+the work on example that we have seen. So this is,
+as opposed to the previous slide, where we had shown the map function,
+and the map function, for instance, might be called only
+once by each map task, With all of the import given to that map
+task as the input to that map function. Now, you also have some glue code such
+as the driver which has a run function, specify the job name,
+in this case it's mywordaccount. You say that your keys are all words
+by setting your output key class. You also set the values are counts,
+or integers, by setting the output value class. You set the mapper class and the reducer
+class to the ones that we saw in the previous slides, and
+then you set what the input path is, where you fetch the data from and
+where do you write the data to. As you'll see soon in this lecture series,
+essentially, Hadoop runs on top of a distributed file system and
+that's where all the data is stored. The input path name and the output
+path name are both names of files or directories in the underlying
+distributive file system. And finally you tell the job to run. Not shown here is the partitioning
+function which can also change in the system. If, for instance,
+your data is not Easily hashable, or you want to do something like sort,
+as you'll see soon, you may want to have a hand
+tailored partitioning function, and you can change that,
+too, in the Hadoop code. [MUSIC]

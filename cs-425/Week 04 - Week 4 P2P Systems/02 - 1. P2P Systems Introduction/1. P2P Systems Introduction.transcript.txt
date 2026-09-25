@@ -1,0 +1,75 @@
+Welcome. So, uh, in this series of
+lectures we are going to study, uh, peer-to-peer systems, or
+what are known as P2P systems. Peer-to-peer systems
+started emerging in the, uh, late 1990s, early 2000s. Uh, they started with a variety of very popular peer-to-peer systems such as, Napster and Gnutella, and soon there was a lot
+of academic research, uh, that was leading to, uh, peer-to-peer systems being developed, uh, as well. So we'll study
+both these classes of peer-to-peer, uh, systems. Why do we want to study
+peer-to-peer systems? Well first, uh, these are, uh,
+distributed systems that, uh, were really the first very
+large-scale distributed systems. Uh, peer-to-peer systems like
+Napster and Gnutella had, uh, millions, tens of millions, in
+some cases hundreds of millions of clients communicating with
+each other at the same time, in the same system. And so when we want to study
+scalable distributed systems, uh, this is a great, uh,
+area for a case study. Uh, also, the ideas and techniques from the, uh, era of peer-to-peer systems have been leveraged and are used quite a bit
+in cloud computing systems. Uh, later on, uh, we'll study
+key-value stores, such as Cassandra, Riak, uh,
+Voldemort from LinkedIn, and also DynamoDB
+from, uh, Amazon. All of these, for instance,
+use techniques, such as, consistent hashing, which we'll study in the Chord, uh, peer-to-peer system, uh, in this lecture series. So here is what, um, the, um,
+user interface might look like for a peer-to-peer system. This is a snapshot of the
+Napster user interface beta 7. Essentially,
+what you do is, that you, uh, you, uh, type in key words, in this case the key word
+is actually the file name, but you might be able to type
+in other key words too, such as the artist's name,
+the song name, the album name, and you hit enter, or you hit "Find It" in this case, uh, and then once you do that, uh, the system goes off and it, uh, retrieves
+a series of locations, of potential locations,
+for this file, and then you, uh, essentially, uh, click on the f- on the location that seems
+to yield the fastest, uh, connection, this-uh,
+the fastest download speed, and voila,
+the file starts downloading. So our interest as distributed
+systems designers, as cloud computing designers, is to see what goes on underneath the hood from the time
+that you hit "Find It" until the results come back, and then after you click,
+um, "Download" on one of the entries, what happens underneath? What are the messages exchanged
+underneath among the clients and the servers in the system? That's what we want to do here;
+that's what we want to study in this particular
+lecture series. So a little bit of history
+before we get started into the, um, uh, internals of Napster. Napster was founded in 1999
+by Shawn Fanning, who was then a freshman
+at Northeastern University, and, uh, Napster
+was just a nickname that they used to call him. His roommate-roommates used
+to call him Napster because he used to, um, uh, apparently, uh,
+he loved to take naps, uh, and, uh, so he named
+his system Napster and, um, uh, overnight Napster became very very popular, and users started using Napster to download MP3s and MPEGs, which unfortunately, uh, were covered by copyright. Copyright essentially means that the recording label that
+is producing a song by an artist owns the copyright, and you cannot, uh, exchange, uh, that song for free without paying the recording label, and therefore
+the artist as well. The same goes
+for movies as well and the movie
+production companies. So the Recording Industry
+Association of America, uh, a group of recording labels, sued Napster and asked for
+an exorbitant amount of money per download. Uh, subsequently, Napster,
+uh, was, uh, uh, ruled by the US Federal Appeals Court as violating, uh, uh, copyright laws,
+or rather, not as violating copyright laws, but helping users, uh,
+violate copyright laws. So Napster, as you will see
+from the design, was not directly infringing copyright laws, but was indirectly helping users to infringe copyright laws. At the same time Napster
+continued to grow popular, there was a study in 2000
+that showed that, uh, uh, all the traffic out of University of Wisconsin Madison, uh, 25% of that traffic was,
+uh, Napster traffic. Many universities
+subsequently banned it because it was hogging
+the bandwidth, uh, in their, uh, networks. Napster reopened, uh, later
+on, uh, as a paid service. Today it still runs
+as a paid service. Essentially, you pay some amount
+of money to download a song, and some of that payment
+goes to the song-writers and the music labels as well. Napster is, uh,
+is an open protocol, and people are free to develop Napster clients and servers, um, uh, today, and you can find more at the, uh, SourceForge page
+for Napster. Another study, uh,
+system we'll study, Gnutella, uh, also, um, uh,
+used to be an open protocol, and recently
+it's been replicated, um, and so we'll study that
+as well in the next lecture. So what we'll study is, uh, a variety of widely pe-deployed peer-to-peer systems, uh, Napster, Gnutella, uh, Fasttrack, uh, uh, BitTorrent. Um, fasttrack is
+the underlying system for Kazaa, Kazaalite and Grokster. Uh, and also we'll study
+peer-to-peer systems that came out of academia, uh, systems like Chord,
+uh, Pastry and, uh, Kelips. Once again, these are only
+the tip of the iceberg. There are many other systems
+that came out of academia. We are not going to be able
+to cover all of those hundreds of
+peer-to-peer systems, uh, but just representative ones, uh, from particular categories.

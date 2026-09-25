@@ -1,0 +1,208 @@
+In this next series of lectures, uh, we'll see, uh,
+the consensus problem, which is one of the most important distributed
+computing problems. Uh, we'll see what
+the problem is, uh, we'll see why it is,
+um, hard to solve, and then we'll, uh, try to see
+a few solutions, uh, uh, to it. So, uh, you might have seen that
+a lot of wendors, uh, publish, uh, their, uh, solutions, their software, their products, their services as having
+several 9's of reliability. Some vendors might say we
+have five-9's of reliability. Essentially this means that, uh, their service is available 99.999% of the time. Uh, seven 9's would have
+seven 9's in there. but none of the vendors ever, uh, promise 100% reliable services or products. This is not because, uh,
+of the fallibility of, uh, of hu-of human beings or, uh, the fact that today's
+companies are not good enough. Uh, the-the main reason for this is that a lot of these services, especially the
+distributed services, uh, need to solve a problem known as consensus, and it turns out that consensus is impossible to solve under certain, uh, system models and under certain situations. Uh, so we'll see in this lecture
+series what exactly consensus is and why is this, uh,
+impossibility even there, and how we can get around it. So here are a set of problems that, uh, many, uh, distributed computing, um, scenarios need to tackle, many cloud computing environments need to tackle. The first is a group of servers
+that are trying to make sure that all of them receive the same updates in the same order as each other. Uh, these might be the servers
+in a storage system that are receiving rights,
+uh, from a set of clients and they want to make sure
+that all these, uh, rights are reliably received
+by all the servers and they are also
+received in the same order. Um, a group of servers that is
+trying to, uh, keep local lists, uh, membership lists
+that know about each other, and when any one, any of the servers leaves
+the group or fails from the group, uh, all the, uh, membership lists are updated simultaneously. A third scenario is, uh,
+one where a group of servers wants to elect
+a leader among them and then let everyone else
+in the group know who the leader is. And finally, the fourth scenario
+is one where all these servers want to, uh, obtain mutually
+exclusive access to a resource, so when one of the servers
+is accessing the resource, none of the others are able to access
+the resource at the same time. Think of this as locking. So these are four, uh, classic
+and very import- classical and very
+important problems in distributed, uh, systems, um,
+and they have names. The first one is called
+Reliable, uh, Multicasts, uh, the second is called Membership
+or Failure Detection, the third
+is called Leader Election, and the fourth
+is called Mutual Exclusion. Um, you would have seen or you
+will see each of these problems elsewhere in this
+particular course, but for now what
+is relevant to us is that all of these problems
+are directly related to the consensus problem. So what really is common
+among these problems? Well let's just call each
+server a process, okay? So think of the daemon
+that is running, uh, at each of these servers, and so, uh, when I
+say a group of processes, I essentially mean
+a group of processes communicating over a network. These processes
+might be anywhere; they might be on a few servers, they might be on a large number
+of, uh, servers. Uh, all these examples that we
+saw, uh, just now were examples of groups of process attempting
+to coordinate with each other and reach agreement
+about something, um, either the ordering
+or the reliability of messages, or the up/down status
+of a suspected fail process in a failure detector example, or who the leader is
+in the leader election example, or who has access
+to the critical resource in the mutual exclusion example. So all of these are related
+to the consensus problem, which essentially tries to have
+a group of servers coordinate with each other and agree
+on the value of something. So what really is consensus? Formally, uh, we
+have N processes. Um, each process p
+has two variables. These variables only have
+bit values, um, so, uh, the input variable called xp
+is initially either 0 or 1. This is the processes-that
+particular process's piece, um, uh, contribution or
+proposal, uh, for the group. And each process p also
+has an output variable, uh, called as yp, which is initially,
+um, undecided, or what is known as just b,
+it's undecided. And, uh, the concern
+it is that p can change, uh, the output variable
+at most once. Once it is changed, once it is
+set to either 0 or 1, it can't be changed afterwards. So the problem that we have,
+the consensus problem, is to design
+a distributed protocol so that at the end
+of that protocol, um, uh, all the processes decide the same value
+for their output variables. So either all the processes set
+their output variables to be 0's, so you have
+an all-0's outcome, or all the processes set
+their output variables to be 1, so you have an all-1's outcome. So why is this problem so,
+uh, challenging at all? Well, uh,
+before we go into that, a little bit of, um, summary, or a different way
+of putting the same problem, so every process
+contributes a value, and the goal is to have
+all the processes deciding, uh, the same value, whatever
+value it is, either 0 or 1, uh, but once a process
+makes a decision, it cannot change that decision. And the reason
+for this is typically because the decision
+is communicated up to the application, and the application might
+take certain actions based on that decision. Now in addition to the, uh,
+main requirements for consensus that we saw
+in the previous slide, in practice there might be
+a few other constraints. Uh, they are validity,
+integrity and non-triviality. Validity says that if everyone
+in the group, all the processes, propose the same value, say all
+of them propose 0, then, um, the group should decide it is 0. Alternately, if all
+the processes propose a 1, then the group should
+decide a 1. Integrity, the second
+condition, says that, um, the decided value must have been proposed by some process, uh, and this is of course related to, uh, validity. Um-uh, some process
+must have proposed a 0 value for it to be decided
+by the entire group. Non-triviality says that there is at least one
+initial system state that leads to, uh,
+an all-0's outcome, and at least one initial state that leads
+to an all-1's outcome. Uh, if you didn't have this
+non-triviality condition, then essentially you could solve
+consensus by saying "Hey, everyone just set
+your output variables to be 0 "and we are done
+because we have consensus," but then that would mean that you always decide 0
+all the time, and that's not really
+a practical or useful distributed protocol. You want to decide 0 or 1, uh, depending on what's going
+on in the group. So, uh, the consensus problem
+is important, uh, because, uh,
+several important, uh, distributed computing problems are, uh, related to it. They are either
+equivalent to consensus, which means that, um, they are in fact the same problem, if you can solve consensus, you can solve
+the other problem, and if you can solve
+the other problem you can solve consensus. Or in some cases, uh, the distributed computing problems are harder than, uh, consensus. So failure detection, which, uh,
+we have discussed, uh, earlier, uh, is related to consensus in the sense that it
+is equivalent to consensus. So perfect failure detection, uh, that, uh, always detects
+failures, uh, all the time and never makes any mistakes
+about detections is, uh, equivalent to consensus, which means that if you had
+a protocol to solve consensus, you could design
+a perfect failure detector and vicey versa. Leader election, um, where
+you want to elect a leader and want-want to, uh, have everyone
+in the group know about it is also, um, equivalent
+to consensus. Agreement where you want to decide on not just a bit value but, um, maybe an integer value, um, or something more complex is actually harder than consensus. Uh, if you had
+a solution to agreement, you would be able
+to solve consensus. So before, um, uh,
+we solve consensus, uh, we need to ask what
+is the system model under which the consensus
+problem is being solved. Uh, this is a practice that I would
+like you to develop whenever someone gives you
+a problem statement. The first thing
+you should figure out is what are the assumptions
+or what is the system model under which we are trying
+to solve the problem. So there are two more, uh, most
+popular, um, uh, system models in distributed systems;
+the synchronous system model and the asynchronous, uh,
+distributed system model. Let's look at each of these. The synchronous distributed
+system model, the one, uh, without the "a," um, has bounds on everything. It has a bound
+on how long a message takes to be delivered
+at a recipient process. As long as the sender
+and recipient, uh, processes are alive, the message will be delivered
+within that bounded time, and that bound is a global bound across the entire
+distributed system. The second is that processes, uh, local clocks do not drift away from each other too much. Uh, there is an upper bound on the drift rate between
+any two processes' clocks. The third is that, uh, each process has a minimum speed
+and also a maximum speed at which
+it executes instructions. Uh, in other words,
+each step in a process takes a time that is lower bounded by a well-known value, and is also upper-bounded
+by a well-known value. Uh, examples of synchronous
+distributed systems are collections of processors that,
+uh, share a communication bus and are on the same
+motherboard-for instance, a multiprocessor system,
+one that you might buy, uh, from a well-known company, uh,
+one of these computers today. Uh, or even a supercomputer,
+uh, machine, um, is an example of the
+synchronous distributed system. The asynchronous distributed
+system model, on the other hand, does not have any
+bounds on anything. It does not have bounds on how
+fast or slow processes are. Processes might be
+arbitrarily fast; they might be arbitrarily slow. A process might execute
+an instruction, um, every nanosecond, and another process
+might execute an instruction every 3 years or
+every million years. You don't know how
+slow processes are. Uh, processes' clocks can drift
+away from each other arbitrarily fast or slow, uh,
+and also a message might take arbitrarily long, uh,
+to reach its recipient. A message that you send
+might be delivered within the next nanosecond
+or picosecond, or it might, uh, take forever to be delivered
+at, uh, the recipient process. And the asynchronous
+distributed system model is an interesting model because a lot of the very
+widely-used distributed systems, um, uh, adhere to this. So the internet is an example of an asynchronous
+distributed system, as are wireless ad-hoc
+networks and sensor networks. Obviously, the asynchronous
+distributed system model is more challenging in, uh, in terms of a model
+in which to solve problems, compared to the
+synchronous system model, because there are
+no bounds on anything. And so if you
+are able to solve a problem in the asynchronous
+distributed system model, you can be sure
+that it will also work, the same protocol will also work in the synchronous
+distributed system model. However, the reverse
+is not true. If you, uh, solve a problem in the synchronous
+distributed system model with the well-known bounds, it doesn't mean, uh, that, uh, the same
+protocol will work in the asynchronous distributed system model as well. This is why a lot
+of the distributed systems and cloud computing
+literature focuses on the asynchronous
+s-system model where there are
+no bounds on anything. So in the synchronous system
+model, the consensus problem, which we discussed,
+is in fact solvable, and we'll see a solution to that, um,
+in this lecture series. In the asynchronous distributed
+system model, however, consensus is
+impossible to solve. And what this means is that, uh, whatever protocol
+or algorithm you suggest which claims to solve consensus, there is always a worst-case possible execution scenario where some processes fail and, uh, some messages are
+delayed just the wrong amount that will always prevent the
+system from reaching consensus where everyone decides
+the same value. This is of course a very
+powerful impossibility result. Um, this is sort of like
+the Np completeness,um, uh, uh, equivalent, uh,
+in distributed systems, um, and, uh, for those
+of you who are interested, there is an optional optional lecture in this series which will cover,
+uh, the FLP proof that pr-that shows that, uh,
+the, uh, consensus problem is impossible to solve
+in asynchronous systems. Subsequently, several safe
+and probabilistic solutions have become quite popular. This includes
+a solution of Paxos, which you'll also see later
+in this lecture series. So in the next lecture we'll,
+um, just try to solve consensus. We'll see, uh,
+how do you solve consensus in the synchronous system model.

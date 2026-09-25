@@ -1,0 +1,14 @@
+[MUSIC] In this third week of the cloud computing
+concepts course we jump into peer-to-peer systems which have been very popular
+over the past decade in a half. We'll see both unstructured peer-to-peer
+systems such as Gnutella and Napster, and structured p2pr systems just Chord and
+Pastry. We'll see,
+not only how the systems are used, in fact we'll hardly see how they are
+used, but we'll jump under the hood and see how these systems work on the inside. We'll see the messages that are exchanged
+among the different servers and clients in these systems. And we'll see the actual protocols
+that work inside these systems. So this is a really under
+the hood look into these systems. And these systems are very important,
+especially the structure peer-to-peer systems because some of the concepts, some
+of the techniques used here are reused and are being reused in two days generation
+of key value and NoSQL storage systems. Which we will study in
+next week in this course. [MUSIC]

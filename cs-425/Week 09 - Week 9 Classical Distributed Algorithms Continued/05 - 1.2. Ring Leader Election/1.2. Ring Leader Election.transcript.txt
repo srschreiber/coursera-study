@@ -1,0 +1,193 @@
+[MUSIC] In this lecture, we're going to see
+the first classical algorithm for leader election. We'll see another classical
+algorithm later in another lecture. This classical algorithm is called
+the ring leader election, or ring-based leader election. In the ring, we have N processes
+organized in a logical ring. This is somewhat similar
+to the virtual ring, or the logical ring that
+we saw in the peer to peer system discussion when we discussed
+the Chord distributed hash table. Essentially here the i-th process pi has
+a communication channel to the i plus 1-th process, that is,
+its successor clockwise in the ring. You needs to take modulo N so
+that the process N minus 1 is pointing and
+has a successor of process p0. All the messages are sent clockwise
+around the ring from earlier process to its successor in the ring. Here is an example of a ring. Here I don't have process IDs in
+continually increasing orders, but essentially, the processes
+are organized in a ring where every process has a successor in the ring. So, N3 for instance, has a successor which
+is N32, so it can send messages to N32. N32 in turn is a process
+that has a successor of N5, which in turn has a successor of N80,
+and so on and so forth, and then N12 has a successor
+of N3, which completes the ring. So what does the algorithm look like? So let's look at the, an informal
+description, pseudocode of the algorithm, and then we'll see the example of Haydock. Any process pi that discovers
+that the old coordinator or the old leader has failed
+initiates an election message. And the election message contains,
+the initiator pi's own ID, along with its own attribute. Okay?
+The ID is needed so that the you need, you need to be able to identify who
+last wrote into the election message. And the attribute is needed so that you can elect the best or the highest
+attribute process as the leader. Pi is the initiator of the algorithm. It then passes along this election
+message to its successor. What does the process do when
+it receives an election message? Well, when a process pi receives
+an election message, it looks at its own attribute value and it compares
+it with whatever is in the message. If the arrived attribute is greater than
+its own attribute, then pi knows that it is not eligible to be a leader, because
+it doesn't have a higher attribute. pi merely forwards a message as is. It does not change the message. However, if the arrived attribute is
+smaller than pi's own attribute value and if pi has not yet
+forwarded an election message earlier, it overwrites the message with
+its own ID and its own attribute, because this is the max attribute
+that has been seen by the message so far, and then it forwards this
+newly overwritten message. Now, why do we say that pi
+needs to check whether it has not forwarded an election message so
+far? Because this will come back to
+the termination criterion later on. But essentially what this rule
+is saying over here is that when pi receives an election message, it compares the attribute in
+the election message with its own. And if its own attribute is higher, then it overwrites the message
+with its own ID and attribute. However, if the received
+election message has an ID and attribute that matches pi, then this means
+that pi's attribute was written into the message the last time it passed pi and
+that the message has made one circle, or one circuit around the ring,
+and has not changed. Which means that none of the other
+processes in the system, in the ring, have a higher attribute
+than pi's own attribute. In this case, pi knows when it receives
+this duplicate election message with its own ID and attribute that it must be
+the new coordinator or the new leader. Therefore, this process pi now
+sends out an elected message to its neighbor containing the ID saying
+that it is now the new leader. So what does the process do when
+it receives this elected message? When a process pi receives
+an elected message, it points its own local elected variable
+to the id of the message saying that it now knows who the leader is, and then
+it forwards the message to its successor. However, if it is the new coordinator or the new leader, it doesn't forward the
+message anymore, because essentially this means that the message has made
+one circuit around the ring and everyone has set their elected
+variables to the new leader. So that in a nutshell is how
+the the leader election protocol works using the ring. Now let's see an example with
+the previous ring that we have discussed. Once again, here the goal is to elect the
+process with the highest id as the leader in the group, and this essentially
+means that the attribute is the id. The attribute we're using
+in the election is the id. So N3 is the initiator, it's the one
+that detects the failure or it's the one that just calls for an election
+because it's time to call for an election. It initiates election by
+sending an election message. It includes its id in that. It doesn't need to include a second
+attribute because the id is the same as the attribute. So it sends this message,
+the election message, to N32. When N32 receives it, it knows that its own id is higher
+than what's in the message. 32 is greater than 3 3. And so
+it overwrites the message with its own id, and then passes on the modified
+message to its successor. N5 receives this message, compares the id
+in the message 32 with its own id, and the message's id is higher. So it forwards the message
+unchanged to its successor. N80 receives this message, sees that its own id 80 is greater
+than what's in the message 32. And so it overwrites the message
+with its own id 80, and then passes it on to its successor. Similarly the election
+message goes through N6 and N12 unchanged because their ids
+are lower than what's in the message. And now it reaches N3. N3, again, just passes on the message. It compares what's in the message. It's the initiator, but it doesn't stop
+the election message from going around. What instead happens is that eventually,
+the election message gets to N80, which sees that this is
+a duplicate election message and that the id in the message is its own id. And so the election message
+must have made one circle, or one circuit around the ring. And it was unchanged, which means
+that none of the other processes in the ring have a higher id than itself. At this point, N80 knows that it
+is going to be the next leader. And it starts an elected message
+that says that it itself is going to be elected as a new leader. When this elected message is passed on
+to its successor, N6, N6 receives it. It marks its own elected
+variable to be 80. Which says that N6 knows that N80
+is in fact the new leader, and then it passes on the elected
+message to its own successor N12. Similarly, this elected message
+makes its way around the ring, everyone marks their local
+elected variables to be 80, and then finally it gets back to N80,
+the elected message. N80 sees that the elected message's
+id is the same as itself. And so it can now drop the message and
+not forward it anymore. And at this point of time,
+the election protocol is done. N80 has been elected as the leader,
+it knows that it is a leader, and all the other non-faulty processes
+in the group know that it, N80 is in fact the leader. So that's the termination
+of the election over here. So let's analyze this protocol. First of all,
+let's assume that there are no failures that occur during
+the leader election protocol itself. Later we'll see the effect of failures. And let's assume that there
+are N processes in the ring. How many messages are exchanged
+in the leader election protocol? Well, the worst case occurs when
+the initiator is the ring successor of the would-be leader. >> So, essentially going back to
+the previous slide, if the successor, if the if the this, the initiator
+of the leader election protocol would have an N6 in this particular case,
+that would be the worst case. Essentially the initiator would be
+the successor of the would be leader. Why is that? Well, let's let's see what happens. So if the N6 is a process that initiates
+the leader election protocol, there are N minus 1 messages needed for the election
+message to get from the initiator to the would-be coordinator, because it loops
+from N6 all the way back around to N80. Then N80 marks the election
+message with its own ID. Now the election message needs to make one
+more circuit around the ring, another N hops until it get backs, gets back to N80
+and N80 knows that it is a new leader. So that's another N messages. And finally, the elected message sent by
+N80 makes another circuit around the ring. That's another N messages. So that's a total of, N plu,
+N minus 1 plus N plus N messages. That's 3N minus 1 messages for the total leader election to be
+completed in the worst case. The completion time is also 3N minus 1
+message transmission times over here. If there are no message,
+if there are no failures and if all messages are delivered eventually,
+this election terminates because it terminates within a finite, a bounded
+number of message transmission times. So that guarantees liveness. Also, everyone knows about the leader at
+the end of the leader election protocol and the leader knows that it is a leader,
+and so this guarantees safety. What is the best case that can occur? Well, the best case that can occur
+is that the would-be leader, N80, in this in our example,
+is in fact the initiator. So if N80 is the initiator,
+then it starts an election message. It makes one circuit around the ring and gets back to N80, which then makes the
+elected message go around the ring again. And that's another N messages and
+the protocol is done. So that's N plus N 2N messages. And the completion time is 2N
+message transmission times. Now, what happens when you
+have multiple initiators? Remember that we said that if
+you have multiple initiators in a leader election run,
+we want all of them to, just one leader, not every initiator is election,
+is a separate leader. That would be a violation of safety. Now, multiple initiators can be
+supported by modifying the protocol we have discussed so far. By having each process remember in its own
+cache the initiator of each election and elected message it receives, you can have the election elected message
+carry the id of the initiator itself. Whenever a process receives an elected,
+an, an election or elected message that has a
+lower id initiator than one it has seen so far, it doesn't forward
+those messages anymore. So this essentially means that the if
+there are multiple initiators in the group, only the highest id initiator
+will have its election complete and therefore that will lead
+to exactly one leader. All the other elections called by lower
+id initiators will be suppressed and they will never complete. Okay, so
+this supports multiple initiators and it still guarantees safety
+using our ring-based approach. Next we need to discuss what happens with
+failures that occur during the election protocol itself. So for instance, if N80 fails,
+the new would-be leader fails, when it has already sent an elected
+message, elected equals 80 message, unfortunately, this is a case where
+the election protocol may not terminate. In fact, the termination condition
+here is that N80 must receive back an elected message and say, hey,
+this is an elected message with my own ID, and so
+I'm not going to forward it anymore. Unfortunately, because N80 has crashed,
+even if the ring were reorganized so that N5 had a new successor of N6, the
+selected message saying the new leader is 80 would circulate around
+the ring forever, essentially. So liveness would be violated over here. And this protocol would not terminate. So one option to fix failures
+is to have the predecessor or maybe the successor of the would-be
+leader N80 detect its failure and start a new election run if N80 does not,
+stops responding. So this successor or predecessor might
+reinitiate the election if it receives an election message but times out waiting
+for the elected message from N80. Or it might receive the elected message
+and then it might not hear again from N80 again or N80 may not respond to the
+pings that are sent by its predecessor. However, and in fact, this is the approach
+that is used by some systems like Apache ZooKeeper, as you will see later
+on in another lecture in this series. However, the predecessor itself,
+which is responsible for detecting N80's failure,
+might in fact fail, right? In which case you have no one to
+check the failure of the leader. You might say, well, okay, what about the predecessor's predecessor,
+which might now take over for its job. What if that process also fails? A second option is to use
+a failure detector itself. Any process after receiving
+the Election:80 message can detect the failure of N80 via its
+own local failure detector. If so, if you detect a failure, then you can start a new
+run of the leader election. However, failure detectors may not
+be complete as well as accurate, because we've already seen this is true
+in an asynchronous distributed system. Incompleteness means that N80's
+failure might not be detected at all. And this might be a violation of safety, because the leader has failed and
+and no one has detected it, and so there is no leader that is not
+faulty in the group right now. Inaccuracy in a failure detector
+would mean that N80 might be mistakenly detected as failed and
+a new election might be initiated and every time you may have the worst
+case happening, which is that the would-be leader is detected as having
+failed and a new election is initiated. And this means that you may never, ever
+terminate the leader election protocol. So why is it that the election
+is turning out to be so hard? Well, that's because it's related
+to the consensus problem. In fact, if we could solve election,
+then we could actually solve consensus. How are we to do this? Well, a simple way to do this is to
+elect a process using whatever election protocol you have, that is, guaranteeing
+safety and liveness, even under failures. And then you use, the leader election,
+the leader's ID, you use its last bit, which is either a 0 or a 1,
+as the consensus decision. Because everyone knows who the leader is. They know what the leader's
+ID's last bit is. And so everyone agrees on the value
+of the consensus variable. However, since we know that consensus is
+impossible to solve in an asynchronous system, so is leader election. however, it is still possible to use
+consensus solving approaches such as Paxos to solve leader election. And we'll see that in the next lecture. [MUSIC]

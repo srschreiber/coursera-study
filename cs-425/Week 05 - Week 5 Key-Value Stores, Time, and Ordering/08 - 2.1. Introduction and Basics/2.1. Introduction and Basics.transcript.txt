@@ -1,0 +1,185 @@
+Hi there, ah, so
+in this series of lectures, we'll look at, uh, time
+in distributed systems. Uh, time is a very important
+and challenging concept, and, uh, we have to, uh,
+either solve it as an issue or get around it,
+uh, in, uh, some way. So, uh, here's an example
+of, uh, why, uh, time is an important issue and
+why you need synchronization. Suppose you wanna catch
+a bus, at 6:05pm. But your watch
+is off by 15 minutes. If your watch is,
+uh, 15 minutes late, essentially you're gonna
+miss the bus, cause you're gonna arrive
+15 minutes late at the bus stop. If your watch is 15 minutes
+early, maybe you'll end up, uh, waiting quite a long, uh, time,
+15 minutes extra, while you might have been doing, um, something else
+that was more useful. So, uh, because your clock
+is not synchronized, because your watch
+is not synchronized, uh, either you have
+a violation of correctness, when you miss the bus, or violation of fairness, when you end up waiting
+too long for the bus. What about in the cloud? Why is synchronization
+needed in the cloud? So let's consider an example of a cloud airline
+reservation system. So, this might be one
+of the, uh, online airline- airline reservation sites that
+you go to to book a flight. Um, uh, Server A receives, uh,
+a client request, uh, to purchase the last ticket on a flight, say ABC123. It, um, replies to the client, uh, and simultaneously, uh, timestamps the purchase, uh, wi-with its clock
+as 9h:15m:32.45s. It then logs it on desk. It replies ok to the client. Uh, now, that was
+the very last seat, so the flight
+is not full-now full. So A sends a message to Server
+B saying the flight is full. B enters, uh, the information
+that this particular flight is full into its log along
+with its own local clock value, which happens
+to read 9h:10m:10.11s. Notice that this is different
+from server A's time, because a-after all, the two
+servers are not synchronized in terms of their clocks. Now Server C,
+a third server, comes along and queries A's and B's logs and it finds that A
+has, uh, purchased a, uh, ticket on behalf of a client at 9:15, while the flight
+was actually full at 9:10. And this confuses C and this may
+lead, uh, C to take actions that are in fact, incorrect. Uh, and, uh, for instance, C might assume that more, uh,
+seats have opened up on the flight and
+that's not gonna be, uh, good or correct for any
+of the passengers. So if A and B had been
+synchronized in their clocks, this issue would not
+have, uh, happened if both the clocks
+had read exactly the same at any point of time. This iss-issue
+would not have arised. So why is, uh, synchronizing
+the clocks of different, uh, uh, uh, processes
+so challenging, uh, in, uh, internet-based
+systems like clouds? Well, each of the, uh, processes, uh, run on their own clocks, typically this is
+a system clock, uh, on, the motherboard
+of the, uh, machine on which that particular processor, uh, is running, where this process
+is, um, uh, scheduled. Uh, but, uh, unlike
+the processors on a, uh, single machine, which share
+the same system clock, in a distributed system which is known as an
+asynchronous distributed system, which, uh, is an internet,
+uh, based system the different processes running
+on different machines don't necessarily share
+the same system clock. Uh, essentially all they share
+is a network through which
+they can send messages. Also there are no bounds on how long messages
+take to get delayed, and there are no bounds
+on how long processes take to process
+individual instructions. This is what is known as the asynchronous
+distributed system model. This is unlike the synchronous
+distributed system model, which is true in multi-processor
+or supercomputer or parallel systems where
+many processes share a single system clock. And this, uh, asynchrony
+makes it challenging to, um, synchronize clocks because of the
+unpredictable message delays and you'll see this, uh,
+quite soon as we go along. So, uh, some definitions
+before we proceed. An Asynchronous Distributed
+System consists of a number of processes. Uh, processes is
+the plural of process, and, uh, each process is, what you might normally imagine a-a process is, it consists
+of its own code, uh, its own heap, its own program counter, its own stack, its, uh, registers
+and so on and so forth. So all of these put together, uh, all count
+as the processes state. This includes the value
+of its variables and everything. Now each process may change
+its state by taking actions. An action might be
+an instruction, uh, it may increment a variable and that changes that variable so it also changes
+that process's state. Or it might send a message
+to someone else, to some other process, or it might just receive
+a message from another process. These are the three kinds
+of actions, or events that can happen,
+uh, in this system. An instruction, a message send
+to another process, or a message being received, from another process. Now each process
+has a local clock, um, and events within a process can be assigned timestamps, based on this local clock, because a local clock
+only increases linearly, it only moves forward, it never moves backwards,
+or- and it never gets stuck. Okay, so events within a given
+process at a given process, can be ordered linearly. However, what we really wanna do
+in a distributed system is order events across processes we want to say that this event
+at Process A, um, and this other event
+at Process B, uh, happened
+in this particular order where, uh, maybe the first event
+at Process A occurred before. So that's
+the challenge over here. So, uh, when you want
+to synchronize, uh, clocks across different processes in a group, um, uh, there are two terms
+that come into play, they are
+clock skew and clock drift. Clock skew is
+the relative difference in the clock values
+of two processes, while clock drift is
+a reler-relative difference in their speeds, or their clock frequencies
+or their clock rates. Uh, think of this as, uh, two
+vehicles moving on the road. Clock skew is
+the distance between them at any point of time, and
+the distance may not be fixed. If the two, uh, vehicles are,
+uh, moving at the same speed, then the clock skew will stay
+the same as always. Uh, but if they are moving
+at different speeds, then the clock skew
+might change. Clock drift is the difference in
+the speeds of the two vehicles. And so, a non-zero clock skew, uh, implies that clocks
+are not synchronized. So what we really wanna do
+if we wanna synchronize clocks is we wanna get
+a non-zero clock skew. Uh, sorry- uh, sorry, we wanna
+get a clock, zero clock skew, we want to have no difference between the clock values
+of the two processes. In non-zero clock drift,
+a difference, um, uh, in the speeds
+of the two process clocks causes, uh, the two clocks,
+to, uh, eventually drift. Clauses-causes the clock skew
+to eventually increase. Okay, the faster vehicle
+is ahead on the road, uh, it will drift away and the
+clock skew is gonna increase. If the faster vehicle
+is behind the slower vehicle, then it will catch up and eventually
+then it will drift away. Um, uh, well ahead in front, and the clock skew will
+eventually increase. So what we really want
+to-to do is we want to get the clock skew,
+uh, down to zero. So how often
+do you wanna synchronize the clocks
+of different processes? Well, uh, this sort
+of defen-depends on the maximum drift rate
+of the clock. Um, the absolute maximum
+drift rate or absolute MDR is defined relative
+to the UTC time, which is the correct time
+at any point of time. The UTC time is maintained
+by correct atomic clocks, um, uh, at standards bodies. Uh, the MDR for process, of a given process depends
+on the environment. Okay, so MDR is, uh, uh, is-is
+devin-defined with respect, uh, to something and,
+uh, when you say absolute MDR, it's defined with respect
+to the, uh, UTC. Now the maximum drift rate
+between two clocks with similar MDR,
+with the same MDR, with the same absolute
+MDR is 2*MDR. Why is this? Well in the worst case, one
+of these clocks may be MDR ahead or faster than UTC. The other clock may be
+MDR slower than UTC, and so the-the
+relative difference between them is (2*MDR). So given a maximum acceptable
+skew M between any pair of, uh, process clocks- um, clocks
+are two different processes, you need to synchronize,
+uh, the clocks, uh, once every M/(2*MDR)
+time units, okay, where MDR is your maximum, uh,
+drift rate that you know for the individual processes and M is your maximum
+acceptable skew, which the application
+can tolerate. Why is it M/(2*MDR)? This is the same reason
+as time=distance/speed. Now there are two terms
+that come into play when you wanna synchronize,
+uh, process clocks. They are external and
+internal synchronization. In external synchronization, each process, uh, uh, clock
+is, uh, synchronized with respect to an external,
+um, uh, time source, such as a UTC time source. So process i's, uh, clock may
+be, uh, at most D, uh, seconds, um, uh, eh, in error compared
+with the external times clock. So, |C(i)-S|, is, uh, always
+less than the bound D at all points of time. Okay, so examples of algorithms
+that try to achieve external synchronization
+are the Cristian's algorithm and the NTP algorithm, which you will see later on
+in this lecture series. On the other hand,
+internal synchronization does not use an external source. Instead the processes in the
+group themselves, um, uh, use, uh, each of theirs
+clocks for synchronize. And this means that, uh, if you
+wanna bound inside the group, then you wanna make sure that
+for any pair of processes (i,j) the difference
+between their clocks, the clocks skew between i and j, uh, the absolute value
+of that is less than, uh, D. An example of an algorithm that, uh, achieves internal internal synchronization is the Berkeley algorithm. So, th-the external
+and internal synchronization are related to each other. If you have
+external synchronization in a given group,
+with a bound of D, this automatically implies
+internal synchronization with a bound of 2*D. Why is this? Well, in the worst case, uh,
+a process may be D ahead of the external source, and another process may be D
+behind the external source, so that the difference between
+them and distance is 2*D. But the other way around
+is not true, so, if you have internal synchronization, in a group, ah, then there does not imply
+external synchronization with respect to any time source. Uh, in fact, the entire group
+may drift away, as a whole, from a given external source, and this is one of the, um, uh,
+uh, one of the disadvantages of using internal,
+uh, synchronization. So next- in the next lecture,
+we'll see, uh, some algorithms
+that are used, and some techniques
+that are used in real systems
+for synchronizing clocks in, uh, cloud computing systems and in distributed systems.

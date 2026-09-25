@@ -1,0 +1,149 @@
+So in the previous, uh, lectures we have seen, uh
+eventual consistency which is what, uh, Apache
+cas-Cassandra supports, uh, but that's not the only kind of, uh, weak consistency model
+that can be supported. In fact, there is a spectrum
+of consistency models ranging from, uh, weak eventual all the way
+to strong consistency models such as sequential
+consistency models. As you move from left
+to right on the spectrum, you get stronger and stronger
+consistency models and you get slightly slower, uh, reads and writes, especially when
+you have, uh, partitions. So essentially,
+if you really care, uh, or your application really cares about fast availability of reads and writes, uh,
+for your data, you wanna move to the left side of the spectrum. But if you care more
+for consistency of your data, uh, then you wanna move toward
+the right side of the spectrum. So Cassandra offers, uh, the eventual
+consistency, uh, uh, model which says that if writes
+to a key stop, then all replicas of that key will, uh, converge eventually. Uh, typically they converge
+the latest written value, uh, or the last writer wins policy
+is used, which is LWW. Uh, this is taken from, uh, Amazon's Dynamo system
+or Amazon's DynamoDB. Uh, and Cassandra was inspired
+by the DynamoDB system. LinkedIn's Voldemort
+key-value store also, uh, was, uh,
+inspired by DynamoDB, and it shares,
+uh, the same, uh, feature. But a lot of, uh, work has
+been done in the last few years where, uh, um, systems have
+developed that strive towards, uh, stronger and stronger
+notions of consistency. Stronger than eventual, uh, while always trying
+to, uh, maintain, high availability, uh,
+and partition-tolerance, which is what is guaranteed
+by systems like, uh, Cassandra. Uh, these include
+a variety of models ranging from Per-key
+sequential models, uh, to, um, uh, CRDTs, uh,
+to, uh, Causal models to Probabilistic models
+to Red-Blue consistency models, uh, and also
+Strong models, of course. We'll discuss some
+of these over, uh, this lecture. So Per-key sequential
+essentially says that on a per-key basis, all operations
+have a global order. So, uh, you could ensure this
+by maintaining, uh, a per-key coordinator, and ensuring
+that all the reads and writes are serialized
+through the coordinator, uh, and, uh, therefore they have
+a single global order. This, of course, may be, um, uh, restrictive because
+if that coordinator fails and you need
+free like another coordinator, uh, however, it, uh,
+does guarantee some stronger notion
+of consistency. CRDTs are a new, uh, replicated,
+uh, data structure known as Commutative
+Replicated Data Types. Uh, um, and these data
+structures, um, uh, commuting-or commutating writes
+give the same result. Essentially, commutating writes
+means that if you reverse the order of two writes,
+then the end result is the same. For instance,
+if your data structure which is an integer, and the only operation
+allowed on the data, uh, in there is a +1, essentially this is
+what is known as a counter, uh, a counter is
+a commutative data type. If you have two writes coming
+in from two different clients, each of those writes is essentially a +1 operation. If client one's
+operation goes first and then client two's operation is applied, you get the same result,
+which is a +2, as if you applied client
+two's operation first and then client one's operation, you'll again get a +2. So commutating those two writes
+results in the same end result. Essentially if you have, uh,
+if you have a CRDT the servers really
+do not need to worry about, uh, ordering the writes with respect to each other; all the writes have,
+uh, the, um, have, uh, have the same effect. Or rather, all the writes can be
+commutated with each other and, uh, the end result of any permutation of these writes is the same
+as any other permutation. The notion of CRDTs was discovered
+by researchers in INRIA, and it has been extended
+to not just counters, uh, which are the simplest,
+uh, notion, uh, but also other complicated
+data structures such as, uh, documents, um, which are shared and are being written and read
+by multiple users at the same time. Um, so related to the CRDTs is the notion
+of red-blue consistency. Uh, it's not always possible
+to write operations, um, which, uh, or transactions, uh, on the clients' side which only have commutated, um, uh, uh,
+the commutative property. There are some operations
+that absolutely need, uh, and require to be ordered, uh, at all the data centers, uh, in the same order. So the red notion
+of red-blue consistency from the Max Planck Institute
+in Germany essentially, uh, uh, writes client operations, uh,
+in, uh, in such a way that the operations are split into either red operations, ah, or blue operations. So each operation is
+either red or blue. The blue operations
+are commutative, so they can be executed
+in any order, uh, with respect to each other
+across data centers. But the red operations
+absolutely need to be executed in the same order
+across all data centers. And this way, you can, uh, by rewriting the original
+client transactions, uh, into, uh, red
+and blue operations, you can support a stronger
+notion of consistency, um, uh, while still supporting some notions of availability. One of the newer notions
+of consistency that has emerged, uh, from researchers
+in Princeton and Carnegie-Mellon is the notion
+of causal consistency. Uh, let's look
+at an example here, um, so, uh, I have three clients here, clients A, B, and C. Client, uh, A, does a W(K1, 33). Subsequently, Client B
+does a R(k1) which returns this value of 33. And this means that this, uh,
+read, uh, is causally, uh, dependent on the, uh,
+write from Client A. So there is a causal rink-link
+in between, uh, this write to this read. Uh, this doesn't effect the messages that flow
+between Client A and B, in fact, Client A and B
+may not communicate with each other at all directly. However, because the read
+returns the same value as the write, there is a causality that flows
+from the write to the read. Of course there is causality
+at that client that says so after the R(K1) by the client, uh, W(K2), uh, W(K2, 55) is done by the same client so this read happens
+before this particular write, causally speaking. And then later on, if another
+Client C does a R(K2) and returns 55, then there is of course
+a causality from the write by Client B, uh,
+to that read by Client C. Subsequently if, uh,
+the Client C does a R(K1), K1, the first key, over here, this must return 33 because, uh, the W(K1)
+is causally related to this. 'Cuz essentially there
+is a causal path going from W(k1, 33) to R(K1)
+at Client B to R-to W(K2) at Client B to R(K2) at Client C to R(K1)at Client C. This is the causal path, and this means that the write of, uh, (K1, 33) happened before
+this key, uh, this, uh, R(K1) and so this key-
+uh, uh, this read must return, uh, the, uh, value of 33 and not an older value
+such as, uh, 22, which may have been written
+by a client previously. Okay, so this is causality, and essentially causal
+consistency says that reads obey causality and they return the, uh, latest causally written value, uh, by, uh, any, uh, client. However, there might be multiple
+causally written values as you see elsewhere
+in this course, uh, and so, uh, the causal consistency allows a read to return one
+of potentially many different, um, uh, written, uh, values and so it's not as strong
+as the strongest notion of consistency
+but it's quite close. So what are these strong
+consistency models that I keep talking about? Well, there are, uh,
+tw-at least two, uh, major, uh, strong consistency models. There are linearizability
+and sequential consistency. Linearizability is one
+of the strongest notions of consistency, uh, which says that each
+operation by a client is visible or is available instantaneously, and when I say instantaneously
+I mean in real time to all the other clients. This is as if
+there were only one copy of every key value pair, and they were being stored
+on exactly one, uh, server. So this is one
+of the strongest notions of- notions of consistency
+and however it's very, um, uh, difficult to support in, uh,
+distributed systems. Uh, sequential consistency's
+also a strong notion of consistency, but it's not
+as strong as linearizability. Sequential consistency was
+originally, uh, stated by Lamport as follows, says: Essentially, this is
+an after-the-fact way of, uh, reordering
+the operations that, uh, that occurred
+so that there is still sanity in this new ordering, uh, and the sanity also obeys
+the order at each client. Okay, so, essentially
+this reordering, uh, obeys, uh, uh,
+things like causality, it obeys, um, uh, uh, clients being able to read
+their own writes, and it also obeys, uh,
+the, um, uh, ordering- the linear ordering
+at each client itself. The sequential ordering
+that you come up with may not be same
+as the linearized, uh, ordering. It may be slightly different,
+but it still makes sense. Okay, so, um, uh,
+a transaction ACID properties, um, uh, um, are being supported, uh, by some of the newer
+generations of NoSQL systems, these are sometimes
+called as NewSQL systems. These include academic systems
+such as Hyperdex from Cornell, uh, also, uh, Spanner,
+uh, from Google supports transactions and, uh, stronger notions of consistency, and also other systems, uh, which support
+transaction chains such as from Microsoft Research.

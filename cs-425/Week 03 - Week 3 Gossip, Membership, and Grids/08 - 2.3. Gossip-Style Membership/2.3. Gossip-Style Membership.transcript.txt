@@ -1,0 +1,130 @@
+In this lecture we will see
+how gossip-style, uh, failure detection works. Gossip-style failure detection
+is essentially, ah, a variant of
+call-to-all heartbeating which is more robust
+than all-to-all heartbeating. Once again,
+the basic concept is that every process, uh, wants
+to send out it-its heartbeats to all the other processes
+in the system. The heartbeats are again
+incremented sequence numbers that are incremented locally. Processes timeout waiting
+for heartbeats and mark the corresponding
+sources as having failure. We want really good accuracy
+properties here, which was lacking in the all
+to all variant of heartbeating. So here is how gossip-style
+failure detection works in a nutshell. Here I have an example
+with, uh, four processes, uh, marked as 1, 2, 3, and 4. Every process maintains a table. Let's look at the table for 1, and the table for 1
+shows, uh, four entries for each of the four processes
+in the system. There are, uh, so, four rows. There are three columns. The first column is the address
+and the process which is basically the ID. The second is
+the heartbeat counter received from that corresponding process. Third is the local time at which that heartbeat counter
+was last updated. So, for instance, at process 1, the row for 2 says that the last heartbeat that was received from process 2 at process 1
+was numbered 10, 10, 3, and it was received when the
+local time at process 1 was 62. The local time
+is needed essentially because times
+may be unsynchronized across different processes as we have discussed before, and this is an
+asynchronous system after all, and so we wanna be using
+the local time to mark when the heartbeat
+was last updated. Periodically, each process
+sends over this entire table to a few of its neighbors
+selected at random. Okay, this is known
+as, uh, gossip. So nodes are processes periodically gossip
+their membership list. So, for instance,
+if 1 selects 2 at random and sends it
+its membership list, say 2's membership looks
+like this, right. What 2 does when it receives
+1's membership list is that it merges it
+into its own list. It merges it row by row; so for instance,
+it looks at row number 1 and it says that hey, my, uh,
+latest for heartbeat for, uh, 1 is 10,118, but I am receiving a heartbeat
+for 1 which is 10,120, which is later, and so I am going to update
+that, uh, heartbeat to be 10,120. Also I am going
+to update the, uh, time component of that particular row from 64 to my
+current local time which happens to be 70
+at this node. For the second row,
+it doesn't update it because it has
+a low- uh, a later heartbeat. After all it was
+in row number 2. Uh, for the third row,
+for node number 3, again it does update it, uh, because, uh,
+1's incoming heartbeat, uh, table has a-a higher
+heartbeat counter, so it becomes
+10,098 inherited from 1, and the local time is marked
+at 70 over here. Number 4 is not updated
+because the heartbeat counters are the same here, uh, both at 1
+and 2, so that's not updated. It is kept as is. Essentially this, ah, is
+the way, ah, gossip works. Ah, the essential component here
+is that, ah, 1, ah, periodically selects, um, uh, a few other members at, uh, random from its membership list and sends it copies of, uh,
+its membership list and they do the protocol here. The timeout works the same way. If, ah, there is a threshold
+typically for, ah, timing out and, um, when a-a particular row's, um, entry was last updated more than
+that timeout, uh, seconds ago you mark that node
+as our processes having failed. So the heartbeat
+has not increased for more than T failed seconds. Notice that
+this is a local time at the, uh, process that
+is maintaining the table, then the member is marked
+as having failed. However, you don't delete that
+particular entry right away from the row, uh,
+from the table that you have. Uh, you wait for another
+T cleanup seconds. Typically cleanup is also
+around the same as a T fail, and only after that
+do you delete the member from your list. So why do we have
+two different timeouts? Why not delete
+the member right away? Well you could have, uh, this
+very interesting phenomenon if you delete
+the member right away where an entry
+might never go away. Consider here
+this particular scenario where process 1 has
+an entry for 3 marked as, uh, a heartbeat 10,098
+with local time 55 and process 2 also has a similar
+heart- uh, entry for process 3. Process 1 marks- uh, sorry,
+process 2 marks row 3 as having failed because
+the current timeout is 75 and the T fail
+is 24 seconds ago, so the timeout just elapsed; however, process 1, uh, has not
+yet reached that timeout of 24 and so it has not deleted 3 yet, but 2 has gone ahead
+and deleted 3. Soon enough 1 sends its
+heartbeat list over to 2 and 2 sees the entry 3-
+for 3 in there and says, "Oh, this is a new, ah, membership list entry. "I'm gonna add it back in. "And in fact,
+I'm gonna add it back in "with the new local time,
+uh, at node 2." And so essentially you can see
+what's going on here, that after a while 1 will delete
+the entry for 3, but 2 might select, uh, 1
+as the gossip target and it might send it 3's entry and then 1 will add it back, and so because of this ping pong
+behavior that happens, 3's entry might never,
+ever go away from the system. So it is to avoid exactly this that you remember, uh, the entry for another T cleanup seconds typically the same
+as T fail timeout and if you receive another entry
+for the same, uh, process, you don't pay heed to it. You ignore it. So, let's go back
+to the discussion of, uh, what happens
+if the gossip period, uh, T gossip, is decreased. Um, so once again, uh,
+the gossip property says that a single heartbeat, uh, takes
+O(log(N)) time to propagate as long as you have
+enough bandwidth, uh, to, uh, send out
+the entire, uh, membership list, uh, every time, uh, you gossip. Uh, so, uh, N heartbeats take
+O(log(N)) time to propagate and the bandwidth
+allowed per node, ah, is allowed to be O(N). Uh, however, the bandwidth
+allowed is O(1), you're allowed to send out
+only a few sampled rows from your membership list, theyn the-then the, um, uh, then the, um, dissemination time might go up to Order(N-log(N)). Essentially this is, uh,
+inversely proportionate. In the gossip period,
+T gossip is decreased; essentially what happens, ah, is that you have
+a higher bandwidth, uh, and that, uh, you spre-you send out gossips, uh, much quicker so you can have
+a shorter timeout for the failure
+detection itself. So essentially,
+the T gossip is a tradeoff between bandwidth
+and the detection time. Uh, the bandwidth again,
+uh, um, determines, uh, um, the detection timeouts. The lower your bandwidth
+limits are, uh, the longer y-y-your
+detection time has to be. So I encourage you
+to think about what happens if you have O(K) bandwidth
+in, uh, this. Once again, if you increase
+T_fail and T_cleanup, the timeouts there, what happens to the
+false positive, uh, probability? Well essentially what happens is that your detection
+time increases, but then at the same time, uh, you have a-a lower
+false positive rate because you give,
+uh, non-faulty nodes that are mistakenly detected slightly longer for the heartbeats
+to make it across. So essentially you have
+a bunch of knobs here. Uh, the T_gossip is one
+of those knobs and the timeouts, the T_fail and the T_cleanup
+are the other knobs, and the bandwidth constraints, uh, um, are the other knobs which help you to trade off between the false positive rate, uh, the detection time,
+and the bandwidth that is, uh, used
+by your gossip protocol itself. So in the next lecture
+we'll see whether or not this in is in fact optimal. Is there an optimal
+failure detector? How close d-do
+the failure detectors we have discussed so far come
+to this optimal, uh, amount?

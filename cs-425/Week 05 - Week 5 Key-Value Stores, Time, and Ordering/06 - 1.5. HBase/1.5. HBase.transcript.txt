@@ -1,0 +1,179 @@
+So in this, uh, lecture we'll look at, uh,
+the, um, architecture of, um, the No SQL system
+called HBase. So, uh, Google's BigTable system was the first "blob-based" storage system that was introduced, and of course Google, uh, did not
+open source the code, but they published
+a paper on this. Uh, Yahoo! wrote an open-source implementation of this which came to be called
+as HBase, um, uh, this is
+a major Apache project today. A variety of companies use HBase including, uh, Facebook,
+which uses HBase, uh, for one of it's internal,
+uh, architectural stacks. Uh, HBase supports,
+uh, basic API functions, uh, such as Get or Put
+on a per-row basis. This is again
+a Get or Put by key, just like key-value stores. You als-this also allows you
+to scan by a row range, um, this allows you
+to do range queries. For instance, you might fetch, uh, all the users whose names start-start with A and B. And also it allows you
+to do MultiPuts where you put
+multiple key value pairs into, uh, the, um, uh, system itself. Unlike Cassandra, which
+preferred availability over consistency,
+under partitions, HBase prefers consistency over availability, under partitions. So here is what the HBase
+architecture looks like: you have a client over here which, uh, can send queries,
+reads, and writes, uh, to the HBase system. Uh, the coordination between the
+clients and the servers is done by a Zookeeper, which is a small group
+of servers running a
+consensus-like protocol uh, a
+Paxos-like protocol which is, uh, which is elsewhere
+in this course. Uh, the, uh, HBase system itself
+has multiple HRegion Servers, uh, as you notice here. This is one HRegion Server
+that's blown up, there might be
+other HRegion Servers as well. The HRegion Server
+might contain, uh, multiple, uh HRegions. Uh, one HRegion is
+sown-shown over here. The HRegion itself might contain
+multiple stores, one store is shown over here. The store, uh, might contain,
+uh, multiple store files, and each store file
+contains an HFile. The HFile is essentially a file that is stored
+in the underlying HDFS, the same Hadoop
+distributed file system that is used in Hadoop. The store in relation,
+also contains a MemStore and a HRegion Server is
+associated with an HLog, over here. There's also an HMaster, uh,
+which, uh, uh, communicates with the Zookeeper and also
+coordinates with, uh, the HDFS, uh, and, uh, I'll discuss
+each of these, uh, individual, um, uh,
+components in detail in the next slide. So the HBase Table,
+when you have a table, you know a reg-a regular database table, the HBase Table
+is split into regions. Um, uh, for instance,
+essentially these regions are a collection of rows
+in that HBase Table. Each of these regions
+is replicated, uh, across, uh, servers
+and split into regions because you don't wanna store the entire table, some tables might be large,
+other tables might be small, you don't wanna store, uh, large
+tables, um, uh, as one, you wanna split them
+into regions so that they are
+more manageable. Then you have a ColumnFamily. A ColumnFamily is essentially
+a subset of columns within that, uh, table, and within that region, uh, with similar query patterns. Uh, essentially
+it's within the tables, so all the regions
+for a table contain, uh, the same set
+of columns within, uh, their corresponding
+Column Families. Uh, then for every combination
+of, uh, region and ColumnFamily, so for every ColumnFamily within
+a region, you maintain a store. Okay, and that's what you saw on the previous
+architectural slide. Uh, each store
+contains a MemStore, the Memstore is,
+um, uh, uh, uh, uh, something that maintains
+an in-memory, uh, version of the latest updates that
+have been done to that store. This is like the MemTables we
+discussed in Cassandra, when the MemTa- MemStore is, uh,
+um, uh, full or when it is old it is flushed to disk. There are also StoreFiles which, um, uh, are maintained on a per store basis for each region. This is where
+the actual data lives, and the store file
+contains an HFile which stores
+the actual data itself, and that is stored, uh,
+in the underlying HDFS, okay? The Hfile is oriented
+essentially like, uh, an SSTable from the Google's
+BigTable system, and very similar to the SSTable that we saw from,
+uh, in the Cassandra system. So here is what
+an HFile might look like. The Hfile contains, uh, a lot of
+data, uh, followed by more data, uh, and then there might be some
+metadata, file information, uh, indices, and a trailer
+information at the end. Let's blow up one of
+these data pieces. So, um, uh, the data itself
+contains a magic number to identify that uniquely, followed by a variety
+of key value pairs. Let's blow up one
+of these key value pairs. The key value pair contains, uh, information such as
+the key length first, then the value lengths, and then the row length, so you know how many
+bytes each of these contain. Then you have the row itself, uh, you have
+the ColumnFamily length followed by
+the actual ColumnFamily, uh, the column qualifier, um, uh, a timestamp when this
+value was la-last written, uh, the key type,
+and then the, uh value itself. The HBase, uh, treats this
+entire, um, uh, uh, segment of, uh, entries shown
+here as the HBase Key. So let's look at, uh, some
+of these entries here. What is the row? The row, uh, eh, for, uh, a
+particular application which maintains, for instance,
+census information, might be the Social
+Security number of that
+particular individual. The ColumnFamily might be demogragric-demographic
+information, so it might say
+all the demographic information about that
+particular individual. Uh, one of the columns
+within the ColumnFamily might be the ethnicity
+of that particular individual. Uh, uh, it might be
+Asian-American or Caucasion or African-American, and
+so on and so forth. So, whichever is, uh,
+the ethnicity of that individual is maintained over here. Uh, so this is essentially a
+hierarchic-hierarchical way of, uh, breaking down,
+uh, a column, and specifying the
+entire, uh, column itself. And you also have the timestamp
+and the key type over here. So, how does, uh, HBase
+maintain strong consistency? It does this by-by using a
+write-ahead log, or a HLog. Again, the HLog is maintained on
+a-on a per HRegion Server basis. So suppose a client sends in
+operations for four different keys, a key one, key two,
+uh, key three, key four. Uh, key one and key two might
+be assigned to HRegion, uh, the first HRegion, and key three and
+key four might be assigned to another HRegion. Sooo, the HRegion server
+appropriately routes the, uh, operations
+to the appropriate HRegion. Uh, when an HRegion receives an
+operation such as for (k1), it first enters, um, uh, this,
+uh, into, uh, uh, the HLog, and so it, uh, writes
+an entry to the HLog before it writes to the actual, uh, MemStore itself. Uh, it does this so that, uh,
+if there is a failure after writing into the log,
+then you can, uh, replay this write by looking into your HLog. Okay, so this operation
+is done first, and then the corresponding, um, uh, operation is sent to the store, which then writes
+into the MemStore. Eventually, when the MemStore
+is full, it's flushed into a store file, and that is stored
+as an Hfile or HDFS. So when you do have a failure,
+you just need to replay the log. Uh, after you recover from
+your failure on bootup, um, uh, either the HRegionServer or the HMaster
+does the following: it replays
+any stale log entries, again, it uses the timestamps
+to find out where the database
+is with respect to the logs, and it replays any
+of the log entries, um, uh, since the database timestamp itself. Uh, when you replay you add
+edits to the MemStore, which eventually
+will get flushed into, uh, the, um, uh,
+HFiles themselves. Now when you can have Hrefs running across multiple data centers as well, uh, there is
+a single master cluster of all the data centers. You have one
+of the data centers marked as a "Master" data center. The other data centers are
+simply "Slave" data centers, uh, and they replicate
+the same tables. The Master cluster, uh,
+synchronously sends the logs, the HLogs, over
+to the Slave clusters, which then use the logs to simply update
+the corresponding MemStores, which eventually get
+flushed, uh, to disk. The coordination
+among the Master and the Sl-and
+the Slave clusters is done via Zookeeper again. And Zookeeper not just runs a
+Paxos-like consensus protocol, it also can be used to store, uh, uh, information
+just like a file system in a hierarchical fashion. So for instance, you
+can use, uh, the address "/hbase/replication/state" to store the current state
+of the database. You can use the address "/hbase/replication/peers/
+<peer cluster number>" to store information about that particular master
+or slave cluster. And then you can also store
+the HLog, um, information in this, uh, third, um, uh, address, which is "/hbase/replication/rs/<hlog>"
+itself. Essentially, Zookeeper
+can be used as a naming system that maps this to the
+actual location of the, eh, of that information itself. So, uh, to wrap up
+our discussion of, uh, key value stores
+and NoSQL storage systems, traditional database,
+the relational database systems, uh, uh, work
+with strong consistency and offer strong notions
+of consistency such as ACID. But modern workloads don't
+necessarily always need such strong guarantees, uh, what they do need is fast availability
+or fast reads and writes, uh, or fast response times
+to clients, because this is
+directly correlated with, um, uh, revenue, uh,
+to the companies that run cloud computing services today. Unfortunately, the CAP theorem
+says that you cannot guarantee both availability
+as well as strong consistency when you really care about
+partition-tolerance: you have to choose
+one or the other. Key-value stores
+such as Cassandra offer BASE, which is basically available
+soft-state eventual consistency, and essentially they punt on the
+strong notions of consistency, just because the workloads don't
+necessarily require them, but at the same time
+they're able to grant, uh, very good, uh, response times, very fast response times. There has been
+a lot of other work on stronger and stronger
+notions of consistency that are closer and closer to the strong versions
+of consistency, uh, while still offering
+fast availability. We have discussed,
+uh, the design of, uh, the Cassandra key-value store, and also the
+HBase system which prefers, uh, consistency
+over availability while Cassandra preferred availability over consistency.

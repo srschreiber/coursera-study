@@ -1,0 +1,174 @@
+[MUSIC] In this lecture we will see how
+internals of MapReduce work and we'll look at the workings
+of the scheduler as well which is a new Hadoop scheduler. So, how do you program MapReduce? For the user, as far as user is concerned,
+the user writes the map program, particularly a short map function or
+method and also writes a reduce program
+short reduce function or method. Then they start up their job. They specify the number of map tasks and
+reduce tasks and they submit the job and they wait for the result. Essentially the user's job is very easy
+because the user does not need to know much about Hadoop or
+distributive programming beyond the number of map tasks or
+reduce tasks that they need. Internally, and this is where things
+become interesting for us students, for the paradigm, MapReduce paradigm and
+the scheduler itself, it has to worry about parallelizing
+the map, it has to worry about essentially in the stage, splitting up or sharing of
+the data among the different map tasks. It has to transfer the data from
+the map to the reduce in a sense it has to work through
+the partitioning function here and make sure that the correct data is being
+sent to the correct reduce function. There has to paralyze the reduce. In other words, there has to schedule
+the reduce tasks themselves. And finally, a sort of on top of these three it has to
+implement storage for the Map input, for the Map output, which is the same as the
+Reduce input, and also the Reduce output. Also, one of the things we have seen so
+far is the way that Map phase works and the way the Reduce phase works after it. Essentially, none of the Reduce tasks can
+start before all the Map tasks are done. Why is this? Well this is because if there is
+at least one map task running, it's possible that it generates
+some key value pairs, while that key has already been processed
+by the corresponding reduce, so you essentially you don't want
+to start any of the reduces. Now this statement has been fudged,
+it's not literally true, because in many of the cases you can
+maintain, you can have some of the reduced tasks start earlier, this has actually
+been implemented in MapReduce as well. But as far as understanding is concerned,
+let's just go with the fact that none of the reduced tasks can start
+before all the map tasks are done. This is called a bad year, because it's
+essentially you have a bad year between the map phase and the reduced phase, the map phase needs to be completely done
+before any of the reduce tasks can start. One of the ways in which this barriers not
+really true is that the traffic that goes from the MapReduce, the map output and the
+reduce input, which is called the shuffle traffic, can be started parallelly while
+the map tasks are still continuing. Okay. So, once the shuffle phase, the shuffle phase can be
+parallelized would the map phase and once a shuffle phase is done, then it can,
+then the reduced task can start. So how do you solve these problems? Well, in the Cloud essentially
+paralellizing the map is easy because remember each map task was independent
+of the other map task, and so these map tasks can be assigned
+essentially to any server. And you typically want to assign
+the map tasks to servers where the data is close by so
+that you incur low network overhead. But we'll talk about that later on. Then you also want to make
+sure that all the map output records with the same key
+are assigned to the same reduce. And that helps you to transfer
+the data from the map to the reduce. In this case you use
+a partitioning function, for instance as we've discussed earlier
+the hash partitioning function may be used where each key is assigned to the earliest
+task number which is obtained by hashing the key more than load
+the number of reducers. The reducers go from zero to
+the number of reducers minus one in id Finalizing the reduce is also easy
+because each reduce task is essentially independent of the other. Each reduce task is assigned a set of
+keys and these keys are disjoined across reducers, so
+reducers do not overlap with each other. And in terms of number of keys,
+on the input or the output, and so they can be run
+independently of each other. And notice here that it makes it
+easy to schedule these map tasks and these reduce tasks because there is no
+communication between two map tasks, there's no communication in
+between two of these tasks either, they are fully parallelized
+with respect to each other. Finally, you need to implement storage. The map input in the beginning and there
+is output right at the end of the reduced phase are both sorted in this
+distributed file system. This distribute file system is running
+typically on the same servers where the map tasks and
+the reduce tasks are run. For instance, the Google version of Map
+Reduce Runs uses the Google File System, also known as GFS, and Hadoop, the
+Apache Hadoop open source implementation uses HDFS, known as
+the Hadoop Distributed File System. Typically these five systems will
+store multiple replicas of the same input data block. It replicates file blocks a multiple
+times typically three times and there are three copies of each file block
+located on three different servers. And so when a map task starts up
+it needs to fetch the data block that is its input data block from one of
+the servers that is storing it currently. It queries the online HDFS file system
+to do this and this transfer is faster, obviously, if the server on which
+that particular block is located, is in fact the same server on
+which the map task is running. So, then we also have to discuss
+where the map output is stored. Well the map output is not
+stored in the distributed files. And instead the map output is stored to
+the local disk at the server on which the map task is running. And the reduce input is read
+from these remote disks. Okay, so it is read from
+the multiple remote disks, one for each of the map tasks services. The reason why this intermediate
+shuffle traffic between the map and the reduce uses the local file
+system is you want it to be fast. This intermediate data
+is really not needed. It's not really visible to
+the external user it's only needed for the reduce phase to start its work. And so essentially you don't want
+to incur the high overhead of the underlying distributed file
+system which might be replicated which might try to put it
+on some other servers. You don't want to incur this high
+overhead, you want it to get as fast as possible to the reduce tasks so
+that the job can finish quickly. Finally, when the reduce output is done, it is written to the distribute
+file system back, so the output of the entire map reduce job is
+available in the distributed file system. So let's look at a pictorial depiction of
+what goes on in a MapReduce application. So you have the input data set
+we just split up into blocks. In this case, I have 7 blocks. Which are stored in
+the distributive file system. Again each of these blocks might
+be stored at a different server, and each of these blocks might be
+replicated at multiple servers. Then you have the map tasks, and in this
+case each map task is assigned one block, so I have seven map tasks over here. The resource manager,
+which runs a scheduler of MapReduce, and again, here I'm using Hadoop
+terminology, is responsible for assigning these maps tasks to servers and
+it's also responsible for assigning the reduce tasks,
+which appear later on, to servers as well. So it might assign, for instance,
+the first two map tasks to server A, the next three map tasks to server B,
+and the last two map tasks to server C. And so these map tasks run on
+the corresponding servers and they would fetch the corresponding
+input and process them. Next the outputs of these map tasks are
+sent to the corresponding reduced tasks. I have three reduced tasks
+in this particular case. And each of the reduced tasks
+might receive output from each of the mapped tasks. because here the map tasks might
+have key value pairs with keys for each of the three reduced tasks. Again, as I mentioned
+in the previous slide, this shuffle traffic over here is written
+locally at these servers and fetched remotely from the corresponding reduce
+tasks wherever they may be scheduled. So that scheduling, again, is done by the Resource Manager which
+assigns each reduce task to one server. For instance Server A might have some
+map tasks that are running on it, that are generating data,
+output shuffle data, for the reduce task
+that is assigned to it. That data doesn't go anywhere. It does not go on the network. It stays local to A. However, this third map task
+might have some output, which needs to be sent to
+this first reduce task. And that reduce task will need to go over
+the network and be sent to server A. Finally when each of these
+reduce tasks is done, their output is written into
+the distributor file system. Typically these are written as separate
+files into the distributor file system, and they might be named or numbered
+based on the reduce task number so that they can be thereafter collated into
+either one file or into a directory. So that's how the MapReduce
+workflow works. Let's look a little bit into how
+the scheduling itself works. I've mentioned one of the terms here,
+resource manager, and this is one of the terms that
+appears in the YARN scheduler. The YARN scheduler is a new
+scheduler that is being used in the Apache Hadoop version two onwards. YARN stands for Yet
+Another Resource Negotiator. The main entities of resources that
+YARN leaves with anonymous containers. Container is essentially
+some CPU plus some memory. So, each server consist of
+a collection of containers. So for instance,
+if a server has 4 cores and 4 gigabytes of RAM, in each container is
+one core and 1 gigabyte of RAM, then that server has 4 containers and essentially it
+can run four tasks one on each container. YARN has three main components. The resource manager, node managers,
+and application masters. There is one global resource manager
+which essentially runs the scheduler. There is one node manager
+per server in the system. This is a Daemon that is responsible for
+all the server specific management on that particular
+server and also responsible for monitoring the failures of tasks that are running
+on that particular machine themselves. Then there is the Per-application or Per
+job Application Master which also runs in one of the servers and
+this is responsible for negotiating containers with the
+Resource Manager and the Node Managers. It's also responsible for communicating
+with the Node Managers to find out if any of them has died, and so if the tasks
+that are running off, the tasks of the job that are running on that particular
+server need to be rescheduled as well. So, materially here's what happens, in this figure I have two servers
+shown as Node A and Node B. Each of these servers is
+running a Node Manager. There are two jobs,
+shown as Job 1 and Job 2. Each of these has one application master,
+Application Master 1, Application Master 2. A task belonging to the Application
+2 has just finished here. I also have a resource
+manager that is running. The capacity scheduler which is one
+of the popular schedulers in Hadoop. So here what happens in this
+timeline is that, the Application 1, rather it's Application Master 1
+says to the resource manager, hey, I need a container, I need to run a test. Resource manager doesn't have empty
+containers so it queues this up and subsequently the Node Manager B might say,
+hey, one container here's completed
+when this task is done. And at this point, the resource manager
+can tell the Application Master 1, there's a container on node B
+that you can run your task on and Application Master 1 that communicates
+with node manager B to start that task. So this is typically the flow
+of things that might happen in order to assign a new container. Now, this is somewhat, slightly part from
+the truth, in truth when a job starts up it immediately tells the resource
+manager all of its requirements so there might be multiple containers that
+are outstanding, container requests that are outstanding in the resource manager,
+also there might be multiple jobs or multiple applications that are requesting
+containers at the same time. All those requests will be
+outstanding in the resource manager. It will be queued typically
+based on the order, some order of the jobs, by default
+order is first in and first out for the jobs that have arrived in order
+of arrival at the resource manager. Jobs that have arrived earlier
+may be given resources earlier. [MUSIC]

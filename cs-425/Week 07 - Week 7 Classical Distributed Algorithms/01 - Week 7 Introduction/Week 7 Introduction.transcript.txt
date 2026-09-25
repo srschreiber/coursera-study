@@ -1,0 +1,8 @@
+[MUSIC] Congrats, you have made it to week five
+and in this week five, we continue our deep-dive into the heart of distributed
+systems by studying a few more of the core critical concepts that have been using
+this to a distance for many decades and continue to be used today in clouds and
+will continue to be used in the future. These concepts include snapshots
+they include multicast and they include consensus and specifically
+the paxos protocol these are very important concepts for
+us to know as cloud computing people. [MUSIC]

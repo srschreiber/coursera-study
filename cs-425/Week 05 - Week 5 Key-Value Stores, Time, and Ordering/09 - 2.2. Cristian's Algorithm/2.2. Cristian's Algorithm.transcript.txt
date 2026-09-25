@@ -1,0 +1,100 @@
+In this lecture
+we'll be discussing, uh, one of the algorithms for external synchronization
+of clocks in, uh, uh, processes
+in a distributed system, and this algorithm is called
+the Cristian's Algorithm. All the processes, uh,
+in the group synchronize, uh, their clocks with respect
+to an external time server. So process P
+would send a message to the external time server
+saying, "Hey, what is the time?" When the server receives this,
+it checks its local clock, finds the time t,
+puts it into the reply message, and then sends a message back. When the process P receives
+this message, it uses the value, uh, t in the message
+to set its local clock value. So, what goes, uh, wrong
+with that particular protocol? Well, by the time the response
+message is received at P from, uh, the external server S, the time in external server S
+has moved on, because the response message
+takes non-zero time, uh, to make its way through
+the network to the process P. And so process P si-time, uh, uh, is again
+going to be inaccurate. It's gonna be behind,
+uh, what, uh, process, uh, uh, the external server S's
+current time actually is. Uh, and so the inaccuracy
+in this algorithm is a function
+of the message latencies. Uh, since latencies
+are unbounded in an asynchronous system, this is a problem because now
+this means that the inaccuracy in this algorithm
+can also not be bounded. So, uh, what, um, uh, P does
+to measure the accuracy, is it measures the round-trip
+time of the message exchange which is, uh, the time between
+when P sent the original message and between when, uh, it receives the reply. Okay, we call this set the RTT
+or the round-trip time. And using this it can calculate,
+uh, the, um, uh, uh, error in, uh, the clock value
+that it sets. Okay, so suppose, uh,
+we know the minimum P to S, uh, message transmission latency
+let's call this as min1, and the minimum S to P, um, uh, transmission latency, which is min2
+on the reverse path. What do min1 and min2 depend on? Well, min1 and min2 depend on, uh, the operating system overhead to buffer messages, uh, the TCP time
+to queue messages, and any-any, uh, overheads
+on the network path from, um, uh, S to P and P to S. If you don't know
+what min1 and min2 are, you can just set them
+to be zero, that's fine. But essentially this allows
+you to incorporate any known minimum overheads
+on the, uh, transmission pads into the, uh, error and account for them in the error, and retain a better
+error bound, essentially. So using these, uh, uh, values
+of min1 and min2, now P can actually
+set its time to be better, uh, so that it has
+a lower error, uh, and essentially, uh,
+the actual time at P when it receives a response is somewhere between t+min2
+and t+RTT-min1. You'll notice that RTT is
+clearly greater than min1+min2. Why is it only
+as small as t+min2? Well, uh, this would be the case
+where the response message from S to P took
+the minimum time, the min2 time to, uh, transmit across so the time at P when it
+receives its message is t+min2. All right, so that's
+the lower case. The upper case, t+RTT-min1,
+occurs when the P to S message, the original
+"what's the time" message took exactly min1 seconds
+to make it across, which means that RTT- uh, uh, min1 was the time that,
+uh, was taken by the response to come across. So in reality, the real time when, uh, P receives
+a response message is somewhere
+in-inside this interval. So, essentially what happens
+in Cristian's Algorithm is that, uh, uh, that P sets its, uh,
+clock to be halfway in between these two values. So essentially it sets
+its, um, uh, clock to be, uh, t+, uh,
+(RTT-min2-min1)/2. Okay, so it's halfway,
+that's halfway between, uh, the extremes
+of this interval. Well this means that, uh, the
+error in this new clock value that has been set is, uh, half
+the size of this interval, which is (RTT-min2-min1)/2. And this is, uh, kind
+of, uh, convenient here, uh, the better you know
+min1 and min2, uh, the lower is gonna be the error
+on the, uh, clock value that you set. So, this means that the, uh,
+clock error can now be bounded, and as you notice, it's a
+function of the round-trip time. The longer your
+round-trip time is, uh, the more is going
+to be your error. So shorter round-trip times
+mean, um, smaller errors in the clock value that you set according to the
+Cristian's Algorithm. So, a few gotchas here. When you set your clock value, um, you're only allowed
+to increase your clock value but you should never
+set it backwards, um, uh, this is because you
+always wanna makes sure that the events
+at a given processes are or-are ordered linearly
+with respect to each other. Okay, so you wanna
+make sure that, uh, if your algorithm is telling you to set your clock backwards, you just retain
+your current clock value and continue moving forward. You are, however,
+allowed to increase or decrease the speed
+of the clock, uh, depending on what's been
+happening in the algorithm. So, for instance, if the algorithm has
+consistently been telling you, every time you run it, uh,
+to set your clock forward, you might want to just
+tweak your, uh, clock speed to be slightly higher so that,
+uh, you know, eh, so that, uh, perhaps you're better in sync
+with the external source. Once again, uh, there is, uh, Cristian's Algorithm
+does not specify necessarily a way to increase or decrease
+the speed of your clock, but you're allowed to do this. You can increase
+or decrease its speed as long as you do not set
+your clock itself backwards. Now you might take multiple
+readings and the errors or the round-trip times
+may be very high. Uh, you can take multiple
+readings and then average out, uh, the, um, RTTs that you get,
+uh, over those multiple readings and use that
+to set your, uh, clock time.

@@ -1,0 +1,174 @@
+[MUSIC] My name is Tushar Chandra and I've
+been a software engineer at Google for about ten years. I got my PhD in computer science,
+gosh, a little more than 20 years ago. And then I was at IBM research for
+about ten years, and then came to Google. So, I've spent most of my career
+working in distributed systems, specifically for distributed systems. Though oft late I've been looking
+at large scale machine learning, which I view as the next
+layer up in the stack. Where we use distributive systems to
+solve, you know, large scale problems. [MUSIC] Yeah, so from my perspective,. We started working on cloud computing
+before cloud computing got the name. So I don't actually see that that
+transition the way many others do. But the environment we work in is
+a very large distributed system. We have lots and lots of computers
+over a very, very large network. In fact,
+we have multiple data centers, right? And these are interconnected
+to high speed links. And then our problems
+are very large scale as well, so many of the problems you work on
+cannot be solved on a single computer. So we are forced to build these
+highly scalable solutions that span multiple computers and
+multiple data centers. That's what they call cloud computing now,
+but that's what we've been doing essentially since I've been
+at Google for the last ten years. >> Absolutely, absolutely. So Paxos is a kind of
+distributive consensus algorithm. And there's been, you know, in your
+course you've covered a lot of that. But this is very practical, it's a core primitive that we use in
+in our cloud computing solutions. So when you have a lot of computers and
+you're building higher level primitives. Like MapReduce and BigTable and a distributed file
+system like the Google file system. Even at that level you need to
+coordinate these computers. Often you need a single leader who's
+going to coordinate all the activity in a MapReduce on, in an,
+in GFS or in Big Table. And you need, you know, in that setting you need
+a leader election kind of mechanism. That leader election mechanism needs to
+guarantee that there's just one leader. He needs to notify the rest of
+the system when the leader failed, bring in a new leader, that sort of thing. You need to have a distributed
+lock managers so that when multiple different computers
+are trying to solve the same problem. They don't sort of trip on each other. So things like this and many many other things require low level
+distributive computing primitives. Things like distributed consensus. And we do use Paxos extensively. Leader election mechanisms. You know? [MUSIC] The Paxos algorithm that
+Lamport talks about. Which is what, our algorithm, our implementation's
+definitely based on those ideas. So, I don't want to take away from that,
+at all. But, the Paxos algorithm that he talks
+about can be expressed in a page or two. Our implementation is like,
+more that 10,000 lines of code, right? So, there's something between
+what Lamport talks about, which is a core ideas, and
+the actual implementation. Some of that is just like,
+boilerplate code. You know, how do you send a message,
+how do you receive a message, how do you time out,
+all the details of that. But some of those, some of it is also
+algorithmic fixers that are spelled out in different places in the literature,
+but never really put back together. And when you put them together,
+the implementation becomes more complex. The way I like to view it is, with every
+new feature you add to an algorithm like, a distributed consensus
+algorithm like Paxos. You roughly double
+the complexity of the algorithm. So, if you add one idea, like, you know,
+allowing multiple rounds to happen at the same time, well,
+you've doubled the complexity. If you add another idea, like leader election, you double the
+complexity again, and so on and so forth. So, you add three or four ideas and
+then suddenly you've got a 26,000 line or 50,000 line code base, right? So there's lots of detail in that. The other thing is when you scale from, you know, a two-page paper to tens
+of thousands of lines of code. Your proofs, I mean, you have no hopes
+of your proofs carrying through. They just can't. You have, you know, a multi-thousand-line
+program and you can't prove it correct. We don't we don't really have
+the tools to do that yet but there is a lot of
+research work on that. So the focus then has to
+shift away from the paper and its proofs, and much more towards testing. And so when I built this Paxos
+implementation my primary focus was testing. I built a distributed system before of,
+of this nature at IBM. And there the focus was algorithms and I realized that was a mistake,
+when I built that system. So when I was building this one,
+the focus was testing. I kind of knew I would get the algorithm
+rola, right, so I didn't even focus on it. And I think that was the right decision. So, what you learn about in
+academia about proofs gets replaced to some extent
+by testing in industry. Now, you have to know how this
+algorithms work because you don't want to start off with a random algorithm. You want to start off with an algorithm
+that is almost surely correct, but then from there you take it to a,
+to actually correct. I think the best hope we have is testing. [MUSIC] My focus has moved to large
+scale machine learning. So I view this as moving up in the stack. And, really, from my point of view,
+I've gone from being a developer of distributed computing primitives for
+cloud computing. To being a user of those primitives. So, now, I've become a user of MapReduce. And so, implicitly, a user of you know,
+a Paxos implementation. And that's really changed my perspective. So, I want to talk a little bit about
+that because I think that's what your students will be interested in. so, one of the key ideas that
+we had was we did not want to build a distributive system. When you're building
+the low-level primitives, your entire job is about
+building these primitives. When you're using it. You don't even want to go there. Because when you think about
+distributed systems explicitly, it, it, you can take a simple idea and
+make it horribly complicated. And that's really not our focus, right? We are in the business
+of working on solutions. So we wanted to focus on
+the machine learning algorithms, not distributed systems algorithms. And we decided not to build
+a distributed system. So instead we use primitive like,
+MapReduce and, you know, the Google file system and our classroom
+management software and so, on. But we don't do anything on top
+of that and that's by design. So for the students in your class, I would really like you to realize
+if you're building this stuff. Do it in a way so that people on top
+of you don't have to think about it. This should be like plumbing,
+it should be in the walls, shouldn't have to think about it. [MUSIC] So let me just step back a little bit and that, Google is, you know,
+still growing rapidly as a company. So we are definitely hiring. As you can imagine,
+we deal with very large data sets. Think of a data set as, you know,
+people doing searches on Google. You can imagine that there are zillions
+of such people doing that. And so, you know,
+we deal with very large data there. Can think about it other properties,
+YouTube, Gmail, Google Docs, Google Plus,. You know, increasingly messed. These are all properties with lots and
+lots of data. Now, what we've discovered is that when
+you, manipulate this data the right way, when you look at it. You can make, you can have insights that you wouldn't
+have if you had a much smaller data set. So, you can learn lots of nuance
+things from this very large data and then you can use that to
+make a better product. So there's a capability that's
+only emerged very recently. With the internet, but
+also the scale of the internet. Probably in the last few years. So it's a new field. I don't know how to clearly define
+exactly what skills you need. That is still evolving. But what we are looking for is people who
+can handle these large data sets, right. Now terabyte is your atomic unit. Data sets are much larger than that. You want to be able to look at
+those data sets, understand them, make insightful observations with them,
+build systems around them. And in my case, build a closed loop. So when you look at these
+large datasets look at how people have responded to specific
+documents we've shown them. And then, if you've responded well
+to a document we've shown you. It means that next time we should
+show the same document to, you know,
+to the next user in the same context. So, those are the insights
+you only get with big data. Again, multi terabytes of data, you know very complicated large systems,
+all distributed systems all cloud based. And on the value side, you know when
+you have such a large data set when you make a small improvement it's
+actually a big improvement. Because it gets multiplied by a zillion
+users, so very valuable yeah. If you think about Moore's Law. If you think about how our
+data centers are scaling. You can be sure that things
+are going to grow at least 10x in the next five years and
+at least 100x in the next ten years. So we'll have that many more computers and
+networks will be that much faster. Maybe we'll have that many more color and
+so on and so forth. [COUGH] So another way to think about is,
+when I said that you know, terabyte is kind of the atomic unit, maybe it'll increasingly be a parrabyte
+that will be the atomic unit. And I don't see I, I see the focus being more on distributed
+systems than on single computers. That the single computers have their
+own constraints and their limitations. But distributive systems
+seem easier to scale out. So, you know,
+where we're running jobs with 10 or 20 machines today,
+maybe 100 machines today. Maybe be running them at
+1,000 machines down the road. I also think many of these primitives
+that you've been teaching your students about will continue to mature. To become more powerful, become more
+efficient, move higher up in the stack. And as that happens, I think they'll
+become more accessible to people as well. And so, we'll see more development there. So the way I hope it will play
+out is that is the following. Within a data center we tend not to
+worry so much about disconnections. Because that's much more reliable and
+trustworthy. It's when you run across data centers,
+when somebody does something crazy to your wire that's connecting
+one data center to the other. That you really suffer from
+these kinds of problems. Now once upon a time people wondered
+about insider data center too. So you've already seen a little
+bit of evolution there where. We tend not to worry so
+much when inside a data center. I think that it boils down,
+to some extent, at least, to how much you're willing to invest. If you're willing to put in a more robust
+network, it'll cost you a little bit more. But it makes everything simpler for you. So, the infrastructure providers,
+I think, should be thinking about this. It's worth investing that extra bit. So that your programmers
+don't have to think about it. Another way to think about it
+is that distributed systems does not come naturally to most people. And when it does, we all make mistakes. I certainly make my, my own fair set of mistakes when I don't
+plan for a certain kind of failure. And I have a PhD in behavior, right? So, these mistakes can be very,
+very expensive. You know, you have some inconsistency in,
+say, a bank and you lose money. We should think like
+the compiler guys did. They said, you know,
+let's lose a little bit. Let's pay up, let's make the platform
+more expensive if that's what it takes. But make the programming parameters
+simpler for our programs. And that's where I, I hope we will go. I hope we'll have more reliable networking
+that you can trust more and more. And that, increasingly we'll be
+able to think about programming in a strongly consistent environment. And I think everybody
+will be happy with that. So actually, I have something
+personal to share with you. I reach my ten year anniversary
+at Google in about two weeks. >> Nice.
+>> Thank you. And there's a reason for it- it's because I've had
+a really really good time. It's a fantastic work environment. It was a fantastic work
+environment when I started, you know,
+a little bit before Google's IPO. But, in my mind, things haven't
+changed a whole lot, since then. Even though the,
+the company's grown about 25 fold. It's still very much
+a bottom's up environment, where an individual can, is empowered,
+and can make a difference. It's still very much a,
+an environment that is based on data. So, it's not really your opinion
+that counts, as much as you know, gather the data, get the evidence,
+and then work with the evidence. That makes it a less, much less of
+a conflict environment than when you have two opinions that you can't resolve. It's also an environment where people,
+very, very hard, to hire, you know,
+very strong people. So, I personally find it very exciting,
+when I come in, I'm dealing with, you know, the best and
+the brightest in the world. [MUSIC]

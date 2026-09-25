@@ -1,0 +1,14 @@
+[MUSIC] In the second week of the course, we are
+going to first start off by studying some building blocks for distributed
+systems as they are used in the cloud. We'll see first gossip or
+epidemic protocols, which are a very important building block. Then we'll see failure detection and
+membership protocols. These building blocks will be used
+in the coming weeks as we see more examples of distributed systems. The programming assignment,
+if you are choosing to do that in this first part of cloud computing concepts,
+is an implementation of one of these building blocks,
+specifically the membership protocol. You'll be implementing your
+own membership protocol inside the programming assignment. So it's very important for
+you to go through these lectures. Then we'll see grid computing which
+is another precursor to clouds. We'll see it in a little bit more
+detail than we have seen before. That also appears in
+the second week of the course. [MUSIC]

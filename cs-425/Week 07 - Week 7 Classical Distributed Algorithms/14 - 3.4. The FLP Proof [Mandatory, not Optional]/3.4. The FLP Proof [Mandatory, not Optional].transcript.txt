@@ -1,0 +1,292 @@
+In this lecture we'll see the, um, FLP proof of
+the impossibility of consensus in asynchronous
+distributed systems. So consensus is
+impossible to solve in the asynchronous
+distributed system. This is a result
+that was proved, uh, in a now-famous result
+by Fischer, Lynch and Patterson in 1983, also known
+as the FLP result, using the, uh, first letters
+of the last names of the three coauthors
+of that paper. Uh, before then, many distributed systems designers had been claiming
+100% reliability, uh, for their systems, and this result stopped
+them dead in their tracks. A lot of claims of reliability
+vanished overnight, and one of the, uh,
+long-term side effects of this was the multiple 9s
+of reliability, um, offerings that vendors
+now publicize for their products and services. So once again,
+just to remind you, um, the asynchronous distributed system has no bounds on message delays
+and p-or processing delays or, uh, clock drift rates. These might be arbitrarily
+long or arbitrarily short. The consensus problem requires
+each process, uh, p, uh, to decide on the same value. So each process p has a state which consists of the program counter, the registers, the stack, the local variables, the heap, anything else that you would consider to be a part of the, uh, core, uh,
+dump of the process. It also has initial, um,
+an input register xp, which is initially
+either 0 or 1. Different processes
+might have different, uh, input register values, that is, those processes', uh, um, proposal to the group, and then each process also has an output register yp which is initially undecided
+but needs to be set to 0 or 1. The only constraint is
+once you set the output register you cannot change it. And remember that each, uh, process has
+its own output register, um, and you want to make sure, uh, that the consensus, uh, uh, protocol at the end, um, uh, has all
+the non-faulty processes set their output variables
+to be all-0s or-or all-1s. So you want an all-0s decision among the non-faulty processes or an all-1s decision among
+the non-faulty processes. Once again, this problem just
+by itself, just with these, uh, two, uh, constraints is enough,
+uh, to solve consensus because you can just say, "Well, everyone set their
+output variables to be 0 all the time,
+and that solves it," but that is not interesting
+or, uh, useful at all. So we have the non-triviality
+clause that says that at least one initial
+system state leads to each of the above outcomes, meaning that at least
+one initial system state leads to an all-0s outcome, and at least
+one initial system state leads to an all-1s outcome. So let's try
+to set up the proof. Uh, for the impossibility proof, uh, we'll consider
+a more restrictive system model and an easier problem. Well, essentially this is okay
+because if you can show that an easier problem is
+also impossible to solve, then obviously
+the consensus problem, the harder consensus problem, is easier to solve,
+is impossible to solve. Uh, if you also sh-if you show that in a more
+restrictive system model, uh, the consensus problem is, uh, impossible to solve, then obviously in the less restrictive system model, um, it's impossible
+to solve, as well. So, uh, what do I mean
+by restrictive system model? Uh, instead of considering
+the entire network, we'll consider the network to be a simple global message buffer. When a process p sends a message
+to a process p', message m, the message m
+just gets deposited in the global message buffer. Subsequently, p' may, uh, call the global message buffer with, uh, receive, and this may return either the message m that is waiting for it or it may return null, and it may continue
+returning null, uh, for a while, or maybe even forever, because the message m might be delayed for arbitrarily long. Okay, so we have abstracted
+out our network to be just this, uh, global message buffer that is sitting underneath
+all the processes. Uh, we also define, uh,
+the state of a process, which we have seen before. It consists of its,
+uh, program counter, heap, registers, stack
+and everything else, along with the input
+and output variables, but we also define a state
+for the entire system. We call this global
+state a configuration. Uh, now, uh, the configuration
+or global state consists of a collection
+of states, one state for each process, alongside the state
+of the global buffer itself. So the state
+of all the processes along with the state
+of the network is, uh, the global state,
+or the configuration. Now we also define an event. This is slightly different
+from the Lamport events you've seen before. An event consists of, uh, three steps which are executed atomically, or in one shot. Uh, the event starts
+with the receipt of a message by a process, say a process p. Then the message
+is processed by the process p. Uh, this may change
+the recipient's state. Process p's state might change
+as a result of this, and p might also resi-decide
+to send out some messages, as a result of this receipt, and those messages
+that then result, are then deposited
+in the global message buffer. Uh, so all these three,
+uh, steps put together, uh, determine an event. So an event essentially consists of a process p
+receiving a message, uh, processing it and
+then depositing the resulting, uh, messages into the
+global message buffer and then, uh, that's an event. Next we'll define a schedule. A schedule is simply
+a linear sequence of events, so one event followed by another event followed by another event, that's a schedule, okay? So here on the left is
+an example of a schedule. You start with a configuration
+or a global state; we label that as c. An event e'
+is applied to it. This means that process p'
+receives m', uh, processes it and deposits any resulting messages into the global message buffer. That changes the state
+of process p'. It also changes the state of the global
+message buffer potentially, and that means the configuration itself has changed, and it has changed to something else which we label as c'. A different event, e'', will change the configuration again similarly to, uh, another configuration c''. Now, these two events,
+e' followed by e'', is a schedule, because it's
+a linear sequence of events, and we call that a schedule s. When the schedule s is applied
+on the initial configuration c, this c here is the same
+as this c here, it results
+in the configuration c''. Again, this c'' is the same
+as the c, this c''. So the left side of the slide is equivalent to the right side of the slide. 'Kay, so the schedule
+is, essentially, a compact way of representing
+a sequence of events rather than mentioning
+each event separately. So, here is our first, uh,
+lemma, or our first result. It says that disjoint
+schedules are commutative. What does this mean? If I have a schedule s1, consisting of some sequence
+of events, and another schedule s2, consisting of another sequence of events, if the sets of receiving processes in s1, remember that each schedule consists of a set of messages being received
+as a set of processes, if I consider
+all these processes in s1, which received messages, and all the processes in s2, that receive messages, if these two sets are disjoint, meaning there are
+no processes in common, uh, receiving messages
+in both s1 and s2, then these schedules
+are commutative. In other words,
+their order can be flipped. So if you apply s1 first
+on a configuration c and then s2 to reach,
+to reach a state c'', then in a different scenario, if you apply s2 first on,
+uh, c, and then s1, you would reach
+the same final configuration, c'', okay? So, uh, w-why is this true? Well, um, this is true because these are disjoint sets
+of receiving processes, and applying s1
+or s2 in any order would result
+in the same final outcome. In fact, interweaving s1 and s2 would also result
+in the same outcome, which would be
+the configuration c''. So earlier, uh, we
+saw consensus problem here. We tried to prove
+the impossibility about an easier consensus problem where some process, not just all, but some process, eventually sets its yp variable, its upper variable,
+to be 0 or a 1. 'Kay, and also we'll assume
+that only one process crashes, but we are free to choose
+which process, uh, crashes. Uh, we define configurations
+to have valences. Uh, configuration C may have a set of decision values V reachable from it, and since we are only considering 0 or 1 decisions, um, there might be either 2 or 1 decisions reachable from it. If both the decisions, both, and all-0s and an all-1s outcome are reachable from it, then we say that the size
+of the valency is 2, and we say that
+the configuration C is bivalent. If only one decision
+is reachable from it, either a 0, an all-0s decision, or an all-1s decision,
+uh, not both, uh, then the configuration C
+is said to be, uh, 0-valent or 1-valent,
+respectively. Bivalent essentially means that the configuration C
+is unpredictable. That is, it doesn't know which
+value it's going to reach, and essentially what we're going to show is that, um, a system can always be kept
+in the bivalent state. That it-that is,
+it can always be prevented from ever making a decision and ever being sure
+about its decision. So the FLP proof
+shows two things. First, it shows that there is
+some initial configuration, the global state,
+that is bivalent by itself, and second it shows
+that there is some sequence, there is always some sequence
+of events that happen, uh, in a system that start
+from a bivalent configuration that keeps the system state or the configuration also bivalent. So, essentially,
+there is always some, uh, things that could happen
+in the system, um, that, uh, keeps the system moving from one bivalent
+configuration to another, and so prevents the system
+from ever reaching a decision, uh, with respect to consensus. So let's show the first, um,
+part of this proof, that's the second lemma. Uh, i-uh, here we show that some initial configuration
+is bivalent. Well let's assume, uh,
+that this is not true; let's prove it by contradiction. Let's assume that all initial
+configurations are either 0-valent or 1-valent, okay? Now, if there are N processes
+in the system, there are 2^N positive
+initial configurations. Well, why is this? Well each of the processes
+can propose either 0 or 1 for its input variable, and so you have two possibilities for each process, and so this means
+that there are 2^N possible initial configurations. Now we create a lattice here, this is, of course,
+a virtual lattice, uh, where the nodes
+in the lattice are the initial configurations, so there are 2^N, uh, nodes
+in this lattice. This lattice is essentially a
+hypercube, uh, with dimension N. uh, we, uh, link two, uh,
+configurations together, we join them by an edge, uh, if they're d-if they differ
+in the initial xp, the initial input variable value
+for exactly one process, okay? Uh, this means that, uh, you know, suppose I have, uh,
+2 processes, P1 and P2, uh, then I'm going to have a lattice that has, uh, four, um, uh, nodes in it,
+four initial configurations where the initial values for,
+uh, the, um, uh, for the, uh, uh, uh, ini-for the input variables are 0,0,1,0,1,1, and um, uh, 0,1. And in this, uh, the 0,0 node
+is going to be linked to the 1,0 node because they, uh, differ in the input variable values for P1 only, exactly 1 process. Also, the 1,1, uh, node is going
+to be linked to the, um, 1,0 node because, uh,
+these 2 configurations differ in the input variable
+values for P2. And so, essentially, the hypercube in this 2 process case looks like a square. The hypercube
+for the 3 process case looks like a cube, and so on and so forth, okay? Now, essentially, um, this, uh, here we are saying that each configuration is either 0-valent or 1-valent, there are
+no bivalent configurations. So we tag each configuration
+with a 0 or a 1 according to its, uh, valency, either 0-valent or 1-valent. And because there is
+at least one 0-valent state, at least one configuration stacked with a 0, and at least one
+1-valent state, at least one configuration
+tagged with a 1, and because everything
+is connected, uh, in just one hypercube, it has to be the case that at least one 0-valent configuration is linked directly to a 1-valent configuration, okay? This, you can, uh,
+imagine the hypercube and, uh, you will see that this is true. So this means that
+these two configurations differ in the input variables
+for exactly one process, say that process is p, and let's say we consider around where this process p
+has crashed; that is,
+it is silent throughout. Both the initial configurations
+are indistinguishable, because the only thing
+that differed between these configurations
+is the state of p, but p has crashed, so as far as the system running is concerned, p has no effect on it, but this means that both these initial configurations are in fact the same. One of them will, in fact, result in an all-0's outcome, the 0-valent configuration, and the other one will result
+in a one-in an all-1's outcome because it's
+a 1-valent configuration. So this initial configuration, either one of these
+two configurations where p has crashed is, in fact, a bivalent configuration because it may result
+in an all-0's decision or it may result
+in an all-1's decision. 'Kay, so we have shown that when you have
+one process that could crash, and we can choose which process is the one that crashes, you can have at least one
+bivalent configuration that is the initial configuration in the system. Okay, so that's
+the first part of the proof. Next we need to show that, um, starting from
+a bivalent configuration, there is always another bivalent configuration that is reachable. Notice that this proof
+doesn't say that you can never reach consensus ever. It says that there
+is always some way in which you can be prevented
+from reaching consensus. Let the red configuration
+be a bivalent configuration, and let, uh, the event e, which consists of the process p receiving a message m, that is the global message buffer in the red configuration, the sum event that is applicable
+to the initial configuration, so m is in the global message
+buffer in the red configuration. Now let's put our hand on e and
+prevent e from being applied. This means that you
+might be able to still apply some other events
+on the red configuration, and there are
+some configurations that you might be able to reach, starting from
+this red configuration. We call that set to be C, okay? Those are
+the blue configurations that are shown in the triangle. These are the configurations that are reached without applying the special event e. why are we not applying e? You'll see in a moment,
+there is a reason for it. Now, if you take
+any one of these blue or the red configurations in the-in the triangle, and you apply the single
+event e to it, the special event e to it, you will reach another
+dark blue event. Let that set of events,
+the dark blue set of events, be called as D, 'kay? Once again, D, any event in, any configuration D is reached by applying the special event e on any one of the configurations in the triangle. Now, this is the summary
+of what we have discussed. You have the initial bivalent
+configuration, the red one. You don't apply the event e
+to it, and you reach, and all the possible states, uh, that are reachable are
+in the triangle. You take one of the
+configurations in the triangle and you apply the event e to it, you'll reach a state that is, or a configuration that
+is in the set D. Okay, so we claim that the set D contains a bivalent configuration, okay, and, again, the proof here
+is by contradiction. If you can show that
+the state D contains a bivalent configuration, then you can show that there is a sequence that consists of at least one event that starts from a bivalent configuration, the red one, that also leads to another bivalent configuration. Let's assume the contradiction. Suppose that D only has 0 and
+1-valent contradiction, uh, configurations and no, uh,
+bivalent ones. Okay, So there are
+these states in D, are going to be tagged
+with a 0 or a 1, and because each stated D has a parent in, uh, C from which, on which e was applied
+to obtain that D state, we also, uh, tag its parent
+with the corresponding 0 or 1. Now what you have is you have
+a C of mixing 0's and 1's here, and therefore, just by the same
+argument that we use before, where we showed that there has to be at least one bivalent configuration because at least one 0-valence state and one 1-valence state are adjacent to each other, you can show here as well,
+that in this triangle there's going to be
+at least two configurations, that are adjacent to each other, because all of them are linked by other events other than e so that one is tagged with a 0, the other is tagged with a 1. In other words, it has to be
+the case that there are states or configurations D0 and D1, both in D, and C0 and C1 both in C such that D0 is 0-valent,
+D1 is 1-valent. D0 is obtained
+from C0 by applying e, D1 is obtained from C1 by applying e,
+and C1 is adjacent to C0, which means that C0 is,
+on C0 if you apply some event e' a special event e',
+you will obtain C1. So given this,
+there are two possibilities. First, that the process,
+receiving the message p' in the special event e'
+is the same as p, which is the process receiving the message in event e, and the second case is that p' is, uh, not the same as p, 'Kay, so let's consider
+the first case, p' is not the-the same as p. from the previous slides, C0, when you apply e'
+to it, you get C1. C0, when you apply
+e to it, you get D0. C1, when e is applied
+to it you get D1. Since e and e' have different sets
+of receiving processes, these are disjoint sequences, and so flipping the order
+in which they are applied, e' first, followed by e,
+or e followed by e', will give you the same
+final configuration. In other words, you can draw
+this red arrow here and show that you can reach from D0 you can reach D1 as well. But this is a contradiction,
+because we said D0 was 0-valent, but we have just showed that from D0 you can reach
+a 1-valent state as well, which means that
+in fact D0 is bivalent, and that is a contradiction. So that's the first case,
+where p' is not the same as p. That was the easy case because e and e'
+were commutative over here, and we could use
+our first lemma. So what about the second case? The second case
+looks a bit complicated, but just bear with me. I'll try to explain it. So once again, here C0
+applied e gets you D0, C0 applied e' gets you C1, C1 applied e gets you D1, okay? So let's say C0 has
+a schedule s which is finite, it consists of a finite set
+of steps, because we say that consensus is in fact reachable in a finite set of steps, and it's a deciding round,
+in which p takes no steps. The special process p, which is the process p
+in receiving the message in the event e,
+that is arbitrarily slow, so it does not receive
+any messages over here, uh, and it
+does not take any steps in this schedule s over here. But it's a deciding round, which means that when final configuration A is reached, a decision has been made, okay? Now, what is that decision? Well, we don't know
+what the decision is. So now, since p is not there
+in the schedule s, the schedule s is disjoint
+from the schedule consisting of the single event e, and so these two schedules
+can be commutated. So if you apply e first
+followed by schedule s, that is, you apply schedule s
+on D0, you reach some state E0, which has to be a 0-valent state because D0 is 0-valent. On the other hand, if you apply
+schedule s first followed by e, in other words,
+when you apply e on A, you get the same
+0-valent state E0. On the other hand, if you apply
+e' and e followed by s, or s followed by e' and e, remember that these
+two schedules are disjoint because p appears in only this schedule but doesn't appear here and then what you will see is that you, uh, reach from A another sche-configuration E1, which is also reachable from D1. But because
+it's reachable from D1, E1 must be
+a 1-valent configuration. However, we said that A
+was a deciding state in which either
+an all-0's decision or an all-1's decision
+had already been reached. However, here you can see that
+from A you can reach both a 0-valent configuration E0 as well as 1-valent configuration E1. This is a contradiction, because
+said that A is a deciding state, and this means that from C0 you, might never, ever be able to reach a decision, okay? So this is a contradiction
+for the second case, and this completes our proof. Here we have shown that, uh, starting from
+a bivalent configuration, there is always another bivalent
+configuration that is reachable by applying at least one event, uh, from the initial
+bivalent configuration. Okay, so essentially
+this means that, um, uh, there is always something that can go wrong in the system that, uh, keeps the system
+in a bivalent state. This doesn't mean that the system
+will never reach consensus. It means that there is
+at least some path, some sequence of events, that, um, will prevent the system from reaching consensus, that is, it stays
+bivalent forever. So in summary here, the consensus problem
+is an important problem because it deals with agreement in distributed systems. Solutions exist
+in the synchronous system model, but we have just shown here that it is impossible to solve in the asynchronous
+system model. Uh, this is important because
+asynchronous system model is what is true in the internet, um, um, uh, and the other, uh, distributed systems that appear
+in cloud computing systems. The key idea in the FLP
+impossibility proof is that just one slow or, uh, crashed process can prevent the other processes in the system from ever reaching a-a decision. And again, nowhere in the proof
+that we've seen, so far, have we actually discussed details of the consensus protocol that you might propose. Uh, wh-what we
+have discussed so far applies to any consensus protocol that you might propose, and that's the beauty
+of the proof, that it is generic and it applies no matter what the protocol is trying to do. It, all it assumes is that
+protocols, uh, send messages. Okay, and this is one
+of the most fundamental results in distributed systems, uh, and
+that's why we have discussed it.

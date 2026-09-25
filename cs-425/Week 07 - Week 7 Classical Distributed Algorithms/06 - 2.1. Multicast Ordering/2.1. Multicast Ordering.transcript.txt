@@ -1,0 +1,295 @@
+Hi there. In this, uh,
+series of lectures, uh, we'll be discussing the distributed computing
+problem known as multicast, which is very widely used
+as a building block in, uh, many of the
+cloud computing systems today. Uh, in this lecture today we'll be discussing the ordering
+property of, uh, multicast. So multicast, again,
+in a nutshell, uh, is a message
+that needs to be sent out in a group of, uh, processes. Um, uh, these processes are
+running at internet-based hosts. Uh, for instance, here I have
+a group of processes, each denoted by a circle. A-a red circle, a red process,
+has some piece of information that needs to be sent out
+to all the other processes in that, uh, group. Uh, this is
+only one multicast message. There might be multiple, uh,
+multicast messages that are being sent out
+by that sender one after another uh, and also multiple senders
+in the group might be, uh, trying
+to send multicast messages, uh, to the other processes
+in the group. So, uh, multicast in a nutshell
+is a message sent to a group of, uh, processes,
+a selected group. A broadcast, on the other hand, is a message that is sent
+to all the processes anywhere, uh, in the system and
+in fact anywhere in the world. Broadcasts are also
+very widely used, um, uh, but of course broadcasts can be pretty expensive, uh, because, uh, processes
+that don't, uh, really, uh, have any interest
+in the message might also receive
+the multicast message or the broadcast message. A unicast message is, uh,
+the most common kind of message that we have seen, uh,
+so far in this course. Essentially it's
+a point-to-point message; there is one sender process
+and one receiver process. Uh, in terms of, uh, uh,
+this terminology, the multicast has, uh, one sender and, uh,
+multiple receivers per message. The broadcast has one sender and everyone else as a receiver
+for that one message. So here in this lecture we'll
+focus on, uh, multicasts only, which are messages sent out
+to a group of processes. So who uses the multicast? It's a widely used
+building block by many cloud computing systems. For instance, key value stores
+like Cassandra, which are storage systems,
+and database systems, use multicast internally. For instance, a given key might have multiple
+replica servers which are replicating
+the values for that key. So in that case, uh, the writes
+and reads that are sent to that key from, uh, any client
+will then be multicast inside the group so that all
+the replicas are up to date and reflect the same values for the key
+at any point of time. You don't want to send
+the values for that key to other servers beyond
+the replica group because they are not interested in that particular, uh, key itself. Also, these systems use
+membership information, uh, such as, uh, gossip-style, uh, membership, uh, protocols
+in these systems, and essentially,
+uh, membership, uh, information requires information
+about joins, leaves and failures of processes to be multicast out within a group of servers that are running
+that storage system. Uh, multicasts are also used
+in user facing scenarios, so for instance online
+scoreboards of sporting events such as ESPN, French Open tennis the FIFA World Cup, essentially have each
+of the clients, uh, be subscribed to certain topics, and essentially whenever there is an update for a topic, such as an update
+to a score for a match, that update is multicast out
+to all the clients, all the browsers out
+there in the world that are interested
+in this particular update. So that's a multicast being used
+in a user, uh, facing scenario. Multicast is also used in the floor of, uh,
+stock exchanges and air traffic control systems. For instance, on the floor
+of a stock exchange, the group might be the set
+of broker computers, and whenever there is a trade on any one of the broker computers, it's then sent out the other broker computers on the floor. This ensures all the broker
+computers are up to date at all points of time and are
+reflecting the latest updates and stock trades on the floor. Multicast is also used in
+high-frequency trading among the servers that are trying to do
+high-frequency trading, and here it's fairly important
+for the multicasts to be fast, uh, as well as reliable as well. In the air traffic
+control system, all the air traffic controllers are seeing a picture of the sky, and you want
+all the, hm, pictures to be consistent
+with each other. You don't want one
+air traffic controller, uh, seeing a slightly stale
+or outdated picture, and so any update done by one air traffic controller's
+computer is then multicast out to the group of other air
+traffic controllers' computers. So you see two things, eh,
+emerging from here. One is you need
+reliable multicast; you want all the processes in the group
+to receive the multicast. And the second one is you need
+to worry about ordering; you want, uh, all the multicasts
+to be received, uh, in the same somewhat consistent order at all the processes
+in the group. So let's look
+at the FIFO ordering first. Uh, in FIFO ordering, essentially multicasts
+from each sender are received in, uh, the
+same order that they are sent at all receivers. This means that
+if two multicasts are sent by, uh, these same sender,
+they're of course sent in an order depending
+on that senders um, uh, timeline and the sender's clock, and they need to be
+delivered in exactly that order at all the receivers
+in the group. However, if two multicasts are
+from different senders, then we don't really care about which order
+they're delivered in. Uh, some multicasts, uh, some
+processes might deliver those two multicasts from
+different senders in one order, and, uh, other receivers
+might deliver them in the opposite order, and that's fine as far
+as FIFO ordering is concerned. So a little bit more formally,
+if a correct process, uh, issues or sends
+a-a multicast, uh, m to a group g, uh, and then sends a multicast m' to the same group g, then every correct process
+that delivers, uh, the second message m'
+would already have delivered m. In other words, you are saying
+that, um, you deliver m' only after you have delivered m. And notice that here we're
+talking about correct processes, which means that we're talking
+about, uh, non-faulty processes. This accounts for, uh,
+failures, if processes fail, then we don't necessarily know
+what they did, and so we don't want
+to worry about them. We a, uh, we only want
+to make sure that processes
+that have not failed, uh, follow, uh, the particular, uh, ordering guarantee that we are trying to provide. So as an example,
+here is a timeline. Again, here we have four
+processes; P1, P2, P3, P4. Time runs from left to right, and you notice that
+there are multiple multicasts being sent out, so process P1 sends out multicast, uh, 1 over here,
+shown as, uh, M1:1. Process P1 also sends out
+a second multicast, M1:2. Uh, process P3 sends out
+a multicast M3:1. And so you'll notice here
+that because M1:1 and M1:2 are multicasts sent
+by processes-process P1, which is the sender,
+in that order, they need to be delivered
+in exactly that order at all the recipient processes. So P2 delivers M1:1 first, uh, and only then
+does it deliver M1:2. Similarly,
+P3 delivers M1:1 first, and only then
+does it deliver M1:2. Similarly for P4 as well. However, as far as M1:2,
+sent by process P1 and M3:1 sent by process P3
+are concerned, they are sent
+by different senders, so FIFO doesn't
+worry about them. In fact, they can be delivered
+in opposite orders at, uh, different, uh, process. So P2, for instance,
+delivers M3:1 first, while P4 delivers M1:2 first, and that's fine. This still obeys FIFO ordering because we are only bothered about, uh, the messages that originate
+from the same sender. Here, if, uh, P3 had sent
+a second message M3:2, say over here, then that should have been
+delivered, uh, after M3:1 at all the recipient processes. So let's look
+at the next flavor, which is known
+as causal ordering. Uh, this is an extension
+of, uh, FIFO ordering. Uh, in this,
+um, kind of ordering, multicasts whose send events
+are causally related must be received in
+the same causality-obeying order at all receivers. What this is trying to tell you
+is that if two multicast sends are, uh, related
+in the-by a causal path, so if the multicast send
+of one message m, uh, causally
+happened before the multicast, uh, uh, the send of
+the multicast mech-message m', uh, then m must be delivered
+before m' at all receivers. If two message sends, m and m', are not causally related, meaning that their send events
+do not have a causal path between them, then, well,
+all bets are off, and, uh, it's not
+necessarily required that their multicasts
+be delivered in the same order. They can in fact be flipped
+at different processes. Formally, uh, if a multicast
+message m is sent to a group g, and the multicast send event
+causally happens before, this is Lamport's happens-before relationship over here, shown by the horizontal arrow, if that causally happens before
+the multicast send event of another message m',
+a multicast message m', then any correct process
+that delivers m' would already
+have delivered m. In other words,
+you deliver m first, and only then
+can you deliver m'. So let's look at an example
+again with our timeline of four processes P1 through P4. This is a slightly different set
+of multicast messages from the earlier example
+you saw. Here, process P1 sends out
+a multicast message M1:1, uh, which is received by process
+P2 along with other receivers, but then subsequently P2 sends
+out a multicast message M2:1. Now, because the multicast
+message M1:1 was received by P2 before it sent out
+its multicast message M2:1, the send event of M1:1 happens before the send event of M2:1, and so we want those two multicasts to be received in the same order
+at all the other processes in, uh, the system. Similarly, M1:1 is received
+by P3 before P3 sends outs it- sends out
+its first multicast M3:1, and so M1:1 happens before M3:1, and we wanna make sure that those two messages
+are delivered in that causality-obeying
+order at all the recipients. Of course, M3:1 happens
+before M3:2 because, uh, causality implo-implies FIFO ordering, and so these messages M3:1
+and M3:2 are also delivered in that same order
+at all receivers, okay? So that-that obeys
+FIFO ordering, and since M1:1
+happens before M3:1, and transitively
+M1:1 happens before M3:2, we want the delivery order
+to be, uh, obeying that ordering which is M1:1 first,
+then M3:1, and then M3:2. You can verify for yourself
+that this ordering is in fact, uh, obeyed
+by-at all the processes in this example. Now let's look at two messages
+here: M2:1 sent by process P2, and M3:1 sent by process P3. There is no causal path in
+between these two send events, so these two send events are
+in fact, uh, concurrent events, and so their delivery, uh,
+may be in different orders at different processes. So for instance, P1 delivers
+M2:1 first, while P4 delivers M3:1 first, and only then M2:1. And this is fine; this obeys
+causal-causal ordering, because concurrent send events
+may be ordered in any, uh, order at different recipients. The only thing that you're
+trying to guarantee here is that if two send events
+are causally related, then they are in fact delivered in the causality-obeying-
+obeying order at all recipients. So let's compare a little bit,
+uh, the causal ordering that we just saw with the FIFO
+ordering which we saw before. Causal ordering that is satisfied by multicast protocol implies that
+that multicast protocol also satisfies FIFO ordering. Why is this true? Well, um, consider
+a multicast protocol that satisfies causal ordering. If two multicasts,
+M and M' are sent by the same-same
+sender process P, and M was sent before M',
+then, um, it's true that M happened before M',
+because time progresses only linearly at, uh,
+the sender process, uh, P, and so because
+the multicast protocol already satisfies
+causal ordering, it must be true that M
+is delivered first, and only then is M' delivered. Okay, this means
+that a multicast protocol that implements causal ordering will automatically obey
+FIFO ordering. However, the reverse
+is not true. If I give you
+a multicast protocol that obeys FIFO ordering, it may not obey
+causal ordering, because FIFO ordering
+does not worry about, uh, multicast sends, uh-uh,
+from different, uh, processes, even if they
+are causally related. Why prefer causal
+ordering at all? Uh, well, causal ordering
+is pretty intuitive, and therefore it is actually used in several, uh,
+scenarios, uh, whether multicast or not. For instance, you might have
+a group of, uh, friends on a social network, one of the more popular social networks, choose your own. Uh, if a friend
+sees your message m, say you post a message m, uh, and, uh, your friend then
+posts a response, uh, comment m' to it, you want your other friends
+to be seeing m, uh, before they see m'. If they see m' first
+before they see m, then the comment doesn't necessarily make sense to them, because it is a-it is
+in the context of the message m. Uh, so, uh, before-because m
+happens before m', you want their delivery orders
+at the other, uh, processes in the group-which in this case
+are your other friends, uh, or rather
+your common friends between you and
+the posting other friend, uh, to see, um, m
+first and only then m'. However, if, uh, two friends,
+uh, post m" and n" concurrently, and these are
+concurrent send events, then they can be seen
+in any order, and that's still fine. A variety of systems implement, uh, this kind
+of causal ordering. This includes social networks,
+uh, bulletin boards, uh, including, uh, news groups
+and, um, uh, posts on the news servers, uh, and comments on websites,
+and so on and so forth. Finally we come
+to our third flavor of ordering, which is total ordering. Total ordering is sometimes
+called as atomic, uh, broadcast. Unlike FIFO and causal ordering, uh, the definition
+of this total ordering doesn't necessarily pay
+any attention to the order in which
+multicasts are sent. What it is into-instead
+trying to guarantee is that all the receivers receive all the
+multicasts in the same order. Uh, notice that I'm not saying
+anything about the order in which they are sent. All I am saying is
+that if a correct process P delivers the message m- multicast message m, before another multicast
+message m', independent of what
+the senders did, then any other correct process in the system P', uh, that delivers m'
+would already have delivered m. In other words, what we are
+saying is that if any process, uh, delivers message m
+before m', then every other correct
+process in the group will also be, uh, delivering
+message m before, uh, m'. So here is an example
+of, uh, total ordering. Again, this is, uh,
+the same example from before. Here, uh, we wanna make sure
+that all the multicasts, uh, sent here, the four multicasts that are
+sent in this particular run, are delivered in the same
+order at all the processes. So for instance, at P1,
+M1:1 is delivered first, then M2:1 is delivered, then M3:1 is delivered, and then M3:2 is delivered. Now we we need to make sure
+that all the other processes deliver these four multicast
+in exactly that order, so M1:1 first, then M2:1,
+then M3:1, and then M3:2. Let's look at P2. P2 delivers M1:1 first, then
+M2:1, then M3:1, and then M3:2. So far so good. Then, uh, P3 delivers
+M1:1 first, then it needs to deliver M2:1, but, uh, M2:1
+has not yet been received when M3:1 is being sent out, so the, uh, delivery
+of M3:1 at P3 itself needs to wait until M2:1
+is delivered, and then M3:1
+can be delivered, and finally M3:2 is delivered. This delivery order at P3
+obeys, uh, the total ordering. Finally, at P4,
+M1:1 is delivered first, then M2:1 is delivered, then M3:1,
+and finally M3:2 is delivered, and this satisfies
+total ordering because all the other processes, ah, in-all the processes
+in the group deliver their multicasts, ah, deliver all the
+multicasts in the same order, uh, as all the other
+processes in the group. Now this of course means just
+that some processes like P3 may need to d-delay the delivery
+of, uh, the multicast messages, perhaps even
+at the sending process of that particular multicast. Okay, so those are
+the three flavors we have seen. Uh, those are not the only
+three flavors possible. Um, since FIFO and
+causal ordering, uh, uh, look at this, uh,
+the sending order, and total ordering looks
+at the receiving order, they are orthogonal, and so we have the possibility
+of hybrid protocols. You could have a FIFO total
+hybrid, uh, protocol for multicast ordering, which satisfies both FIFO
+ordering and total ordering. In other words, this protocol
+would give you a total order for multicast messages
+that obeys the, uh, FIFO ordering ordering
+of multicast sends. A causal-total hybrid protocol
+is also possible for multicast ordering, which obeys both, uh, causal
+as well as total ordering. This means that you have
+a total ordering of, uh, multicast messages which, uh, also obeys
+the, uh, causality. Notice that causal-total
+ordering would mean, uh, that um, even concurrent events, um, concurrent multicast sends, are in fact ordered the same way at all the processes
+in the group, uh, but because
+they are concurrent, we don't really care
+which order it is. Any order is fine
+as long as it's consistent. Uh, multicast sends that are
+causally related are of course, uh, delivered
+in the causality-obeying order at all the processes
+in the group. Uh, so we have discussed
+so far what the ordering mean, what the flavors are. Uh, in the next lecture
+we'll discuss how to im- how to implement each
+of these, uh, orderings.

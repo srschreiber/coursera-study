@@ -1,0 +1,74 @@
+[MUSIC] In this lecture we continue discussion
+of the Chandy-Lamport Global Snapshots algorithm, and
+see why it was causally correct. So we discuss this notion
+known as consistent cuts. Before we discuss consistent cuts,
+let's discuss a cut. A cut is a time frontier at each process
+and at each channel in the system. So essentially at each process and at each
+channel, you decide a time point, and everything to the left of that
+time point on that process or channel is considered to be in the cut. And anything to the right of that time
+point is considered to be out of the cut. So, that is a cut. Some cuts are consistent, and in order for a cut to be consistent you need to make
+sure that every pair of events, e and f, that occurred in the system at any
+processes, they need not be at the same process, such that e is in
+the cut and f happened before e, if these two conditions are true then it
+is also true that f is also in the cut. Okay, if this is true then
+the cut obeys causality and is said to be a consistent cut. So let's see two examples of cuts. The green cut on the left is a consistent
+cut because it obeys the two conditions. Notice here, the messages over here,
+B happened before E, and E is in the cut and
+so B is also in the cut. H happened before F, F is out of the cut,
+H is in the cut, and that's okay. So in this particular cut, the message
+H to F is set to be in transit and is captured by the cut
+itself as being in transit. The red cut on the other hand, shown
+in the right, is not a consistent cut, because consider this message that has
+a send event G and the receive event D. D is in the cut, but G which
+happened before D is out of the cut. And that is not allowed by
+the consistency predicated, so this red line I've drawn out here is
+a cut, but it is not a consistent cut. So our Global Snapshot algorithm which you
+saw in the last lecture, calculated this particular snapshot over here which
+consists of each of the process states, S1, S2, S3, and the states for
+each of the channels C, I, J, which are six channels in the system. So our Global Snapshot algorithm
+in fact results in a snapshot that is causally correct in the sense that
+it corresponds to a consistent cut. By the green dotted line here I am showing
+the consistent cut that is captured by our Global Snapshot algorithm. You'll notice that the place where
+the cut cuts across each process timeline is in fact the time at which
+that process state is calculated, S1 for P1, S2 for P2 and S3 for P3. And also this consistent cut cuts
+across the message G to D which is also a part of the Global Snapshot calculated
+by the Chandy-Lamport algorithm. So the consistent cut shown by
+this green dotted line is in fact the same as the state captured by
+the Global Snapshot algorithm. In fact,
+you can show that in any invested system, any run of the Chandy-Lamport
+Global Snapshot algorithm always results in a global snapshot
+that corresponds to a consistent cut. Let's see why this is true. Let's look at the proof. Let ei be an event occurring at Pi, and ej be an event occurring at Pj,
+such that ei happens before ej. This is Lamport's happens
+before relationship. The snapshot algorithm ensures
+that if ej is in the cut, then ei is also in the cut, okay? We are going to prove this fact. If this fact were true, then this would
+mean that the consistency condition for the consistent cut is obeyed and so the result of the snapshot algorithm
+is in fact a consistent cut. In other words, what we want to show is that if ej happens
+before Pj records its own state, meaning ej actually belongs to the cut calculated
+by the Global Snapshot algorithm, then it must also be true that ei happens
+before Pi records its own state, that is ei is also a part of the cut calculated
+by the Global Snapshot algorithm. So let's prove this by contradiction. Let's assume that the first condition
+is true, which is that ej is a part of the cut, so ej happens before
+Pj records its own state. But that the second condition is not true
+which is that Pi records its own state is in fact happens before ei, okay? So, because all the events at Pi
+are ordered linearly because Pi's clock, if its not true that ei happened before
+Pi records its own state, the reverse must be true which is that Pi records
+its own state must happen before ei. Along with this, you also have
+the fact that ei happened before ej. So, consider the causal path
+that goes from ei to ej, along that causal path consider all
+the sequences of process timelines, and all the channels on which messages
+pass along that causal path. Due to the FIFO ordering
+on the causal paths and the linear ordering of events at
+each process, it must be true that the markers on each link above proceed
+the regular application messages. Why do the markers proceed
+the regular application messages? Because Pi records its own
+state before ei happens and so the markers are sent out when Pi records
+its own state, and so the markers which proceed on the causal path from ei to
+ej will proceed the ei to ej messages. But then this automatically means
+that the marker is received at the process Pj before the event
+ej happens that crosses Pj. But then this means that Pj must have
+received the marker before ej, and so it cannot be true that ej happened
+before Pj records its own state. And so we have a contradiction here. And so what we assumed in the green
+statement over here at the top of the slide must be false. And so it must be true that
+if ej belongs to the cut, then ei also belongs to the cut. That completes our proof. In the next lecture, we'll see some examples of kinds of
+properties which the Chandy-Lamport algorithm is used to detect in
+the global distributed system itself. [MUSIC]

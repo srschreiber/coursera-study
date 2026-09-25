@@ -1,0 +1,329 @@
+Hi everyone, this is Aishwarya. And today we are going to be talking
+about different consistency models. So in the previous lectures we talked
+about eventual consistency, but it turns out that there are many more
+consistency models that are out there, and so we are going to be talking
+about some of them today. Before we go into that, let's see, what exactly do we mean by
+a consistency model, right? A consistency model is nothing but the
+contract between the distributed system and the end application or the application
+development developer, right? And it basically dictates what results
+the system can return upon an operation. So in a distributed system, you would have multiple concurrent clients
+that are interacting with the system, doing reads and
+writes on the multiple copies, right? So on the right here, we have such
+a distributed system where we have three copies of an object and these objects
+actually have different values and concurrent clients
+are interacting with the system. So depending upon like how these
+operations are performed on these replicas, the guarantee that the system
+offers would vastly differ, right? And consistency model exactly
+dictates what those guarantees are. And specifically it dictates what
+values can different operations return, like how these different
+operations are ordered, how they are performed on these replicas,
+what values they return. And these are all dictated by
+the consistency model that the system provides. So it's basically the contract that
+the system needs to adhere to. So the system developer can design or
+implement the system in any way, they can optimize it in any way as long
+as it doesn't violate the contract. And the application developer needs to
+understand clearly what the contract is so that they can develop their
+application in a correct manner. Okay, so it turns out that there are many
+different consistency models out there. In fact, it's a spectrum. So on the left you have
+the weakest consistency model, which is eventual consistency. And as you go towards
+the right on the spectrum, the consistency guarantees that the system
+offers become better and better. So at the right you have strong
+consistency models like even, sorry, sequential consistency or
+linearizability. So what's the catch? As you move towards the right
+of the spectrum, although you get strong consistency guarantees,
+the performance of the system gets worse. And more importantly,
+the availability that you get, especially when there's a partition,
+is much worse. So for example, the consistency models
+on your right, like linear stability and sequential consistency, are not
+available when there is a partition. Whereas eventual consistency,
+because it's a weak guarantee, we'll exactly talk about
+what the guarantee is. But because it's a very weak guarantee,
+the system can provide very good performance and
+availability in the presence of partition. Okay, so first,
+let's talk about eventual consistency. So Cassandra offers eventual consistency,
+right? Which is the system that we saw earlier. Cassandra is actually based on an earlier
+system from Amazon called dynamo. So eventual consistency dictates
+that if writes to a key stop, then at that point all the replicas
+of the key should converge. Basically they should all be identical and
+have the same values for that key, right? So what that means is when clients
+are interacting with the system, and let's say they're trying to read
+the value of a particular key, the read could return any
+of the older values, right? It need not necessarily return the latest
+write that was performed to the key. So let's look at that with an example,
+right, so here you have client C1, which performs a write to key x,
+and it's updating x to one, right? And basically we have like sort of
+a timeline here where we have two bars. The bar on the left indicates when the
+operation was initiated by the client, so indicated by rec. And then the bar on the right basically
+indicates the point at which the client received the response and
+the operation completed, right? So that's what we mean
+by this representation. So you have the request from the left and
+then the response on the right, and the operation spans throughout from
+the request to the response, right? So this is something that we'll
+be using throughout this lecture. Now let's say we have another client C2,
+which tries to update x to 2. And then let's say you have client C3,
+which well after client one received the response for
+the first write, initiates a read. In eventual consistency,
+you could actually see an older value. Let's say x was initially zero,
+so this read could return zero. Now let's suppose that another client C4,
+tries to read x, right? And it's doing this well after both
+the updates from C1 and C2 have completed, the system could still return zero. So as you can see, this is like a very
+big guarantee that the system offers. So why do systems want to offer this,
+right? That's because eventual consistency
+is very performant, and eventual consistency also offers
+very good availability guarantees. So in particular, eventual consistency, the system can allow
+mini concurrent writes. Basically, different replicas could be
+updated by different clients concurrently. You don't have to do
+a lot of coordination. And what that means is that even if there
+is a partition and some replicas are not reachable, the system could be available
+in both the partitions, right? So a system that offers eventual
+consistency is basically in the spectrum of availability and
+partition tolerance and cap. So it doesn't give you strong consistency. So one thing to note with eventual
+consistency is that a system that is providing eventual consistency should have
+a way for merging concurrent rights or resolving conflicts when you have
+concurrent rights to the same object. So for example here, right, like c one, let's say it's updating one replica and
+of x and updating it to one. C2 is updating a different replica and
+updating to two. So how do you eventually ensure that
+both these replicas converge and have the same values? So you need to be able to resolve
+between concurrent versions or conflicting object versions. Different systems use
+different ways to do that. Like for example, in Cassandra it uses
+the latest timestamp wind policy. So basically each update is
+associated with the timestamp. So in Cassandra it's the timestamp of
+the coordinator when the operation was performed. And you can basically to resolve
+conflicts between two versions, you just compare the timestamps
+of these two versions and just pick which one is the latest
+as the latest version. And that would be the version that would
+eventually survive on all the replicas, right? Okay, now let's talk
+about strong consistency. So strong consistency models
+are the other end of the spectrum, and linearizability is one of the strongest
+consistency models that are out there. In fact, this is what we refer to
+when we mean strong consistency. This is the C in the cap theorem. So, in linearizability, intuitively,
+each operation that's performed by a client is instantaneously in real
+time, visible to all the other clients. More formally, in linear accessibility, all the operations that are performed by
+different clients are ordered in such a way that the order respects
+the real time ordering of operations. So the total order of all the operations
+respects the real time ordering of operations. So for example, if operation A completes
+and then another operation B begins, then A is ordered before B. So for example, here you have two
+operations, one from client C1 and another from client C3. And the read happens in
+real time after the write. What that means is the read should
+be ordered after the write, and it should see the fx of the write. So the read should here return
+the value of the write. It will return one. Now, what if there
+are concurrent operations? For example here, let's say you have
+another client C2 issuing a write x of 2. Then these two operations from c two and
+c three are concurrent to each other. Then in linearizability you could
+order them in any way as long as the total order is valid in
+the sequential order, right? So you could either order in this example,
+c3 s read before c2s or after. If let's say you were to order
+the c3 read before c2 strike, then c3 read here would return one. If you were to order it after c2 straight,
+then it would return two. But both are valid in linearizability. Let's extend this example. Let's say you had another client c4,
+which again issues a read. And this read is happening in
+real time after c1 right, and it's also happening in real
+time after c3 is write. So this read from c three and
+the read from c four can both return one. That's valid because both c3 read and
+c four's read are concurrent to c2. So you can order them in any way. So you could order here in this example
+when both of them are returning once they have ordered ct read and
+c4 read before c2 straight. Let's suppose you have
+ordered c three's read after c2 write, so
+c3 is returning two on that read. Now, what should c4 return
+on the read to x for it to be valid under linearizability? So let's see this example in more detail. Note that C force read as being in
+real time happening after c3 suite. So it should be ordered after c3 suite, which means that you have to see two,
+you cannot see one. So that's what we mean by the total
+order in linearizability, such that it respects the real
+time ordering of operations. Okay, this is a very strong guarantee. Makes it so
+that the distributed system appears as if there is just single copy in the system. So it hides in some way the fact that
+things are replicated from the end applications, but it rates of some
+performance and availability. So you cannot have a system that
+provides both strong consistency, that is, linearizability, and be
+available in the presence of partitions, we have another strong consistency model,
+which is sequential consistency. So sequential consistency was
+introduced by lamput, and here's the definition that lamput gives. I'm not going to read that. So in sequential consistency two,
+all the operations are totally ordered, but the total order just respects the
+local order of operations at the clients. But it doesn't respect the linear real
+time ordering like linear accessibility, right? So sequential consistency is
+definitely weaker than linearizability. So you could have stale reads
+in sequential consistency. Because in sequential consistency,
+if a client performs a write and then there is a read much after that,
+and that happens in a different client, then you don't need to see
+the result of the write. If both of these are happening in the same
+client, then you need to see the results of that write in the second read because
+you need to respect the client order in sequential consistency, but
+it's still strong compared to many models. So let's look at the same
+example from the previous slide. So we had these four clients where
+these clients are performing different operations. Remember in the previous slide I
+told that when the client c four is performing the read, it can only return
+to in sequential consistency you could see any of the previous reads,
+because in the total order you could order c four much before c1s and
+c2s and c3s read. That's a valid total order that respects
+the local order at different clients, because all the clients
+just have one operation. So you could order. Basically there is nothing tricky
+here when it comes to local order, and that's a valid total order. You don't, you can just order c four
+much before c one, c two and c three. And that's a valid total order that
+is spec sequential consistency. But this wouldn't respect linearizability. Now let's look at a slightly
+different example. So we have again two clients. Client one is performing
+a write updating x1, and it's performing a read to y, and
+client two is performing a write to y and updating it to one, and
+it's also performing a read to x. Now what can these two reads return? These two reads can very well return one. So basically they can both
+return the latest values. Can they both return
+zero at the same time? For example, let's say the first client, the read at the first client to
+y returns zero under sequential consistency, can read to
+x at client c2 return 0. So in sequential consistency you cannot
+return zero, you have to return one. Here. This is because you have already
+ordered the read operation at C1 before the write operation at C2,
+because the write of write where you update y equal to
+one is not reflected by the read. The read is still returning
+the older value zero. So you have already ordered C1 write and
+c one's read before C2 write. So you have because you have to
+respect the local order at clients. The read at c two should appear
+after the write at c two, but the write at c two is ordered after
+the write and read at c one, which means that the read Athenae c two should
+see the effects of the write at c one. So we have looked at the different
+consistency models at the ends of the spectrum. So you have linear accessibility,
+which gives you very good guarantees, which makes it actually very
+easy to program against. So it makes the job of the application
+developer much easier when the system is providing linear accessibility, but
+it comes at the cost of performance and availability. But if you have a system that
+offers eventual consistency, although it's offering you good
+performance and availability guarantees, it can be sometimes very hard to program
+against because the application developer has to now deal with all the weird
+behavior from eventual consistent systems because it could return any of the older
+values when there are concurrent writes happening in the system. So people have come up with many other
+consistency models that are stronger than eventual consistency, but still offer some good performance and
+availability guarantees. So it makes the job of
+the application developer easier, but while still not sacrificing
+availability and performance. So we're going to take a look at some
+of those models next in this slide. So now let's take a look
+at causal consistency. So in causal consistency there
+is no total order of operations, unlike even strong consistency models like
+linearizability or sequential consistency. As a result, Causal consistency is
+actually much more available under partitions. It's a weaker model than the strong
+consistency model that we looked at, but it still avoids many inconsistencies
+that happen with eventual consistency. This is because in causal consistencies, operations respect the partial order
+of causality between operations. So what operations
+are causally related exactly? So operations that are from
+the same client are costly related. And if a client C1 performs a write,
+and then let's say a different client, C2, performs a read, and this read sees
+the effect of the write and then the read becomes causally related to that write,
+and causality is also transitive. Let's look at it from an example. So let's say you have an operation
+from C1 updating x equal to 1. Let's say you have another read at C2,
+and then this read observes the effect of that write, then the read and the write
+becomes costly related to each other. Now, let's say C2 performs another
+write of updating y equal to 1. Now let's say there is a read at c three. This read can return either zero or one. There is no restriction on this read
+that's dictated by causal consistency. So this read is free to
+return either zero or one. Now let's suppose there is another
+read at c three which is reading y and it returns one. Now again, you have a causality
+between the right updating y equal to 1 and this read,
+that is reading 1 at C3. Because of transitive nature of causality,
+C1's right of x equal to 1 and C3's read of y equal to 1 become
+causally related to each other in that this read should come after
+that write to respect causality. Now, let's suppose that
+there is a read to x at C3. What should c three return? The read at c three should return one. Here. This is because this read
+is causally related to the write of x equal to 1
+that happened at C1, right? Because of causality is transitive,
+you inherited the causality, right? So this read at c three,
+the last read at c three is costly, related to the write at c one,
+so it should return one so it cannot return any old value like zero. So that's causal consistency. So in the spectrum,
+causal consistency is much more stronger than eventual consistency because
+it respects causality and orders costly related operations in
+a manner that always respects causality. But it still doesn't provide you with a
+total order like sequential consistency on linear stability, but it's much more
+available compared to those two models. There are also, other models that
+people have proposed in the past, and there is a bunch of models, in fact, and all of them together are called
+session based consistency models. So we have many session
+consistency models, the first of which is monotonic reads. Intuitively, monotonic reads dictate
+that reads cannot go back in time. So, for example,
+if a client issues a read R1, and then let's say it issues another read R2. And then let's say you observe
+some state on r1, you can. On R2, you cannot observe
+a state that's older than R1. So you have to at least observe
+the state at least as latest as R1, which essentially means is that your
+reads cannot go back in time, okay? Then you have something
+called monotonic writes. That essentially means that if
+a client issues a write W1, and then let's say it performs another
+write W2, then all the other clients in the system should see the fx
+of W1 before it sees the fx of W2, right? So that's monotonic rights, and you have another session consistency
+model that is called read my writes. In read my writes,
+if let's say a client issues a write W1, and then the same client issues R1,
+then R1 should see the effects of W1. So basically, if there is a write
+operation and a read operation, and both of them are happening
+in the same client session, this read operation should return what the
+write set or something later than that, right, it should see the effects of this,
+right? So that's what read my rights dictates. So many practical systems provide
+some of these guarantees, and these are referred to together as
+session-based consistency models. And all of these models are still
+available in the presence of partitions. So that's the good thing
+about these models, but they are still much stronger
+than eventual consistency, because in eventual consistencies,
+your reads could go back in time. Your writes need not be ordered in
+the way that it respects the order in which writes were performed
+in a client session, or your writes need not
+see your latest write. So, in a way that these three models are
+stronger than eventual consistency, but it's difficult to compare
+these models with each other. So in some sense, they are like,
+this is only a partial order, this is not a total order, right? The order of different consistency
+models is just a partial order. So these three session-based models
+are stronger than eventual, but with respect to each other,
+they are not comparable. Causal consistency is stronger than all
+of these three session-based models. In the recent years, researchers and
+practitioners have proposed newer consistency models and we're going to
+take a look at a few of them now. So, the first is CRDT, or
+Commutative Replicated Data Types. This is actually not
+a consistency model as such, but CRDT is referred to a class of data
+structures that have a certain property. In particular, all the write operations to CRDT data
+structures commute with each other. So what does that mean? That means that if you have two write
+operations to the same data structure, it doesn't matter the order in which
+you execute these two operations, they will always produce the same result. For example, let's say you have a CRDT
+data structure, which is a simple integer. And let's say the operation that's
+allowed on it is just an increment by 1. Let's say you have two clients, C1 and C2. C1 performs an increment by 1, C2
+performs an increment by 1 again, right? It doesn't matter how you order these
+two operations from the clients. You could order client one's operation
+first and then client two or you could order client two and
+then client one. Then result is the same,
+the value is incremented by two. So that's the power of
+commutative data structures. So where this helps is that,
+the system when the data structure it's implementing CRDT, it doesn't
+need to worry about consistency. Specifically, it need not worry
+about resolving conflicts, because no matter the perform order
+in which you perform the operations, the end result is going to be the same. You just need to ensure that all
+the replicas perform all the operations. You don't have to worry about
+resolving conflicts and to figure out which is the final value
+the replica should hold, and so on, right? So this makes the system
+development much easier. So that's the power of CRDTs. Related to CRDTs is the notion
+of red-blue consistency. So researchers realized that it's often. Often not the case that all operations
+commute with each other, right? Only some of them might commute with
+each other while the rest do not. So, they realized that you could
+rewrite client transactions and separate them into two
+classes of operations. One they called red operations, and
+the other they called blue operations. Blue operations are nothing but
+operations that commute with each other. And so, they can be executed simply in
+any order across different data centers. Whereas red operations
+are much more stringent, and they cannot be executed in any order. So, red operations,
+necessarily should be executed in the same order across
+all the data centers. So, this red/blue consistency
+essentially is a composite model, right? You have some operations,
+that is blue operations, which are eventually consistent,
+and then you have some operations which are red operations that
+are strongly consistent. So, you can basically put together
+a system that has strong consistency for summer operations and
+eventual consistency for some operations. So, you get to have the most performance
+for those blue operations and the most consistency for
+the red operations. Now we have also some
+staleness related models. The first one is bounded staleness. In bounded staleness, it's guaranteed
+that the system will not return data that's more than K versions or
+more than T time units would. For example, clients would specify
+the value for K and T and ask for data that's not more than K versions or
+T time units older. Then you have probabilistically
+bounded staleness or PPS, where in this consistency model there
+is an expected bound on the staleness that the system can return both
+with respect to versions or time. So, here you could imagine having
+SLA-type consistency guarantees. In the system, in 99% of the cases would
+not return a version that's more than K versions old or return a data that's
+more than T time units older, right? So, these are some new consistency models. I've taken this figure from a recent
+survey paper that surveys different consistency models and tries to produce a partial order
+of all the consistency models. So, this is actually the whole
+consistency spectrum. And we have looked at some of
+the points in the spectrum, but there are also many more
+models that we haven't discussed. Okay, so we have looked at these
+many different consistency models. So, how should you choose the right type
+of consistency model for your application? Basically, you choose the lowest
+consistency model that is required for the correctness of the application, because that gives you
+the fastest availability, right? You don't want to get any stronger
+than that or any weaker than that. So, that brings us to
+the end of this lecture. Thank you.

@@ -1,0 +1,9 @@
+# Homework 1
+
+- Coursera: https://www.coursera.org/learn/cs-425/assignment-submission/I4gKX/homework-1
+- Item type: staffGraded
+- Grading status: NOT_STARTED
+
+## Questions
+
+_No submitted attempt found, so Coursera returned no questions or feedback._

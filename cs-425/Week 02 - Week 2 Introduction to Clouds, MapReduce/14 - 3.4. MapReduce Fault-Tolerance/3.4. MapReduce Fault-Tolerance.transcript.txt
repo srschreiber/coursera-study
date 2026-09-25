@@ -1,0 +1,140 @@
+So in this last lecture on the MapReduce, uh, uh, lecture series we'll see how MapReduce deals with, uh, failures. Uh, failures, as you know,
+are very common, and the norm
+rather than the exception in, uh, cloud
+computing clusters. The most common failure is a failure of the server itself, uh, and the server failure might
+need to, uh, lead to multiple, uh, components of the Hadoop
+YARN scheduler failing. Remember that the servers are
+running the node manager, uh, they're running tasks,
+they're running, uh, one of the servers is running the resource manager, and also the Application Master might be running, uh, on a server for each job. So, uh, in order to deal
+with server failures, there are heartbeats. The node manager, each
+per-server node manager sends heartbeats,
+periodic heartbeats, to the central resource manager. If a server fails
+and these heartbeats stop, the RM times are waiting for the next heartbeat
+from that node manager, and it knows the node manager has failed. It lets all the affected
+application masters know, and the AMs, uh, then have the responsibility
+of uh, rescheduling their tasks. The, uh, um, node manager also
+keeps track of each task running at, uh, its server, so if one of the tasks fails, for instance, uh, due to an auto memory exception, then, uh, the task, uh,
+is marked as idle, and, uh, either the node manager could restart it, or it could inform, uh, the resource manager or
+the application master, uh, that, uh, the task has failed. Finally, the application master also sends
+heartbeats periodically to the resource manager. If, uh, the AM fails
+and the RM would restart the AM, which then syncs up
+with, uh, its running tasks, and this might get complicated, uh, depending on how many tasks are running, uh, at the AM. The RM itself might fail,
+and there is no one, uh, detecting the failure
+of the RM, uh, so far. However, one way
+to deal with this is to maintain a secondary, uh, hard backup, uh, RM, which, uh,
+takes over immediately a-after the RM failure. Now the heartbeat messages that
+I've described so far are also useful to send, uh, actual container requests and other, uh, requests. So these are, uh,
+the container requests that we saw
+in the previous lecture of this MapReduce series are in fact always piggybacked on top of the heartbeat messages, um, and this avoids sending
+extra messages, uh, in, uh, the underlying network. This might lead to a smaller, more delay, uh, in sending
+the next request across, because heartbeat messages
+are sent only periodically. Uh, however, uh,
+this, uh, does avoid extra communication overhead. Now, other than, uh, failures,
+we might also have some nodes that are slow in, uh,
+the, um, uh, cluster, uh, just because they
+might be having slower CPUs or, uh, or, uh, uh, or, memory, or because over time these nodes
+have, um, uh, incurred, uh, more failures
+and have more errors in their-in their, uh, memory banks than other servers. In any case, this is problem
+in, uh, in MapReduce because the slowest machine slows down their entire job. Why is this? Well, remember that,
+uh, the, um, uh, Map phase has a bad ear
+on the end of it, which means that none
+of the Reduce tasks can start until all the Map tasks
+are done, and this means that the slowest Map jo-the slowest, uh, Map task will slow down
+the entire Reduce task. Similarly, the
+slowest Reduce task will cause the job completion
+time to be delayed even more. Remember, the job is not
+considered to be completed until all of its Reduce tasks
+are done. Okay, once again, uh,
+this slowness may be due to a disk, maybe due to, uh,
+network bandwidth being bad near that server, or maybe
+to a bad CPU or bad memory. The way, uh, this is tackled
+is by keeping, uh, track of the progress of each task. This is essentially
+the percentage of input that has already been processed by that task, and, uh, for tasks
+that are slow, meaning they have
+a very slow progress rate, uh, by replicating them. The way this works is
+suppose I have three tasks which are currently-
+which had been started all at the same time, um, uh, and these are tasks one, two, and three of the same job, and suppose, uh,
+these tasks have completion, uh, progress rates
+of 90%, 50% and 10%. Clearly the 10% task
+is in trouble, has been making
+the slowest progress. What happens here is what is
+known as speculative execution. And the MapReduce scheduler, uh,
+in this case the AM, uh, might spin up another replica
+of the task, number three, which has only a 10%
+progress rate, but on a different server than where Task three is running. In essence now you have two
+copies of the same task running, and because these
+are identical copies and have identical inputs, they will generate
+identical outputs, and they are racing
+with each other; whichever one finishes fastest will lead to the task
+being marked as completed. So the second replica of the-
+of that same task number three, which we started on
+a different server, gets lucky and finishes fairly quickly, then, uh, the first
+replica will be killed, uh, and the task will be marked
+as having completed. This is known
+as speculative execution. Uh, it's a somewhat
+misleading term, uh, because, uh, you don't really
+speculate anything. Instead you look at the progress rate and you say, "Well, you know, uh,
+the progress rate is slow for this particular task, and so
+I'm going to, uh, replicate it." Uh, so really it should be
+called replicated execution, but the technical term
+is speculative execution. The final thing is locality. Um, so a cloud, uh, typically
+has a hierarchical topology. For instance, a cloud
+might have multiple racks, and communication inside a rack
+is typically much faster than across racks, which goes
+across the core switch. Uh, the file system
+that is underlying, h-uh, MapReduce or Hadoop,
+which might be GFS or HDFS, typically stores three replicas of each of the chunks or blocks. For instance, the blocks
+might be 64 megabytes in size. Uh, typically these are
+stored on two different racks. There might be two stored
+on one rack, two replicas of the block
+stored on one rack, and one stored
+on a different rack. These are stored
+on two different racks so that if one of the racks fails, for instance, the top of the rack
+switch goes down, then you at least have one
+copy of the file around, uh, or-or the block around. So given this, uh, MapReduce or
+Hadoop attempts to schedule a Map task on preferably
+a machine or server that contains a replica
+of the corresponding input data, so that, uh, the input
+to that task, this is typically a Map task, uh, would, uh,
+be, uh, uh, fetched without incurring
+any network overhead. However, this
+may not be possible because all the servers on which-all the three servers on which this Map input
+is located might already have all their containers, um, uh, full, meaning they're
+already running tasks. In this case, the scheduler
+tries to schedule, uh, the Map task on the same rack as a server
+that contains the input. Uh, this has the advantage that
+the inter, uh, the intrarack, or the inside rack
+bandwidth can be used, which is typically much faster than going across racks, in order to transfer, uh,
+the input block, and this is going
+to be fairly fast, not as fast as running
+on the same machine as where the data is, but faster than going across, uh, the core switch. However, this
+may not be possible either, because all the servers
+or all the racks where, uh, this input block is located
+may be using up all of their containers. In this case, uh, the, uh,
+MapReduce scheduler would then schedule
+the task anywhere where a free container
+is available. So essentially, uh, these three are, uh, orders
+of, uh, preferring where to schedule a Map task. For scheduling Reduce tasks really, um, you don't have
+much of a choice because you don't
+really know up front where the data from these Reduce
+tasks is gonna be coming from. Remember the data
+for a Reduce task comes from one or potentially all
+of the Map tasks in that job. Uh, and so typically you want
+to schedule the Reduce tasks on the same racks as where
+the Map tasks are scheduled uh, but in terms of which machines you want to prefer
+in those racks, uh, you may want to prefer
+at least those machines where Map tasks are scheduled but you, uh, really
+don't know much about uh, which particular Map tasks you want to collocate your Reduce tasks with. So, uh, in summary, in this
+MapReduce lecture series we have seen how MapReduce, uh, uses parallelization plus
+aggregation in the Map phase and in the Reduce phase to schedule applications
+across clusters. You have seen many examples of, uh, applications
+that use MapReduce. There are many more out there, and, uh, there are many more
+out there that are simple, there are many more out there,
+uh, of applications that are fairly complex and have
+chains of MapReduce, uh, jobs, one after another, and that leverage these chains, uh, to run fairly
+complex applications. Uh, these applications need to schedule, uh, these
+tasks across jobs, we have seen the Hadoop YARN scheduler at work, and they also need
+to deal with, uh, failure. This is a fairly active area
+of research, and there's been a lot of work in the last few years, uh, for both scheduling-efficient scheduling in MapReduce and in Hadoop, and also for fault tolerance
+in MapReduce and in Hadoop, uh, and I would encourage you to look at a lot of this
+literature that is out there.

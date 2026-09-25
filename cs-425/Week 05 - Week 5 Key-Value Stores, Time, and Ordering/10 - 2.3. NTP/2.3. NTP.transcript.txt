@@ -1,0 +1,83 @@
+In this lecture, we'll be looking at one of the standards for synchronizing clocks
+in the internet. The standard is called NTP. NTP stands
+for Network Time Protocol. Uh, here the NTP servers,
+which are managed, are organized
+in a tree structure. Uh, I'm showing the tree
+structure here with, uh, the root of the tree
+or the primary server, uh, being shown here. That's the one, uh, that
+has a UDC time added. There are secondary servers
+that are, uh, the children of the primary, uh, server. And, uh, that
+synchronize directly with the primary server. Then there are tertiary servers
+which synchronize with their corresponding parent, uh, at the secondary
+server level. Your client might be
+one of the work statio- might be one of the leaves
+in this, uh, tree, and I'm showing one
+particular client over here. So essentially, each node
+in the tree here synchronizes with its parent in the tree. How does it synchronize? Well here is how
+the NTP protocol works and then we'll look
+at how it sets the clock over the next few slides. So a child, uh, sends a message
+to the parent saying, "Hey, let's start the protocol,
+I wanna synchronize my clock." The message, uh, uh, uh,
+sent by the parent in response is called message 1. Uh, the parent 1 respon-uh, records the time
+at which it sends the message. This time is ts1 over here, and then the child
+when it receives the message 1, it records
+its receive time as tr1. Notice that these times are set
+according to the local clocks at the corresponding processes. So ts1 is according
+to the parent's local clock and tr1 is according
+to the child's local clock, which of course
+are not synchronized. Uh, the child then sends back
+a response message, message 2. Records its sent time as ts2,
+according to its own clock. And when the parent receives
+a response, it, uh, marks, uh, the response received time as tr2 according
+to its own clock. Finally, the parent sends
+over the values of, uh, ts1 and tr2 to child, uh, and then the child
+uses all these four values: ts1, tr1, ts2, and tr2
+to set its clock. How does it set its clock? Let's, uh, look at it. So why is this particular offset
+used by the child to set its clock? Why this particular
+funky equation? So let's calculate
+the actual error, uh, uh, due to this particular protocol. Suppose the real offset,
+the real clock offset between the child
+and the parent is, uh, oreal. We don't know what oreal
+is, but let's say its oreal. This means that the child
+is ahead of the parent by oreal and the parent is ahead
+of the child by -oreal, or it's behind
+the child by oreal. Now, the value of oreal
+might actually be negative over here, right? So, uh, these two statements would still be true
+in this case. Uh, suppose the one-way
+latency of message 1 is L1, and similarly, the one-way
+latency for message 2 is L2. We don't know the values
+for L1 and L2, just because the clocks
+are not synchronized, and this means that it's gonna
+be, uh, hard, if not impossible, to measure the one-way
+transmission latency. However, we can write down
+the equations based on these variables. So the receive time
+of message 1, tr1 equals the transmit si-uh,
+the send time of the message 1 plus its, um, uh, uh, latency, uh, uh, message delay plus
+the clock offset, oreal. Similarly, the receive time
+of message 2 is, uh, equal to its send time plus
+the message latency L2 minus, uh, the clock delay, because th-this message is going in the opposite direction as message 1. So, using
+these two equations now, you can subtract the second equation from the first and this gives you, uh,
+this equation for oreal. You can solve, uh,
+for, uh, for oreal. Uh, and oreal turns out to be
+this particular, uh, equation over when you massage the terms. And, uh, this first term
+is in fact the same as, uh, the value of o
+that you see up here at the title, uh,
+part of this slide. And this means
+that the second part in fact now becomes the error because now, uh, the
+difference between oreal and o is bounded by, uh, (L2-L1)/2, and this is of course less than the |(L2+L1)/2|, and this is in fact
+the round-trip time. So this means that the error, uh, in, uh, this particular algorithm, NTP algorithm, is bounded
+by the round-trip time, um, uh, or at least half
+of the round trip time in this particular case. Okay, so this is justification
+for actually using this particular value o
+to set, uh, the clock. However, we still
+have a non-zero error. We just can't seem
+to get rid of this error; it always seems to depend
+on the round-trip time. Uh, whenever you have a non-zero
+round-trip time it seems like, uh, the error is about half
+of the round trip time. So the question arises, um, uh,
+since it's getting so hard to synchronize clocks, why can't we just
+not synchronize clocks and instead go directly
+to the root of the problem, which is that we want
+to assign time stamps to, uh, uh, uh, the, uh,
+events that happen in a distributed system and do this without synchronizing clocks? We'll see how to do this
+in the next lecture.

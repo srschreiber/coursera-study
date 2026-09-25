@@ -1,0 +1,132 @@
+[MUSIC] In this section, we're going to discuss another classical
+algorithm called the bully algorithm. In the bully algorithm, all the processes
+know the other processes ids and when a process finds
+that the coordinator or the leader has failed it can find
+this via the failure detector. If the process knows that it is
+the process with the next highest id after the leader,
+it elects itself as the new leader. And it sends a coordinator message
+to all the processes that have lower identifiers than itself. At this point, the election is completed. This is why this is
+called a bully algorithm. Essentially, if you know
+that the bully has crashed. The highest-id process and
+that you're the next highest id process, then you become the new bully and
+you tell everyone else with a lower id that in fact you are the new leader and
+the new bully in the system. However if you know that you are not
+the next highest id process in the system, then you can't be the bully. You initiate election by
+sending an election message. Whom you send an election message to? You send election messages to only
+those processes that have a higher id than yourself. Essentially, you're trying to ask these
+processes, hey, are you guys still alive? Are you guys willing to be the leader or
+should I be become the new leader? If none of these processes responds
+within a timeout then this initiator becomes a new leader
+by becoming the bully and it sends a coordinator to
+all lower id processes. At this point, the election is completed. However, if an answer is received within
+our timeout called an OK message, then there is some non-faulty
+process with a higher id and so this process needs to wait for
+the coordinator message. Once again, if it does not receive
+a coordinator message within a time out, it starts a new election run. What does the process do when
+it receives an election message? Now, remember that an election message is
+always received from a lower id process. When election message is received
+from a lower id processes, essentially the lower id processes
+saying hey, the leader has crashed. Here's a new election run being started. Should I be the new leader? And you need to tell the lower id process,
+you need to bully the lower id process into not becoming the leader
+by sending it an OK message. And OK message would suppress
+the lower ID initiator and it would make it wait for you. When you see the election message,
+if this is the first election message you're seeing you would need
+to start your own leader election by sending election messages to
+processes that have a higher id than you. And the protocol continues
+until the highest id process is elected as the leader. So, let's see an example of this. Again, we have a system of six processes
+N80 was the old leader, it crashed. And say, N6 is the lucky one in the group
+who has detected the failure of N80. What it does is that it realizes
+that it is not the next highest id process in the group. And so it needs to send an election
+message to all the processes that have a higher id than itself. Which are essentially N80,
+the failure process. Yes, it does send a message to
+the failed process as well. It sends an election message to N32 and
+also to N12. When N32 and N12 receive these messages
+they know that they are in fact alive. And so they send back an OK message to N6, which then waits for
+the final coordinator message. In turn, N12 and N32 also start
+election messages of their own by sending election messages to
+their higher id processes. So N12 send election messages to N32 and
+to N80 and N32 sent an election message to N80. But N32 receives and towards election,
+elected message, it sends back and OK and this suppressed N12 and makes it wait. N32 would time out waiting for N80s reply,
+because N80 after all has failed and it would now know that
+it is the new leader. It then sends a coordinator message to
+all the lower id processes in the system, which is essentially is all the other
+processes that are alive in the system. And at this point of time,
+the election is completed. And there is a new leader and
+everyone else knows about this leader. So you can also have failures that
+happen during the election run, so N32 might fail after it has
+sent the coord, after it has sent the election message, but
+before it sends the coordinator message. And at this point of time, N12 and
+N6 need to do something about it. Right? So essentially what happens is that N6 or
+N12 will timeout waiting for N32's response and then it would create,
+it would start a new election run, which would send a message to N12, which would
+then start another election run by itself. And eventually,
+N12 will get elected as the, as the new leader in this particular case. If N12 also were to fail then N6 would
+also time out waiting for N12's reply. After N12's OK message and
+then it would start the new election and then it would time out and then it would
+finally become the leader in the group. So if failure stop in the system
+eventually you do elect a leader. But if failures keep happening,
+then you will never ever elect a leader. But how do you set these timeouts? How long do processes wait? Well, how long processes wait really
+depends on the worst case time to complete election. The worst case time turns out to be
+five transmission message times, if there are no failures during the run
+and you can set your timer to be this. Why is it five message transmission times? Well consider the worst case, which happens if the election is started
+from the lowest id server in the group. So the lowest id process in the groups,
+a group initiates lead election. Once it sends the election messages out,
+it receives OK messages, so the answer that the lowest id initiator
+gets from the 2nd highest id process. That would be leader takes another
+transmission time, so that's step two. Next, you have the election message from
+the 2nd highest id server that goes out to the highest id process, which is,
+in fact, the fair leader. That's a third message transmission time. Then the second highest
+id process waits for the highest id process to respond and
+there's a timeout for that as well. That's the fourth message
+transmitting time. And then finally when the 2nd highest id
+process realizes that it, in fact, has a, is a new leader, it then sends
+a coordinator message to everyone. That's another message transmission time. Those who have looked at this for awhile, may realize that the steps two and
+three can in fact be commingled. And the finally, where you can send OK messages to
+the lower id processes, alongside. And finally, with the election messages
+that you send to the higher id processes. And so you can,
+in fact you can reduce this to be just four message transmission
+times if you so wish. So the worst-case completion time is five
+message transcription times, that deter, that determines the timeout. What about the number of messages that
+are transmitted during this worst-case? Well the worst-case happens when
+the process with the lowest id in the system detects a failure. It sends election messages to
+all its higher id processes and all the N minus 1 processes start
+an election protocol by themselves. So this means that the number of
+election messages sent out by the high, highest id process is i minus 1. And so you have a total number of election
+messages in the system that is equal to N, N minus 1 plus N minus 2 plus 1 and
+so forth all the way plus 1. Okay.
+There is a number of OK messages that is equal to each value of this minus 1, because the highest id fail
+leader does not respond. But essentially the number of total
+message is ordered off of this value. This turns out to be N minus 1 times N
+divided by 2, which is order N squared. So the worst-case message
+complexity is fairly bad. It's quadratic but at least you
+have sharp turn around time for the protocol to complete. Well, that's the worst-case. What about the best-case? The best-case happens when the 2nd
+highest id process in fact is one that detects the leader failure. It immediately knows that
+it is the next high id, highest id of process in the group and
+is the new leader. It simply sends out coordinator
+messages to the remaining N minus 2 processes with
+a lower id than itself. And so the completion time is just
+one message transmission time. And the total number of messages
+involved is N minus 2 messages. So what were the impossibility here? It seems like this protocol might
+actually solve a consensus. however, since timeouts are built
+into the protocol itself. This means the protocol
+will never terminate, because liveness is not guaranteed. But it doesn't guarantee liveness in
+synchronous system where the message delays maybe unpredictable and
+processes maybe arbitrarily slow. However, in the synchronous system model
+where processes have a maximum time to take an instruction step. And there's a maximum upper bound on how
+long a message takes to be transmitted. You can actually calculate the worst one,
+worst-case one-way latency as a worst-case processing time for the instructions plus
+the worst-case one-way message latency. Using these you can set your time
+outs to be the worst-case values and in fact you can, guarantee liveness in this way in the synchronize system
+using bully election protocol. To wrap up our discussion
+of leader election. Election is an important component of
+many cloud computing systems today. We have discussed two classical leader
+election protocols ring-based and bully. But they are failure-prone,
+because after all, leader election is related to consensus. Which turns out to be impossible to
+solve in an asynchronous system. Many systems in industries,
+such as Google Chubby as well as Apache Zookeeper which is an open source
+system use Paxos-like approaches or quorum like approaches in order to do
+elections, which guarantee safety. They may not guarantee liveness, but they
+guarantee eventual liveness if things go right in the system in terms of
+message losses and failures. And then,
+the then the election succeeds and everyone knows about the unique
+leader that is elected in the group. [MUSIC]

@@ -1,0 +1,148 @@
+[MUSIC] In this lecture, we look at, a classical algorithm to the distributed
+mutual exclusion, problem. This algorithm is called
+the Ricart-Agrawala's Algorithm. Once again, before solving any problem
+just remind yourself of the system model. Once again, we assume that, each pair of processes that is connected
+by a channel has, the channel be reliable. So if you send messages on the channel,
+they are eventually delivered and they're delivered in
+first in first out order. We also assume that processes do not fail. So, Ricart-Agrawala's algorithm is a
+classical mission exclusion algorithm for distributive systems. It was published in the 1980's. It was invented by Glenn Ricart from
+the National Institute of Health and Ashok Agrawala from
+the University of Maryland. Unlike the previous algorithms you
+have seen from each of the inclusions, the centered and green based algorithms,
+there's no token involved here. Instead, this,
+algorithm uses notions of causality and it uses multicast inside the blue. It has a lower waiting time to
+enter the critical section than the Ring-Based approach. So, here is, the key idea ,and then we'll see an
+example of the Ricart-Argawala algorithm. When, a process Pi wants to
+enter the critical section, it multicasts a request to
+all the other processes. The request includes,
+the process ID, Pi, of course. But it also includes,
+the current Lamport timestamp. This is the, causal or
+logical timestamp at process Pi. Once Pi has sent this, multicast request, it waits until all the other N-1
+processes have responded positively. To other requests. When it receives N-1 replies,
+it can then enter the critical section. Requests in this system are granted
+in the order of causality. The Pi in the request T,
+Pi is used to break ties. Because two different processes
+might have concurrent requests which might in fact end up
+having the same timestamp. You need to have a way to break ties. And the ID of the processes
+is used to break ties. Okay.
+So here are all the messages in the Ricart-Argawala algorithm and
+all the actions in their gory detail. And then we'll see an example
+over the next few slides. When a process Pi wants to
+enter the critical section, it first sets its state to be Wanted. And then multicasts a request
+to all processes, the request simply consists of the Lamport timestamp
+at Pi currently, followed by Pi's ID. So that's Ti, Pi. It then waits until all the N-1 other
+processes have sent back a reply message. Once it has received this N-1 replies,
+it then changes its state to be Held, and it can now enter the critical section. What does a process do when
+it receives a request? So, when a process Pi receives a request,
+from a Pj, which is tagged as Tj, Pj. Tj being the timestamp of the request,
+Lamport timestamp. And Pj being the requester's ID. The Pi,
+process first checks if its state is Held. If its state is Held then essentially it
+cannot, send back a reply immediately because this means that Pi currently
+is in the critical section. In this case Pi would add, the request
+to a local queue of waiting requests. On the other hand if Pi's state is
+Wanted which means that Pi has, currently another request. That it for
+the critical section that has not yet been granted, then Pi checks whether or
+not, the timestamp of Pi's own request is less than
+the timestamp of the incoming request. Okay, in order to do this,
+it first compares the Lamport timestamps. Ti and Tj. If Ti's less than Tj, then this is less
+than equal or equal to condition succeeds. If Ti equals Tj, in which case,
+the requests were concurrent. Then, it breaks ties by considering
+whether i is less than j. If this condition is true,
+which means that Pi's own request, has precedence over Pj's request, in this
+case also, Pi would queue Pj's request. However, if none of these conditions is
+true then Pi send a reply back to Pj. Okay. Now when a process is done
+with a critical section, across Pi it's simply change,
+changes it's state of Released and it sends a reply to all
+of it's queued requests. Now notice that when, the process is
+in the critical section it may receive multiple, requests from multiple other
+processes for the critical section. It would end up queueing
+all of these requests. When it is done with this critical
+section, it would send back a reply to all of them saying, hey,
+I'm done with that critical section. I am ready to acknowledge all of you
+as ready to enter the critical section. That's essentially the algorithm called,
+so let's see an example. Here is, again, a system of six
+processes N3, N32, N5, N80, N6 and N12. N32 first sends a request message which
+has a time stamp of 102 along with N32's own idea of 32. This is multicast out to the other
+N-1 proxies in the system. All of them send back reply messages, because none of them are waiting
+to access the critical section. N32's state is now Held, meaning that it is currently
+enter in the critical section. Now let's make it slightly more complex. Suppose, that two other processes, N12 and N80 also want to access
+the critical section. Notice that N32 is currently
+also in the critical section, its state currently needs to be Held. However for each of N12 and N80, the state now becomes Wanted because these
+are trying to enter the critical section. N12's request has a timestamp of 115. N80, N80's request has
+a Lamport timestamp of 110. So let's see what happens now. The next thing that happens is that these
+requests are received at some processes in the system. Specifically N6, N3 and N5 receive
+both of the requests from N12 and N80. And because N3, N6, and N5 are not waiting for any, are not
+waiting to enter the critical section, they send back replies to whoever
+they receive requests from. At this point of time, N12 and
+N80 each having three reply messages back, but they are waiting for
+two other reply messages. The next thing that happens in
+the system is that N32 receives these request from N12 and
+N80 one after another. Because N32 state is now Held,
+it queues both of these requests, both the timestamp as well as the IDs. So. N12's request 115, 12 is queued. Followed by N80's request 110, 80. The order of requ-, of queuing
+here doesn't really matter because the replies are sent to the entire queue. Notice here that N12 and N80's requests
+to each other are still in transit. So one of them is going
+to get the request first. And you might think,
+well whoever gets the request first. Is, likely to win the race,
+or maybe lose out the race. But in fact,
+causality comes to our rescue here. So let's say N12 gets,
+N12's request is received first with N80. N80 receives this request
+its state is Wanted. So it checks whether or not the incoming
+request has a lower timestamp than it. It sees that incoming request
+has a timestamp of 115. Which is higher than N80's own request. And so N80 ends up queuing its
+queuing the incoming request. And since the incoming request
+is queued which means that N80 would not have sent a response,
+a reply message back to N12. N12 is going to end up waiting for
+N80's, reply message. Next N80's reply message is received at N,
+12, which then, is in a Wanted state and it checks whether the incoming
+request has a lowertime stamp than it. And in fact, this is true because
+the incoming request has a timestamp of 110 while N12's waiting
+request has a timestamp of 115. In this case N12 would respond
+back with a response message or a reply message back to N80. At this point of time,
+N80 has four requests responses back or replies back from the group. N12 has three responses back for
+the group. And N32 is currently in
+the critical section. N32 then will release
+the critical section. Once it is done with the critical section,
+it releases its token. Sends back reply messages to N12 and N80. At this point of time,
+N80 has five reply messages back. And it can enter the critical section. N12 cannot enter the critical section yet because it does not have
+a reply back from N80. It only has four replies. And this is fine because N80 is
+queueing the request from N12. When N80 is done with
+its critical section. It will then send a reply back to N12, which will then enter
+the critical section after that. Why is the Ricart-Agrawala's
+algorithm safe? Let's look at the proof a little bit,
+informally at least. Two processes Pi and Pj cannot both have access to
+the critical section simultaneously because if they did, then both would
+have sent a reply message to each other. And this would have meant that,
+in the case of, one of them. Ti,i is less than Tj,j. And this is why Pj would
+have given permission to Pi. Would have responded with a reply to Pi. And also it must be true
+that Tj,j is less than Ti,i. And in this case Pi would
+have given a reply to Pj. But both of these are not
+possible together, you know, you cannot have two less than three and
+also three less than two. That's not possible. So that's the crux of the proof. Now, of course, there is an exception
+which some of you might think about, which is that it's possible that,
+Ti,i is less than Ti,j. And Pi has already replied to Pj's
+request with a positive reply. And only after that does Pi
+generate its own request. At this point in time, it seems like Pj will also respond to
+Pi's request with a positive reply. And both Pi and Pj might have
+access to the critical section. So essentially, Pi gives Pj permission. Then Pi generates a request. And because now Pi's request has a lower
+timestamp than Pj's Pj would also give a permission to Pi. However, this cannot occur because
+once Pi has received Pj's request, any request that it generates subsequently based on Lamport timestamps based on
+causality will have a higher timestamp. Therefore it must be true
+that Ti is greater than Tj. This follows directly from. The use of Lamport timestamps. This is very the use of Lamport timestamps
+really plays with the correctness and the safety of
+the Ricart-Agrawala algorithm. And so, Ti greater than Tj is
+a contradiction to what we had assumed, which is Ti,i is less than Tj,j, and
+so this situation cannot arise either. Next liveness [COUGH] liveness is
+true because in the worst case you process ends up waiting for
+all the other N-1 processes to send reply. And once they send a reply, which will
+happen, you know, the other N-1 processes might all be in the critical section,
+and this process might be the very last. And when that happens,
+when this process is given permission,. Then it will be able to
+enter the critical section. Finally ordering here is guaranteed
+in the sense that request with lower Lamport timestamps
+are granted earlier and again if there is a,
+conflict in timestamps, then. Then the process ID is used to break ties. But in any case,
+if one process generates a request for the lower line stam-,
+timestamp than our other process. Then that first process will get it's request satisfied earlier
+than the second process. And so, even though we have done better
+in the client/synchronization delay compared to the Ring Based approach. The bandwidth has gone up. And the question now is,
+can we do better in both of these cases. We'll see that in the next lecture. [MUSIC] [MUSIC]

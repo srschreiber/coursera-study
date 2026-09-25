@@ -1,0 +1,31 @@
+[MUSIC] This week, we first start off
+by discussing Key-value and NoSQL Storage Systems which are very
+important component of today's cloud computing systems. This new generation of
+cloud storage systems, NoSQL Systems is quickly replacing
+the traditional relation of databases. We'll see how these new systems
+are different from traditional databases, we'll see how these new
+systems are designed. We'll see the insides of these
+systems in an under the hood look and we'll also see apache Cassandra and
+hBase in detail. These are two of the systems
+that are very popular, in fact probably the most popular most
+sequence storage systems in use today. We've also seen many of the building
+blocks that you have seen so far, including gossip and
+membership come together and be used in a real system as we
+study systems like Cassandra. That's the first focus of this week. Later on in this week, we will start
+a topic called Time and Ordering. Why we study this topic is
+the distributed systems, as I've mentioned before very early in
+the course need to deal with time or rather the lack of synchronization
+among servers and clients. Remember that one of the characteristics
+of a distributed system when we defined it was asynchrony which means that servers
+and clients are each running their own clock and these clocks are not
+synchronized with each other. They show different times and
+they're running at different rates. So we'll first see techniques to
+synchronize the clocks of these servers and clients with each
+of the time synchronization. Then we'll see techniques to assign time
+stamps to events that does not need time synchronization. And these logical time
+stamps are a very important core concept in distributed systems
+that are used in today's cloud systems, that have been used for
+many decades in this distributed systems. And it will continue to be used in future
+generations of distributed systems. So this topic of Time and
+Ordering also marks the beginning of our deep dive into theoretical concepts that
+underlie cloud and distributed systems. And these are very important concepts. [MUSIC]

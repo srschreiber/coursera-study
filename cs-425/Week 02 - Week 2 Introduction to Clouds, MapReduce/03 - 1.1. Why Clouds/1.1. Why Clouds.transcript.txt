@@ -1,0 +1,100 @@
+Welcome. In this, uh, lecture series,
+uh, we'll be looking at, uh, an introduction
+to cloud computing, and we'll focus a little bit on, uh, the aspects
+that distinguish, uh, cloud computing
+from previous generations of, uh, distributed,
+uh, systems. So, uh, first of all there's a lot of hype
+around cloud computing. Uh, several, uh,
+forecasting agencies which, uh, forecast mark-market trends for different, uh, markets have said that
+cloud computing is large and it's only going to grow,
+uh, perhaps exponentially. Gartner,
+which is one of the most, uh, popular forecasting firms, said in 2009 that
+cloud computing revenue would exceed
+$150 billion by 2013, and that it would represent a significant fraction
+of IT spending, uh, by 2015. IDC in 2009 said that, uh, in, um, the, uh,
+next 5 years, uh, spending on IT cloud services would triple and would reach several
+tens of billions of dollars. Forrester said
+that cloud computing would go to $240 billion
+as an industry by 2020. And it's not just in industry. Several governments have also started relying
+on cloud computing, including fedbizopps.gov,
+which was set up, uh, set up many, uh, years ago
+by the federal, uh, government. So obviously there is
+a lot of hype, uh, but then the question is what exactly is cloud computing? Well, there are many
+cloud providers, as I'm sure, uh, many of you, uh, might have heard of. One of the most, uh,
+popular cloud providers is AWS, or Amazon Web Services. There are also other, uh,
+providers here, Microsoft Azure, uh,
+Google Compute Engine, and there are a whole bunch
+of other companies, including Rightscale,
+Salesforce, EMC, Gigaspaces, 10gen, Datastax, Oracle,
+VMWare, Yahoo, Cloudera, and hundreds of more companies that are too many
+to, uh, mention here. So let's just focus on the, um,
+uh, AWS, uh, portion. Uh, AWS offers
+a variety of services; three of their most popular services are called EC2, S3 and EBS. EC2 is an elastic compute cloud, which provides
+the computing services, S3 is a simple storage service, which provides you
+the ability to store data so that you can access it
+from anywhere in the world, and EBS is
+Elastic Block Storage, which is essentially
+volume storage that the EC2 instances can access while they are running. So there're two categories
+of clouds, uh, today. Uh, they are either
+public cloud or a private cloud. A private cloud is one
+that is accessible only to, uh, special privileged
+employees or personnel. For instance, if you're working in a company X, and the company X
+has a data center or a cluster or a cloud which is accessible only to the employees
+of the company, that's a private cloud;
+it is not openly accessible. On the other hand, uh, a-a public cloud is one
+that can be accessed by anyone, anywhere in the world,
+as long as they have a credit card
+and are willing to pay. Uh, private clouds, for
+instance, also include, uh, the first category
+also includes, uh, you buying a data center
+or a cloud and running it yourself; that's your own
+private cloud, obviously. So among public clouds, the ones that
+are openly accessible, uh, um, as I mentioned, uh, there are a couple
+that are, uh, fairly popular, Amazon AWS services,
+uh, Google Compute Engine, and, uh, the, uh, Microsoft Azure tend to be popular. Uh, the AWS and Azure
+share a lot of, uh, traits, so I'll just focus on AWS here. Uh, the S3
+Simple Storage Service allows you to store
+arbitrary data sets, and you pay per gigabyte month that you store; there are no upfront costs. The Elastic Compute Cloud,
+uh, once again allows you to upload and run
+arbitrary OS images. Essentially they are-
+these are virtual machines, or VMs, and you pay
+per CPU hours that you use. So if you use, say, 5 VMs for 1 hour, uh, each,
+all at the same time, you'd be paying, uh,
+for 5 CPU hours. And similarly,
+the other services that, uh, AWS or Microsoft Azure
+might offer, uh, are also, uh,
+priced accordingly. Uh, there are a variants
+of this of course. Google AppEngine
+or Compute Engine offers the ability
+to develop applications within, uh, their AppEngine, uh, and then you upload the data that would be imported
+into their format, and you run your application. So for instance, you could use these
+to host your own web services, you could use these, um, to host your, uh, data
+so that it is served out, or you could host these
+to run your own computation, uh, that you might want to run. So, cloud computing is attractive to customers because, uh, it allows them to save
+both time as well as money. Uh, Eli Lilly, which is one
+of the largest, uh, um, customers of AWS, reputedly, uh, for instance, uh, er, uh,
+has been, uh, benefiting from the ability to bring up
+new servers fairly quickly. Earlier they reported that
+it used to take, uh, seven and a half weeks for them
+to deploy a new server. This would, uh, involve,
+uh, them, uh, um, uh, uh, setting the specs
+for the server, then actually purchasing it, and then going through
+the purchasing process, uh, the server comes in
+and they set it up, uh, and install the necessary s- operating system and software, and all of this takes, uh,
+took several weeks. Now they can rig up a new server
+in, uh, around 3 minutes, and a 64-node Linux cluster
+in 5 minutes, uh, while it was taking
+months, uh, earlier. This of course saves them time; it also saves them money, because, uh, they
+can save the costs that they might have otherwise had to pay the sysadmins. GlaxoSmithKline reported that, uh, they saved about 30%
+by moving to the cloud. Uh, Jim Swartz, uh, from CI-
+the CIO Sybase said that, uh, they've been saving
+$2 million since 2006, and this is
+only going to increase. And as a result,
+it's not surprising that hundreds of startups
+across Silicon Valley, uh, are leveraging, uh, some of the cloud providers,
+who I mentioned, and a variety of other
+cloud providers as well, rather than buying
+their own machines. But once again, this brings us back to the question of what exactly is a cloud
+for us, uh, technical folks, who want to understand
+the deep, detailed, uh, aspects of cloud computing. We'll discuss that in,
+uh, the next lecture. [electronic music]

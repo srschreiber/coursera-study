@@ -1,0 +1,156 @@
+In this lecture,
+we'll discuss Kelips, which, uh, brings
+constant lookup cost, uh, to, uh,
+a distributed hash table. So in Kelips,
+unlike in Chord and Pastry, which we have seen before,
+we don't use a virtual ring. Instead we use affinity groups. There are k affinity groups. These are, of course,
+virtual groups, and k is about square root of n, where n is the number
+of peers in the system. Each node or each peer
+is hashed to a group. Essentially, you take hash using, say, SHA-1, uh, and then you take modulo k, k being an integer. And so, say, a peer with, um, uh, peer ID 160 would get hashed to group #1 because that's what
+hash mod k gave it, um, and, uh, uh, peer, uh, number 18 gets hashed
+to group #1, and so on and so forth. Every peer belongs
+to exactly one group, which is obtained,
+uh, in a consistent way by hashing
+and then taking modulo k. Now what are the neighbors
+that each peer maintains? Well, the peer knows about all the other peers
+in its own affinity group, so 160 would know
+about all the other peers in its own affinity group,
+such as 15. In addition, uh, 160
+would know about, uh, th-uh, one contact member
+in each of the other, k-1 affinity groups. So, since there are n
+affinity groups... sorry, square root of n affinity groups and n peers, each affinity group contains, on average, square root of n peers, so that's the square root
+of n local affinity group, uh, neighbors. And also, since k =
+sqa-square root of n, um, each peer has
+square root(n-1) contacts, in each of the other
+affinity groups. That's a total
+of 2*square root of n on average, uh, neighbors that each peer needs to maintain. You might think "Well, that's
+much larger than log n," but we'll come
+to that in a moment. Let's just put that
+off for a while. Let's just go with it. Where is a file get stored? Unlike in Chord and Pastry, the files do not get stored at the nodes
+in the affinity groups. Instead, they get stored
+at whichever peer uploaded them just like Napster or Gnutella. Instead, what gets stored
+in an affinity group is meta-information, so you decouple
+the file replication location from the file querying. Uh, so, uh, the, um, uh, each file name is hashed to a group, so you take the file name
+and hash it to a group. affinity group, say the file is PennyLane.mp3, it hashes to group k-1. All the peers in affinity
+group k-1, uh, store, uh, PennyLane.mp3
+along with information or a pointer
+to whoever has the file. This would, for in-
+for instance, be an IP address and port number pair. Again, you are replicating
+this information completely within
+the affinity group, so this might be
+a very high overhead, but again, you're not
+replicating the file itself; you're only replicating
+meta-information about the file, which is very, very small, typically just a few bytes
+or few tens of bytes. The affinity group- or none of the peers
+in the system store the files themselves. So, how do you lookup
+for a particular file? Suppose you want to look up
+for PennyLane.mp3. Well the first thing
+you do is you hash it and find its affinity group,
+by taking modulo k. With that you get k-1. Say node 160 is the one that's, uh, trying to, uh,
+find this particular file. Then it goes to its
+contact for group k-1, in this case 167
+is the group contact and it immediately fetches
+the tuple for PennyLane.mp3 and it knows where
+to locate the file. So this is essentially, in the best case it's just
+a 1 round-trip-time, uh, lookup cost,
+uh, for the file itself. However the contact may be down. Because of churn, 167
+may not be there in the system, in which case 160 would ask one of its own
+affinity group neighbors, if its contact in group k-1
+was in fact alive. So, the lookup cost might go up
+to 2 round-trip times, but not a whole lot more. And in fact, going back
+to the previous one, the 160 to 167, uh, choice,
+the choice of the contact, uh, need not be a random one. Among all the, uh, affinity
+group members in, uh, k-1, 160 could select that
+affinity group member that is the closest to it, in the underlying round-trip-time in the underlying internet, and that means that this hop could, in fact, be a very quick hop in the system. Essentially, what
+the system Kelips is doing is that it is replicating
+meta-information enough across the entire, uh, uh, uh, um, network so that
+at a querying peer- any querying peer, you can obtain information
+about any file from one of your neighboring, very nearby peers, uh, nearby
+in the internet round-trip, uh, time, distance space. So the lookup cost is, uh, in the best case
+it's one hop, and even when you have failures
+it's just a few hops. Essentially, it's
+O(1) lookup cost. Now the memory cost,
+we return to the memory cost, returning- the memory cost
+is O(square root(. You maintain square root( uh, neighbors inside
+your affinity group and square root(contacts. You may also need to maintain, uh O(square root(information uh, meta-information for files that are inserted, um, uh, and, uh, and mapped
+to your affinity group. However, square root( is fairly small. Uh, if you do
+the calculation numbers, uh, just for
+the membership information, uh, for 100,000 nodes in your system, square root(, uh, neighbors, uh,
+both in affinity group and across affinity
+group contacts, turns out to be just under
+2 megabytes for 100K nodes, and also including 10 million files stored in the system. This is much smaller than, the amount of memory
+that's available on most Component Off The Shelf, or COTS machines today, uh, the workstations
+and laptops that are running, uh, these peer-to-peer systems. Even if I increase, uh, this by a, uh, order of magnitude, a couple of orders of magnitude, it still would fit
+within a few gigabytes of RAM, uh, in, um, most
+of these machines. Essentially, this means that, all of this information
+about neighbors, uh, as well as the
+meta-information about files can be maintained
+completely in memory and, uh, therefore the lookups can be, um, uh, fairly fast. How do you update these
+neighbors that you have? Well, um, you- uh, you would
+see, uh, gossip-based, uh, protocols, uh, elsewhere
+in this particular, uh, course, and gossip-based membership is the technique that is used, uh, here to update
+these membership lists. It's used both within
+the affinity group and also across
+the affinity groups. Therefore, when a member fails it's uh, the time to disseminate
+information about it to the affi-to the entire system
+is O(log(N)). However, even if information
+is out of date, uh, Kelips, uh, this system works just fine because it has other ways
+to find information. Chord and Pastry have, uh,
+a shortcoming, which is that because they use roots
+to route a message, if any one
+of those intermediate, uh, uh, uh, nodes has failed, you still need to find, you still need
+to continue using that. You can't really backtrack. Uh, uh, you still need to find maybe, another successor if your next hop successor
+has failed. In Kelips you have many,
+many different choices. If your direct contact, for the destination affinity group is not alive, you ask one of your own
+affinity group members. If that doesn't have,
+uh, an alive, uh, contact, you ask another
+affinity group member. Maybe you ask one of your
+contacts in the oth-another, in another affinity group for its contact
+in the k-1's affinity group. You have a variety of different
+things that you can do, and the querying node has
+a lot of flexibility on it because the, uh,
+the depth of the search, uh, uh, space here is short
+because it's just a few hops. The querying node
+gets back a response or a fail response
+fairly quickly, and it can decide what
+to do and how to, um, uh, uh, try another path to get to the destination affinity group. Also, because all you're
+trying to do is hit one, uhh, target, in the target affinity group k-1, not just a specific one,
+like 167, you're trying to hit any one. If you hit 76 you're fine, 76 would have information
+about the file because that meta-information
+is replicated across the entire affinity group. If you hit 18,
+that will be fine too, so any, uh, member of the k-1 affinity group would be okay, uh, to locate information
+about this file PennyLane.mp3. Um, in addition,
+the information about these, uh, files may get very large, so you don't want
+to keep them around forever. The way Kelips de-deals
+with this is that it times out and deletes the information about files. So, if you have a file
+that is stored in the system, you need to periodically
+send out heartbeats to keep that information,
+uh, a fresh. So this heartbeating is very
+similar to the gossip style, uh, heartbeating that is used for the membership, uh, and, uh, if you don't heartbeat a file, if you don't refresh
+the file periodically, then meta-information about it, uh, will slowly disappear from the system
+and will go away, uh, from the system,
+uh, forever. The advantage
+of this is, of course, uh, that, uh, you never need
+to delete files to simply, you simply stop sending heartbeats for that file, and meta-information
+from that file will disappear, uh, quickly, uh, over time across all the nodes
+in the system. So there is a range of tradeoffs between Chord, Pastry,
+and Kelips. The range, uh, uh,
+involves memory, lookup cost,
+and background bandwidth. So Kelips uses, uh, slightly
+more memory than Chord or Pastry and slightly more
+background bandwidth, to keep neighbors a fresh, but it has a much shorter
+lookup cost, which is O(1). So while Chord or Pastry have
+O(log(N)) for all, uh, for both memory and lookup, Kelips has, um,
+O(square root(N)) for memory and O(1) for lookup cost. Uh, and so you have a tradeoff, and this gives you a good, uh, range of choices to choose from. So wrapping up our discussion
+on P2P systems, we have studied both
+widely-deployed P2P systems, uh, such as Napster
+and Gnutella, which were two of the first popular peer-to-peer systems; uh, Fasttrack,
+which is an underlying, uh, which is a proprietary, uh, peer-to-peer system underlying many, popular peer-to-peer systems such as Kazaa, Kazaalite and Grokster, some of which
+have been shut down, uh, due to court cases since; and also we
+have seen BitTorrent. We have also studied, peer-to-peer systems that
+were developed in academia, and the advantage of this, of these systems is that they have provable properties. You can analyze their
+lookup cost, their memory, their overhead,
+their stabilization time, uh, and they, uh, they are trying to solve the problem of, uh, distributed hash tables, uh, which is a well defined, uh, problem that tries to make inserts, lookups and deletes, uh, very efficient. There we have discussed
+three systems. Chord, which was developed by researchers from
+MIT and Berkeley. Pastry, that was developed by researchers from Microsoft Research and Rice University. And, Kelips, that was developed by researchers from
+Cornell University.

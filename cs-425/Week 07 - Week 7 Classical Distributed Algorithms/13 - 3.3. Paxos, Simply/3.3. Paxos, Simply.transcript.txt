@@ -1,0 +1,197 @@
+[MUSIC] Finally, we get to see the solution or
+in courts the solution to the consensus problem in
+the Asynchronous Distributed System Model. One of the most popular solutions that
+is used in industry, and that has also been proven to be theatrically
+sound is what is known as Paxos. And we'll see a sort of, simplified
+version of Paxos in this lecture. So as you have all ready seen consensus is
+impossible to solve in the asynchronous distributed system model. And this is been proved by Fischer,
+Lynch and Patterson also known as
+the FLP Proof in the 1980s. And the key to the proof is that it is
+impossible to distinguish a failed process from one that is very, very, very slow. And because you cannot distinguish these
+two scenarios the rest of the group, even though they may be very healthy. And they may not have too many delays,
+they can't really decide whether you know, that one process sent any messages,
+whether it's already made a decision, and so everyone should decide the same thing. And so
+they might always be ambivalent about which decision to make either zeroes
+decision, or all ones decision. But consensus as we've seen, is very important because it maps to
+many of the most important problems that are there in distributed computing,
+and in cloud computing. So of course, the question rises, can
+we just, can't we just solve consensus? And in fact, Paxos does solve consensus, in a sense it's the most popular
+consensus solving algorithm. It doesn't really solve
+consensus because you cannot there is impossibility of proof,
+obviously. We've already shown that. It provides what is known as safety,
+and eventual liveness, if it provided just liveness, time-bounded liveness,
+then that would have solved consensus but since the possibility result is there
+it can only provide eventual liveness. A lot of systems use Paxos, or a variants of it Apache Zookeeper which
+was originally built by Yahoo, uses it. Google Chubby which is very deep
+in the Google stack uses it, and many other companies use it as well. Just give you a moment here to guess,
+who invented Paxos it is our friend Leslie Lamport,
+who also invented the Lamport timestamps. So Paxos provides the two properties
+of safety and eventual liveness. Safety essentially,
+says that consensus is not violated. This means that two processes,
+non-faulty processes, do not end up deciding on different
+values where one process decides a zero, the other process decides a one, okay. That's if that happened,
+that would be violation of safety. Once again, just to remind you,
+safety is the guarantee that nothing bad ever happens and
+the bad thing here would be two, two different processes that are
+non-faulty deciding on different values. Liveness is the guarantee that something
+good eventually, happens in this case, something good is that processes
+actually reach a decision. If things go well in the future, for
+instance, messages and failures are just the right way, then there's a good chance
+that consensus will be reached, and everyone will decide the same,
+will decide a value and because of safety this value
+will end up being the same. But there is no guarantee that liveness
+will actually be achieved within a time-bound, or even within our lifetime. The guarantee is only eventual. However, implementations of Paxos
+often reach consensus fairly quickly. 'Kay, so Paxos is not guaranteed to reach
+consensus ever, or within a time-bound. So FLP, the FLP impossibility
+result still applies, but in practice,
+a consensus is reached fairly quickly. So here's how Paxos works, and again
+this is a simplified version of Paxos. There are a lot of optimizations in Paxos
+which we won't be discussing here, and those optimizations are in fact,
+important for its correctness. Paxos works in rounds just like
+the synchronous consensus protocol we saw earlier, and you might wonder here, how do we set rounds if the process clocks
+are not synchronized with each other, as is the case in asynchronous
+distributed systems. Rounds are in fact, asynchronous here,
+time synchronization is not required. If you are, if you are a process that is
+in round j, and you hear a message that is tagged with round j plus 1, you abort
+everything that you are doing in round j, and simply move over to round j plus 1. 'Kay, so this is completely asynchronous. You also use timeouts, if timeouts happen
+you just move over to the next round, and of course, timeouts may be pessimistic and
+this is okay, because we only are trying to give eventual
+liveness not time-bounded liveness. Each round has a unique ballot ID which
+distinguishes the round and you'll see this ballot ID playing out, as we see
+the Paxos protocol in the next few slides. Each round is broken into three phases,
+and again, these phases might be
+asynchronous by themselves. The first phase is called the Election
+phase where a leader is elected, the second phase is called a Bill phase
+where this leader proposes a value, and the other processes in the group ack,
+or acknowledge this value. And finally, the third phase which is
+called the Law phase, where the leader multicasts this final value to the other
+processes, and they accept this value. 'Kay, so we'll see these three phases
+play out over the next few slides. So the first phase is the Election phase. Eventually, the leader
+chooses unique ballot ID and this ballot ID is chosen to be
+higher than anything seen so far. Now there might be multiple
+potential leaders in, who are trying to become
+the actual leader in the group. So the potential leader needs to get votes
+from the other processes in the group. So this potential leader sends out
+the unique ballot ID to the other processes in the group. Processes wait to receive ballot IDs
+from multiple potential leaders, and they respond once each
+process works exactly, once to the highest ballot
+ID it has seen so far. If the potential leader sees
+a higher ballot ID highest, higher ballot ID it
+refuses to be the leader. Nicely so essentially,
+when process has received, and a potential leader has
+received a majority, or a quorum of okay messages, it is then
+permitted to be the leader in the group. 'Kay, this means that because each process
+works at most once, you cannot have two leaders in the group, essentially, because
+then it would mean that two quorums intersect and some process has watered
+multiple times, and that's not allowed. Okay?
+However, it's possible that no
+one reaches a majority because processes voted too early, and they voted for the wrong potential
+leaders, and no one reaches a majority. And if this is the case, you just start the next round again,
+where, you start again with the Election. However, there are some corner cases
+where multiple leaders may be elected, in this case, and Paxos works even there
+correctly, but we'll just discuss the case where there is only one leader elected
+at the beginning of the Election phase. Now processes also log the received ballot
+ID on disk, and this is important because if processes crash, and then recover, then
+they can look at the log and, and, and then start where they left off, 'kay. So, again, if things go right
+a round cannot have two leaders just because two quorums intersect, and
+a process cannot work more than once. So that's the Election phase where the
+potential leader sends out a please elect me message, and everyone responds with
+an OK, and then the leader waits for a majority, or a quorum and if so,
+then it becomes the leader. If it doesn't get a majority or
+quorum, it then starts the next round. In the Bill phase the leader
+sends a proposed value v to all. The only constraint here is that the
+leader if it already knows of a value that has been decided in
+a previous Paxos round, it needs to reuse that same value v prime,
+'kay. If no value has been decided in a previous
+round then it can use whatever value including, for instance,
+its own proposed value. Recipients, when they receive this
+proposed value, they log it on disks, so that they can recover from failures, and
+then they respond back with an OK message. That's the Bill phase. Finally, you have a Law phase, where the leader waits to hear
+a majority of OKs from the bill phase. When it hears a majority of OKs, when it reaches a quorum, it lets
+everyone know of the new decided value v. And when recipients receive a decision,
+they log it on disk, and then they send their decision variables. So that's the Paxos protocol in
+a nutshell fairly simplified here. 'kay. Now the question here is
+what is the point in order. When has consensus already
+been reached in the system? You might think that consensus
+has been reached when the Law phase is done at the end of the
+final value being multicast but in fact, consensus is reached slightly earlier even
+though the processes don't know it yet. In fact, consensus is reached
+in the middle of the Bill phase, when the majority of processes have
+heared, have heard of the propo, proposed value and have logged it. They may not have responded
+to it with an OK but because they have logged it,
+they would start where they left off, and that would eventually,
+lead to a majority of OKs. The processes may not know it yet, but
+a decision has been made for the group. And even a leader may not know it yet, and that's the point of no return after which
+that value will be decided in the future, and no other value will
+be decided in the future. If the leader fails after that,
+you simply restart the round, and processes will then respond back with
+the old decided value v in this case, which the leader is then forced
+to use in the Bill phase. Because that's what we discussed
+earlier the leader has to do. So, why does this
+algorithm guarantee safety? In other words, why does it ensure that
+two different values are not decided by two different processes? Well, if some round has a majority,
+that is a quorum, hearing proposed value v prime and accepting it in the middle of
+Phase 2, then subsequently at each round either the round chooses v prime as
+its decision, or the round fails. In other words, either it obeys safety,
+or it just starts another round. Okay?
+So it doesn't decide any other value other than v prime. Well, the reason for this seeing through
+is that potential leader waits for a majority OKs in Phase 1, and
+because this is a majority or quorum, and a quorum has already heard
+a proposed value v prime. That quorum that the leader waits for, and the quorum that has accepted v prime
+will intersect in at least one process. And that process will send the value
+of v prime to the potential leader, and the potential leader will be forced to use
+that value v prime for the Bill phase. And so if the round ever makes a decision,
+it will be the value of v prime. The round might, however, fail and in that
+case the round will just restart again, a new round will start, and in that case,
+again, the value v prime will be used in the Bill phase for the same
+reasons as we have just talked about. So the key here again, is that success
+requires a majority or a quorum, and any two majority sets or
+quorums intersect in this particular case. So that safety what about liveness? Well, again,
+there's only eventual liveness. Eventually, if things go right,
+if there are not too many failures, and if messages are not delayed just the
+wrong time then there's a good chance that the Paxos protocol, some round of
+the Paxos might actually, end up with a decision being a maid, and the Law
+phase succeeding at all the processes. A lot of things could go wrong that could
+prevent rounds from succeeding, and these need actions to be taken
+by the Paxos protocol so that it's still trying to reach liveness. For instance processes might fail,
+and a majority may not included. When the process restarts,
+it just uses its log which is on disk and so it's durable. To retrieve a past decision,
+and passing ballot IDs, and then it tries to know of the past
+decisions and continue with the protocol. The leader might fail, if this is so, then
+the other processes timeout waiting for a bill from it, or
+a law message from it, and then one of them will just
+start the next round. Messages might get dropped the value
+proposals of the OK messages might get dropped quorums might not be reached or
+processes might timeout. If things are too flaky, then timeouts
+will make sure that another round starts, and then all the proceeds will just
+automatically move over to the next round. A round can start at any point of time. So, the current round, maybe about any point of time any process
+might a timeout waiting for a reply. Are a Bill or a Law message and
+start the next round. And this means that the protocol
+may actually never end, and this is a direct outcome
+of the impossibility result. You cannot guarantee time-bound liveness
+you can only guarantee eventual liveness. If things go well, in the future
+then consensus will be reached. So a lot of more things could go wrong. What we've seen is a highly simplified
+view of the Paxos protocol. Leslie Lamport's original paper
+outlined the Paxos protocol in terms of a parliament, and
+even though the paper is hard to read, I encourage you to take a look at it. There are a couple of variants of this
+paper that are out there that have tried to present a simplified
+version of this Paxos algorithm. Do you might want to take
+a look at those as well. So in summary consensus is a very
+important problem because it's equivalent to many distributed computing problems
+that have to do with reliability. Examples being failure detection,
+leader election and also agreement. Consensus is possible to solve in
+the synchronous system model, where message delays, and processing delays
+as well as clock drifts are bounded. But it is impossible to solve
+when these are unbounded. In other words, in the inc, in
+the asynchronous distributed system model. And again, the key here is that slow
+processes are hard to be distinguished from processes that have just failed. The Paxos protocol is a widely
+used implementation of a consensus solution that is safe, but only eventually
+alive, and it's used in Apache Zookeeper, Google's Chubby system, Active Disk Paxos,
+and many other cloud computing systems. So that would end
+the consensus lecture series I have an optional lecture
+series coming up after this. Which for those of you who are brave that
+lecture will show you the FLP Proof. The Impossibility of Consensus in
+the asynchronous split system. It's kind of an interesting proof because
+it several interesting concepts in it, and it will give you a feel for why? No matter what protocol you propose
+to solve consensus the asynchronous system model always has a way of keeping
+the system away from making a decision. [MUSIC]

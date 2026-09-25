@@ -1,0 +1,140 @@
+So today we'll see, uh, probabilistic failure detector that comes closer to the optima, as we have discussed
+in the previous lecture. So this failure detector
+is called the SWIM or Scalable Weekly consistent Infection style
+Membership protocol. You'll see, uh, why it is called that in this lecture, as well as the next. Essentially here,
+instead of using heart beating we use the reverse
+which is, pinging. This is a concept that all
+of you are familiar with. Process pi runs
+the following protocol, which runs periodically
+every T prime time units, that's called
+the Protocol period. The beginning
+of the Protocol period it picks one other process
+at random, wa-call that process pj,
+and sends it a ping message. If the process pj
+receives a ping messages, it responds back with
+a ack message immediately. If pi receives this ack then, it does nothing else for the remainder
+of the Protocol period, it's satisfied. However, if it does not hear
+back an acknowledgement, which might happen if the
+acknowledgement is dropped or the original ping is dropped. Then, it tries to ping pj again, but, instead of using the direct path, it uses indirect path. It does this by sending
+indirect pings to K other randomly selected processes. This, third process
+is one of them. When it receives this
+indirect ping, it then sends a direct ping,
+uh, to pj, which responds back
+with an acknowledgement, and then, uh,
+a direct acknowledgement, and then the third process sends an indirect acknowledgement
+back to pi. If pi receives at least one such
+indirect acknowledgement, by the end of the protocol,
+uh, period, uh, then, uh, it is happy
+and is satisfied. If it does not receive either, direct acknowledgement
+from the beginning or any indirect acknowledgements then, it marks pj as
+having failed. So there're two things
+going on here, first of all, pi is giving pj
+a second chance to respond back to a ping, maybe the first ping
+was dropped. That's why we have
+the second stage, uh, also the pi to pj path
+in the internet itself might be congested and might be dropping
+more packets than other paths. So, pi uses other
+internet paths, by using these indirect pingers, bypassing this
+potential congestion, uh, and, uh,
+giving pj a better chance of responding
+with an acknowledgement. So, essentially, you're giving
+a temporal chance to pj, uh, ah, by sending a second ping and also spatial chance to pj
+by using indirect paths. So, where does SWIM lie with
+respect to heart beating, I have two axis here,
+on this, uh, plot. The Y axis, the vertical axis
+is the first detection time. The X axis is the process load. Here we fix the false positive
+rate and the message loss rate. For heart beating,
+as you increase, when you have
+a very low process load, another words, when you have a, a low bound on the bandwidth that can be used, the detection time
+can be very high. If it is constant, a load,
+that is your constraint, the detection time could be
+as high as order N. On the other hand,
+if your process load is order N then, your detection time
+could be constant. Swim on the other hand,
+gets both, a constant detection time
+on expectation, as well as,
+a constant process load. We'll see this
+on the next few slides. So the detection time in SWIM is on expectation
+e/e-1 protocol periods, this is a constant and
+it's independent of group size. The load on each process
+is a constant per period because each process
+is sending out, one ping maybe, uh, another K indirect
+ping messages and our expectation
+is receiving, uh, one, um, direct ping and our expectation, uh, a few, um, uh, indirect ping messages. You can show by analysis that the load is in fact less than 8 times the optimal load, when you have 15% packet loss. The false positive rate, uh, that this protocol
+achieves is tunable, by increasing K, you can lower the false positive rate and, uh, the false positive
+also falls exponentially, uh, as the value
+of K's increase up. Finally, you get completeness,
+uh, when a process fails, it will eventually be detec-be, uh, be selected for pinging, as long as, there are any further processes with, uh, this failed process
+in their membership list, this is the nice property about, uh, picking, uh,
+ping targets at random. That, uh, when you have
+multiple, uh, pingers, uh, eventually one
+of them will pick you. Uh, but in fact,
+the expectation is even better, uh, y'know, an expectation
+you have e-1, e/e-1 protocol periods until at least one
+of them pings you. You'll also see that you can deterministically
+bound the time, uh, to pinging,
+by using a trick, as you will see. So, because you have an expected e/e-1 protocol periods
+until detection, you can show that, uh, within log in
+protocol periods or order log in
+protocol periods, uh, with high probability, uh, at least one, uh, process will ping
+the failed process, and will mark it
+as having failed. So, the probability mistake
+is exponentially in -K, so as you increase
+the value of K, uh, the probability
+mistake falls. It also, depends on
+the message lost rate, which we marked as, pml,
+in the previous, uh, lecture. It also depends on the
+probability of failure, uh, if you have many failures
+in the system, then, the probability of mistake might, uh, go up, uh, essentially, because some of these indirect pingers might get affected. Uh, however, PM(T) stays,
+uh, small and, it goes down
+as K is increased. You can show that, uh, the load
+in the worst case is, uh, 28 times, uh, less than 28 times
+the optimal, uh, load, uh, and the expectation, uh, on expectation the load is less than 8 times the optimal load, when you have
+15% packet loss rates, which are pretty high
+for the internet, uh, but for the analysis,
+uh, this is good. So let's see for a moment why it's e/e-1 protocol periods on expectation for being,
+uh, for the failure detection. So, consider a process
+that has failed, uh, what is the probability,
+and assume that all the other, uh, processes in the system,
+uh, are, uh, have this failed process
+in their membership list. And each one of them
+is picking one, uh, ping target, at random. The probability that, um, uh, this process will be,
+the failed process will be, uh, picked as, uh, a target
+by a given other process, pi, is 1/N. The probability that
+it will not be picked as, uh, target by this, one of the process pi is 1-1/N. The probability that
+it will not be picked as target by any of this other N-1
+processes in the system is simply this quantity
+raised to N-1 and the probability that
+at least one of these, uh, non-value processes
+will ping it, is just 1 minus this quantity. The second part of this
+equation, is a well-known, uh, limit, as N goes very high, which is what we expect
+in data centers. This value becomes e^-1. Essentially, what we
+are seeing is that, in each protocol period, you flip a coin, with heads probability
+1-e, uh, ^-1 and the coin turns up heads, then at least one other,
+uh, process in the group is going to pick the failed process as a ping target and mark it as having failed. So, um, if you know
+your probability theory than, basically, you'll know that it,
+uh, takes an expectation, uh, one over... this quantity, 1-e^-1 number
+of protocol periods f-on expectation for
+the first heads to turn up. And that is why we get e/e-1. Also, as I mentioned before,
+you have completeness, eventually, um, once a process fails, uh, um, uh, uh, at least one, uh, process will mark it, uh, will, uh, choose it
+as a pinged target and in fact, eventually, every other non-faulty process that has this failed process
+in this list, will pick it as a pinged target, because that's what you get with, uh, random picking. You can also remove, uh, you can also reduce
+this eventual, uh, completeness to a time order completeness, which is order N rounds
+in the worst case, by using a simple trick. The trick is as following, um, whenever you pick
+a membership element, uh, you, uh, pick the next membership element in your list, in the linear fashions, so, essentially, you traverse the membership list that you have,
+uh, one per around. When you reach the end of the
+membership list, you simply, reorder and permute the membership list that you have. So, you essentially do
+round robin pinging, along with random permutation after each traversum. So you can see, um, um, uh, if you think
+about it, you can, uh, see that, this results
+in 2N-1 protocol periods, in the worst case, before, uh, process is,
+uh, picked as a pinged target, after it has failed. Uh, the worst case happens if, uh, the process has just been passed, in this round, in this round robin traverser and then after the permutation, uh, the process ends up
+at the bottom of the list, uh, the very end of the list, that takes N-1+N,
+uh, protocol periods for the pinging process
+to get around and, and ping the failed process. Uh, this change of, um, uh, the way in which
+ping targets are picked, uh, does not change the failure detection properties, such as, uh,
+the false positive rate, and other
+scalability properties. So far we've discussed,
+uh, failure detection protocols, uh, but, uh, we need to return to the big picture of the group
+membership protocol, um, and, uh, see how the dissemination component works, uh, in tandem with
+the failure detection, uh, component
+that we have seen so far.

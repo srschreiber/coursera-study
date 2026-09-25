@@ -1,0 +1,189 @@
+Okay, so in this lecture we'll see the actual, uh, algorithm, the classical algorithm
+that is used, uh, to calculate a global snapshot,
+uh, in a distributed system. So once again,
+just to remind you, uh, the goal here is
+to record a global snapshot which consists of a state
+for each of the processes in the system and a state for each
+of the channels in the system. Uh, once again, when someone
+gives you a problem, just make sure that you know
+what the system model is under which you're trying
+to solve the problem. Uh, here the system model
+is as follows. We have N processes
+in the system. Between every pair of processes there are two communication channels, one going each way. So between two processes Pi
+and Pj, there is two channels, one from Pi to Pj,
+one from Pj to Pi. Each of these
+communication channels, uh, the goes one process
+to another, is FIFO ordered. When I say FIFO it means
+first-in, first-out. This means that if, uh,
+on a channel from Pi to Pj, a message M1 is sent first
+and then message M2 is sent, M1 is received first at Pj
+and only then is M2 received. We also assume that there
+are no failures at processes, and also that messages
+are not dropped, they are intact, and that they are not duplicated. Uh, w-uh, some
+of these assumptions, especially the failure
+and message assumptions, uh, have been addressed
+by subsequent variants of the classical protocol
+we are gonna discuss, okay, but for now we'll just assume,
+uh, what was assu-assumed in the original, uh,
+classical algorithm. So some of the requirements are that the snapshot calculation must not interfere with the normal application
+operations or messages. It must not require processes
+to, uh, stop doing what they're trying to do or,
+um-uh, stop sending messages. We want, uh, the algorithm to continue concurrently
+and simultaneously with the other application,
+um, operations. We want each process to be able
+to record its own state. When I say a process state,
+I really mean, uh, either an application-
+defined state or, uh, failing that, a state
+that captures the entire, uh, state of the process, uh, its heap registers, program, uh, code, program counter, code,
+um, stack, and anything else that might appear
+in the coredump of that process. Uh, the global state
+is collected in a distributed manner. We do not want centralized
+collection of, uh, the, uh, of, uh, of the state, and, uh, we want any process
+to be able to initiate or start
+the snapshot collection. Now there might be
+multiple snapshot collections that might occur in the system,
+perhaps even simultaneously. Each of these runs
+would be distinguished by using a unique ID. For now, for most of
+our examples we'll just assume there's one run
+of the snapshot algorithm that is happening in the system. So, uh, here is the snapshot
+algorithm in two slides. Uh, in the first slide we say
+what the initiator process does, and in the second slide we'll
+say what the other processes do. Uh, the initiator process, uh,
+first records its own state, and again, by state I mean
+either application state or the coredump state. Then the initiator process
+creates special messages called marker messages, and on each of the,
+um, and these marker messages, um, are not
+application messages. They do not interfere
+with application messages, but when a marker message
+is sent on a channel, it is ordered alongside
+other application messages. In other words, if a process Pi
+sends some application messages and then a marker message, uh,
+the marker message is delivered only after those application
+messages on that channel. Similarly, any application
+messages sent after the marker are delivered only after
+the marker is received on that channel. So, returning to the algorithm,
+once the initiator has recorded its own state, it then sends out a marker on each of the N-1
+outgoing channels, from Pi itself to the other
+processes, uh, Pj, where j is not
+equal, uh, to i. Uh, finally it starts recording,
+uh, the incoming messages of each of the incoming channels
+at Pi-that is Cji for um, again these are N-1
+incoming channels at Pi. So markers were sent
+out from the initiator. What happens when a process
+Pi receives a marker? This could be any process in the
+system, not just the initiator. When Pi receives a marker
+on an incoming channel, say Cki, which means that Pi is receiving
+the marker from process Pk, if this is the first time that the, uh, Pi,
+process Pi is seeing a marker, meaning it's the first marker
+that Pi is receiving, then the first thing that Pi
+does is record its own state. This could be the application
+state or a coredump of Pi, or anything that captures
+the history of Pi. Next, uh, Pi marks the state
+of the incoming channel Cki on which it received this first
+marker as being empty, okay, so this is going to be the
+final state of this channel Cki in the final global snapshot. Then on the, uh, uh,
+N-1 outgoing channels, um, Cij from Pi outwards,
+uh, Pi sends a marker out, okay? Uh, finally, uh, Pi starts
+recording the incoming messages on each of- of the
+incoming channels at Pi except the one that it just, uh, marked at state 4, which is Cki. So for the other N-2 incoming
+channels, other than Cki, uh, it starts recording, uh,
+the incoming messages on them. This is important because we want to, uh, capture
+the messages in transit as well, so when Pi receives a marker
+for the second or the third time where it's already seen
+a marker message before, and this, uh, duplicate
+marker message is being received on channel Cki, then, uh, Pi marks
+the state of channel Cki as consisting of all those
+messages that have arrived on Cki since Pi first turned
+on recording, okay? So between the time that Pi
+received its first-first marker until a marker was received
+on channel Cki, uh, all the messages that have
+been received on channel Cki are considered
+to be part of Cki's state. So essentially here what
+I'm saying is that, uh, all the processes
+will end up sending, uh, marker messages
+to each other, and this will ensure
+that all the channels have their states snapshotted. Uh, of course, the state of a
+channel is snapshotted only at, uh, the, um, uh, process
+that is at the receiving end of that channel. The algorithm terminates when
+all the processes have received, uh, one marker message so that
+they record their own states, and then, um, all the channels
+have had one marker message, uh, transit through them
+and be received at them. This would make sure that, uh, all the, uh,
+N-1 incoming channels at each process
+have their states recorded. Later on, if needed,
+a central server can collect all these partial
+snapshot pieces to calculate
+the global snapshot, and then, uh, you know,
+check whatever global property is required, but again, that's
+optional; that's not required. The global snapshot calculation
+and collection itself, the original collection is
+in fact a distributed operation. So let's see an example of this,
+um-uh, snapshot algorithm, uh, at work. So here's an example
+of three processes. Time goes from left
+to right again. Uh, the, uh, events shown here, both, um, uh, instructions
+such as A and C, uh, as well as message sends
+like B and the message-receives like E are
+all application messages. Uh, so, uh, when P1
+the initiator starts its, uh, collection, this is being done
+concurrently and simultaneously alongside the
+application messages. So as initiator P1 starts its,
+um, uh, uh, algorithm by recording its own state, we'll call that as S1, it sends out markers on the two outgoing channels C12 and C13, and it turns on recording on the incoming
+channels C21 and C31. Next, uh, P3 receives
+the marker from P1. This is the first marker
+that P3 is seeing, so it records its own state; let's call that state as S3. It marks the state
+of the incoming channel on which the marker just came
+in, which is C13, as MT. Next it turns on recording
+on the other incoming channels, which is just C23 in this case. Finally it sends out markers on, uh, all the outgoing channels over here, okay, which is C31 and C32. I'll summarize that via
+this, uh, simple text here. Uh, next, um-uh, the marker
+from P3 is received at P1. Uh, clearly this is a duplicate
+marker that P1 is seeing, so, uh, at this time
+it stops recording the state of the channel on which it just received
+the marker, which is C31. Uh, it started recording
+the state, uh, when it recorded
+its own state S1, and in the meantime, no messages
+have been received from, uh, P3, so the state of channel
+C31 is marked as being empty. Next, uh, the, uh, marker
+for P3 is received at P2. This is the first marker
+that P2 is seeing. The marker from P1 that was
+sent to P2 is still in pr- in progress, it's still
+in transit in the network. Uh, so when P2 receives
+this marker, the first marker it's seeing, and, uh, so it records its own
+state as, um, uh, own state; we call that as S2. It marks the state
+of the channel on which the marker just came in, C32, as being empty, and finally it turns
+on recording on the-on the other
+incoming channel, which is C12, and it also sends out markers, because this is the first marker that it's seen. Uh, next, uh, the marker
+from P1 is received at P2. This is a duplicate marker,
+so P2 stops recording, uh, messages on the channel C12 and marks the state of channel
+C12 to all the messages that have been
+received since S2. That is empty, and so the state
+of channel S-C12 is marked as empty. Uh, we are not yet done. P2 next, uh, s-uh, uh,
+P2's marker is received at P1. This is duplicate, so it's, uh,
+so the channel C21's state on which the marker
+has just been received is marked as consisting
+of all the messages since, uh, S1 until a marker
+is received on C21. Notice that this message, uh,
+that had the send event of G and the receive event of D, uh, was received in between
+when S1 was recorded until C21's, uh,
+state stopped being recorded. So that message is, uh,
+considered to be a part of the state of the channel C21. Obviously, uh, this
+doesn't refer to, uh, the, um, an actual
+physical point of time at which this g-global snapshot
+has been calculated, but at some, uh,
+past point of time at which the snapshot
+was in fact true. Next, uh, the, um-uh, marker
+for P2 is received at P3, and again this is
+a duplicate marker, and, uh, the state
+of the channel C23 is, uh, said to be consisting
+of all the messages that were received since S3
+was calculated, and that's just empty
+in this case. So at this point,
+the algorithm has terminated because all the, uh, processes have calculated their,
+uh, states, and all the channel states of all the six channels in the
+system have been calculated. Uh, you could, if you wanted, uh, to collect the global snapshot pieces in one place and then calculate
+whatever global property you want to calculate on this, but this is again optional; uh, it's not really needed for the original global
+snapshot calculation itself. Now, the global
+snapshot calculated by the Chandy-Lamport algorithm is not actually, may not actually be,
+have been true at any physical point
+of time in the past, but it is causally correct, so, uh, it is correct
+in the sense of causality. What does this really mean? We'll see this
+in the next lecture.

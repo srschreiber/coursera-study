@@ -1,0 +1,249 @@
+So, in this, uh, lecture, we'll analyze the push-based
+gossip protocol that we discussed
+in the previous lecture, uh, and I'll also touch a little bit on the analysis of the pull-based
+gossip protocol. This analysis willshow
+three claims. The first that, uh, the, uh,
+gossip protocol is lightweight, even when the groups
+are very large, meaning they contain
+a large number of nodes, uh, it spreads a multicast
+quickly, even in large groups, and it is highly fault tolerant in spite of, uh, node failures and in spite
+of packets being dropped. So, the analysis here is, uh, derived from an old branch of mathematics called epidemiology, and this is taken from a, uh, well-known textbook on epidemiology by Bailey,
+published in 1975. Um, essentially, epidemiology
+was a old branch of mathematics that studied the spread
+of epidemic diseases among prison populations and among human populations
+in society. Uh, the-the traditional, uh,
+classical version of epidemi-epidemiology analysis has a population
+of n+1 individuals mixing homogenously. Essentially, each
+of these individuals is one of the nodes
+in our system and consider these individuals or these molecules being inside a jar and you're
+constantly shaking the jar and these molecules
+are moving around and hitting each other
+all the time. The contact rate per time unit between any pair
+of individuals is beta. So, beta's typically
+a number between 0 and 1. Uh, this is the probability that two individuals will come
+in to contact with each other during a given time unit. At any time, each individual
+is either uninfected and there are
+x such uninfected individuals, or once it turns infected, it stays infected and the
+number of infected is y. Initially, only one infected, uh, individual is present. This is the multicast center,
+so y_0=1 and the remaining, of, uh, the remaining n individuals
+are all uninfected at time zero. Of course, at all times, because a-an individual is either uninfected or infected, the sum of x+y at any given
+point of time should be n+1, the number of individuals
+in the group. When an uninfected individual
+comes into contact with any infected individual, uh, the uninfected individual
+turns into infected and it stays
+infected thereafter. So, this sort of models, uh,
+the, uh, gossip-based protocol that we have seen so far. So, how do you analyze this? Well, this is
+a continues time process and you can essentially write this as a differential equation where you write
+the rate of change of, uh, x, which is the, uh, uh, uh,
+uninfected, uh, number in the-in the system, um,
+as -beta*x*y. First of all, it's negative
+because the number of uninfected is obvious going
+down over time. Uh, now, why is it, uh,
+-beta*x*y? Well, x*y is the, uh, total number of potential infected/uninfected contacts per time unit, and among those, um, uh, all possible x*y contacts, only a fraction, beta, happen because beta is, after all,
+the contact rate, and for each of those contacts, one uninfected
+turns into infected. So, essentially that's gives you
+the rate of change of x, and this is
+a differential equation which you can replace y,
+ah, uh, using x+y=n+1 and it becomes
+a differential equation in just one variable and it
+has the following solution. Uh, if you have your differential equation
+charts with you, you might actually be able
+to derive the solution. I encourage you to do this if you're familiar with differential equations. One of the things for you
+to notice here is that, uh, x over here, the equation for x, uh, has, um, a t in it,
+which is the time, which is the number of rounds since the gossip-based
+protocol has started. Remember again that here we are
+using a synchronous, uh, model where all the processes or nodes
+proceed in lock step, uh, from one round to another. Uh, this is the only for the,
+uh, ease of analysis. The analysis holds even if, the, uh, processes
+are all unsynchronized. So, you notice
+that as t goes to infinity, as t becomes very large, the denominator is going
+to become extremely large and x is gonna go down to zero. Similarly, here,
+when t becomes very large, this second, uh, uh, factor
+in the denominator, uh, is, uh, going to go to zero,
+and so y is gonna go to n+1. So, eventually
+the number of uninfected becomes very close to zero and the number of infected
+becomes very close to n+1, which is the total
+number of nodes in the group. So, eventually gossip converges and everyone receives
+the gossip. That's not surprising. Well, what we want to show is that gossip actually
+converges fairly fast. So, this is our epidemic
+multicast protocol and essentially,
+this is what we're analyzing. So, in the gossip based and
+epidemic multicast protocol, the value beta is actually b/n. Well, why is this? Consider a, uh,
+an-an infected, uh, node and consider one particular uninfected node. The probability that
+this infected node picks this particular uninfected node as a gossip target during the round is essentially the probability
+that it is one of the b targets picked by the infected
+node during that round. So, since there are n possible,
+um, uh, uh, targets, uh, per round and the probability
+that this uninfected node is picked as a gossip target, simply b/n. So, you substitute
+this value beta into the equation
+that we derived and you substitute
+the value of t=clog(n) this essentially says that you
+have, uh, n- uh, log(n) rounds that have happened so far and actually
+all the log(n) rounds that have happened so far. And you substitute
+in the previous equations, you get the number, uh,
+of infected nodes in the system is n+1, the total number of nodes,
+minus this quantity 1/n^(cb-2) This c comes
+from the clog(n) here, and the b comes from, uh,
+the fan out of the gossip. Now, if I set c to be some small
+number like 2 and b to be
+a small fan out like 2, this, uh, term becomes
+1/n^(4-2), or 1/n^2. That's a very small number
+that's very close to zero. Essentially what that's-
+what that is saying is that after 2log(n) rounds, as long as I'm using
+a gossip fan out of 2, the, ah, number of infected nodes in the system will be n+1 minus
+a very small number, 1/n^2, which is very close to 0,
+and in fact, as n increases, this number goes
+even closer to 0. Essentially this is saying
+that the gossip converges within a logarithmic
+number of rounds and it gets very close to n+1
+infected being in the system. So, as l- as long as you set c
+and b to be small numbers that are independent of n, they are constants,
+within clog(n) rounds. This means low latency,
+all but a very small fraction of number of nodes receive,
+uh, the multicast. This means that the multicast
+is highly reliable and it gets to almost everyone with high probability within a logarithmic
+number of rounds. And since only clog(n) rounds
+have happened, um, nodes in the worst case
+are sent out, uh, each node is sent out c*b*log(n) copies of the gossip message. So, the order, the, ah, overhead on each node
+is also logarithmic. So, essentially this shows
+the three claims that I have, uh, that I, uh, that I showed in the beginning of this lecture. It's reliable, it's low
+latency, and it's lightweight. Now, I hope that
+some of you are thinking, "Well, it's log(n),
+it's not constant," right? Um, the latency is O(log(n)),
+it's not constant, um, the overhead is O(log(n)),
+it's not constant. But, why is O(log(n))
+so sacrosanct? Well, log(n) is really not
+constant in theory, but when it comes, uh,
+to practice, uh, it is a very slowly
+growing number. A log base 2(1000) = 10,
+log base 2(1M) = 20, log base 2 (1B)~30, and if you consider the IP before address space, uh, log base 2(all IPv4 address)=32. So, these are
+fairly small, uh, numbers, and as far as practitioners
+are concerned, many practitioners
+consider log(n) to be a fairly small, uh, number and a constant
+for practical purposes. So, that was the push-based
+gossip protocol, um, and, uh, the next thing that we need to show is, uh, the, uh, fault tolerance of the push-based
+gossip protocol. What happens when
+you have packet loss? Suppose 50% of the packets
+get dropped, uh, from the network. Again, we can analyze
+the protocol by simply replacing b by b/2 because, after all, uh, the gossip targets
+are selectived at random, so even if you have,
+um, uh, uh, uh, packet losses all over the network, uh, these packet losses
+will be distributed uniformly at random among
+the gossip messages. So, you simply analyze b by,
+uh, nah, this, do the same analysis as before
+by replacing b by b/2 because half the gossip messages get dropped, and it turns out, and you can check this
+for yourself, uh, that to achieve the same
+reliability as 0% packet loss, you only need to wait
+for twice as many rounds. So, instead
+of using clog(n) rounds, you wait for 2clog(n) rounds and you get the same reliability
+as, uh, with a 50- as with the 0% packet loss rate. With node failure,
+50% of the nodes fail, uh, you replace n by n/2 because there are
+only half the nodes that are alive in the system, you care only about
+the reliability at them, and you replace b
+by b/2, ah, again, again, half the gossips
+get dropped because they are sent
+to one of the failed nodes. And once again, ah, you get
+a similar, um, a result as, uh, before by increasing
+the number of log- uh, the-the rounds by only
+a constant factor- um, uh, multiplicative, constant multiplicative factor, you get the same reliability as if you had no node failures
+in the system. So, with failures, one of the things that could
+happen with the gossip is that it could die
+out very quickly and this, uh, if it does happen, typically happens
+very early in the gossip. Very early in the gossip,
+if the sender, uh, before it sends out a copy of the gossip dies, then obviously you're not gonna get the gossip spread out anywhere. The sender might send out one
+copy of the gossip, uh, to a few nodes in the system, just one round, and then all these, uh,
+first round recipients and the sender byte might die. Okay, the probability
+of this happening is very low because these
+are selected at random, so even if you have gossip
+running in a data center and an entire rack goes out, as long as one, um, er, process outside the rack got the gossip, you'd still have the gossip spread and it is very resilient. So, once the gossip has infected
+a small amount of nodes in the system,
+just a few rounds, after that it's very hard
+to kill the gossip. And this is kinda,
+should be familiar to you because this is uh, paralleling uh, the way in which
+disease is spread in, uh, human populations or
+rumors spread in society. Once a rumor of the disease gets
+out, uh, a little bit farther, it's very hard to contain. Okay, so, all the analysis
+that we've seen in the previous slides
+is with high probability, and this has been shown
+in another book, uh, by Galey and Dani, uh, which also analyzed, uh, gossip. Here again, um, here we are
+using gossip or epidemics for a good purpose. Um, uh, the same behavior
+is seen when rumors spread in society, infections diseases
+spread in populations, or viruses and worms, uh,
+spread, uh, on the internet. So, what about the
+pull-gossip protocol? So far we have looked
+at the push-gossip protocol, what about pull? Uh, in all forms of gossip,
+whether it's push or pull, it takes O(log(n)) rounds
+before the, uh, before, uh, about half the nodes
+in the system get the gossip. Why is this? Well, uh, the best you can do is essentially build
+a spanning tree among the nodes in the system, and if you have
+a constant fan out, constant number of children per node in
+f-in the spanning tree, it takes O(log(n)) rounds for
+about half the nodes to get, uh, this, uh, uh, gossip message
+in the best case. However, thereafter, after about half the nodes
+have received the gossip, pull is faster than push. Yeah, how-to see this,
+let's look at the following: After the ith round, let p_i be the fraction of noninfected or uninfected
+processes in the system, then in the i+1 round, uh, the value of p_(i+1) is essentially (p_i)/(k+1) where k is the, um,
+number of, um, k is the number
+of, uh, gossip targets. K=b in this particular case. Why is this? Well, the probability that you
+stay infected- uh, noninfected at the end of the i+1 round is the probability
+that you were uninfected at the beginning
+of the i+1 round, so that's p_i by itself, and also the probability that each of the k or b,
+um, uh, targets that you contacted at random were all also uninfected
+by the gossip, and that's, uh, times (p_i)^k, and that's how you get
+(p_i)^(k+1). So, this goes around
+very quickly, and in fact this goes around, uh, super exponentially, faster than exponential, and it can show
+that this is O(log(log(n)), not just O(log(n)),
+but it's O(log(log(n)), so it's much faster
+than logarithmic. So, overall the pull gossip
+protocol is still O(log(n)), but, ah, uh, it's much faster
+in the second half. So, this should give you
+an idea of getting, b-of designing, perhaps,
+a push-pull hybrid protocol where you use push
+in the beginning portion to get the gossip out
+very quickly and then use pull, uh,
+in the later rounds, uh, to, uh, um, uh, to-to get it out to everyone else
+in-in the system very quickly. Finally, uh,
+the gossip protocols that we've discussed
+so far are not topology aware, so, uh, when it comes
+to a hierarchical topology, whether it's, uh,
+on the internet using subnets or whether it's on-in a data
+center using, uh, racks, uh, the core switches
+and routers might get overloaded
+quite a bit. So, for instance,
+consider a scenario where I have two subnets, perhaps two racks; uh, the top subnet
+and the bottom subnet each with n/2 nodes, uh,
+from the group. Since each node selects a gossip
+target uniformly at random, about half the gossips are gonna go across from one subnet to the other, okay, and also from the bottom to the top. This means that
+the router sees, uh, n/2, actually b*(n/2) gossips
+go out per, uh, gossip period and so the load on the router is going to be O(n),
+which is very, very high. So, the fix to this
+is to do the following. You have gossip that, uh,
+prefers nodes in your own subnet with a high probability and nodes outside your subnet
+with a lower probability. If your subnet contains ni
+or n_i, uh, nodes, you, uh, gossip, uh, um, uh, outside your
+subnet with probablity 1/(n_i). With probability 1-(1/(n_i)), you gossip
+within your own subnet. So, this means
+that within your own subnet, because the probability
+of gossiping is still very close to one, ah, it's gonna spread
+in O(log(n)) time, and this is true
+for any one of these subnets. And then after a subnet
+has been completely infected, uh, since everyone gossips
+outside with probability 1/(n_i) and there is n_i such nodes
+gossiping outside, it takes O(1), uh,
+rounds on expectation for the gossip to go across the
+router to the other, uh, subnet and for someone in the other
+subnet to get infected. After that, again, it's gonna take O(log(n)) rounds to spread within
+that subnet itself. So, overall it's still O(log(n)) +, uh, O(1) + O(log(n)), uh, for it to get across and so it's still O(log(n))
+rounds dissemination time, and instead what we have done is that we have re-reduced the
+load on the router to be O(1). Why is it O(1)? Well, uh, because essentially
+you have n_i nodes in the- in one subnet
+and since each of them sends a gossip out
+with probability 1/(n_i), the, uh, expected number of
+gossips going through the router is (n_i*1)/(n_i),
+which is O(1). So, that concludes our, uh,
+analysis of, uh, gossip. Uh, in the next lecture
+we'll see, uh, some practical permutations
+of, uh, gossip. Uh, now, for those of you who
+have been trying to analyze, uh, the push analysis, here is an addendum where the
+analysis is actually shown out. Uh, I encourage you
+to go through this, uh, and make sure that your analysis was, in fact, correct.

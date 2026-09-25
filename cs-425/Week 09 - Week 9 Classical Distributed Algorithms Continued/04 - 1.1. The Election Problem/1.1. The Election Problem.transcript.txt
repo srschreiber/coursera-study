@@ -1,0 +1,124 @@
+[MUSIC] Hi there. In this series of lectures, we are going to look at the classical
+problem called leader election, which has been useful in many variants of systems,
+including today's cloud computing systems. In this lecture today we'll see what
+leader election problem actually is. So let's start with an example. Suppose your bank account details
+are replicated at a few servers that are maintained by your bank. But one of the servers that the bank
+maintains is responsible for receiving all the reads and writes from a client, such
+as ATMs or the banking application on your iPad or the banking application on the,
+on the website, or so on and so forth. So this single special server
+that is on the bank side is called the leader server
+among the replicas. Okay, so the leader is responsible
+essentially for coordinating the replicas. Now, there are several scenarios
+that can happen with a leader. There might be two leaders per customer. This might be problematic because now
+the group of replica servers is not sure who the leader is. And therefore reads and writes might
+be split across these multiple leaders. Servers might also disagree
+about who the leader is. Some servers might know leader,
+server a as a leader and other servers might consider
+a different server as a leader. And that server might not
+even think it's the leader. And this might, again,
+lead to inconsistency in the system. If the leader crashes and this means
+that the clients may not be able to send reads and writes to the system. And once again, you may need to
+re-elect a new leader in the system. So each of these scenarios that
+I've described as a question, leads to either inconsistency or
+unavailability in the system. Some more examples of situations
+which require a leader. We discussed the Different
+types of multicast ordering. And one of the ways of implementing
+total ordering from multicasts was to use a sequencer process. And this was a special elected
+process from among the group of processes itself and there needed to be
+exactly one sequence of process, okay. This sequence is essentially the leader. If you have multiple sequencers, then a total ordering may in
+fact be violated in the group. When we discuss time synchronization,
+we discuss the network time protocol, also known as NTP, and the NTP
+organizes all the servers into a tree. And there is one server at
+the root of the tree and you need to elect who the server is from
+among all the potential NTP root servers. Other systems in industry that also
+leverage leader election include open source systems such as Apache Zookeeper
+and also Google's Chubby system, on top of which a lot of Google's systems,
+internal systems, rely on. Essentially in a nutshell,
+a leader in a process group is useful for coordination among the processes
+in the group itself. Typically these processes
+are servers in a cloud. [NOISE] So, in a nutshell, in a group of
+processes, we want to elect a leader. One of the processes needs to be elected
+a leader to undertake special tasks such as coordination. Also, it's not just efficient to elect
+a leader and let the leader know about it. You need to let all the non-leaders in
+the group also know who the leader is. These are the two requirements
+of the leader election protocol. What happens when this leader crashes or
+fails? Well, first of all some
+process detects this failure. How does it detect it? Well, it detects this using
+say a failure detector. Using any one of the failure detectors
+we have seen elsewhere in this course. You could also use other mechanisms as
+you will see some of our systems do. But what happens after
+you detect this failure? Well, after this failure you
+is detected then you need to run another election algorithm so
+that a new leader is elected. And this leader is a non-faulty process,
+meaning one that has not crashed. And also you need to let all
+the other non-faulty processes in the group know who the new leader is. So that's the goal of
+the election algorithm. That's the leader election
+problem in disabled systems. So once again, when someone gives you
+a problem just make sure that you know what the system model is, under which
+you are trying to solve the problem. Essentially the system model tells
+you what the assumptions are. In this case our system model
+consists of N processes. Each process has a unique id. For instance,
+its IP address and port number. Messages that are sent from one process
+to another are delivered eventually. They may take awhile but
+they are delivered eventually and they're delivered reliably. Failures may also occur
+during the election protocol. So for instance,
+while you're trying to elect a leader, the leader might itself fail. The next would be leader might in fa,
+might in fact fail. Or one of the other processes
+in the system might fail, and the leader election protocol needs
+to be tolerant to such failures. So, a few more requirements from
+the view point of the election itself. Any process should be able to call for
+an election. Why is this? Well first of all, any process in the system may
+detect the failure of the leader. For instance, why the failure
+detector most failure directors allow any process in the system
+to detect the failure. For instance, heartbeat based failure detectors are [INAUDIBLE]
+failure detectors. When a process detects that the leader
+has failed, it an initiate an election, which essentially means it calls for
+an election. A process can call for
+at most one election at a time. We don't want multiple elections
+running simultaneously. If multiple processes call
+an election simultaneously, we want all of those together
+to yield exactly one leader. We don't them to yield
+conflicting leaders. But at a time,
+you want only one election running. Also, the results of an election
+must not depend on who caused it. So the initiator's ID whichever
+processes initiated the election, that must not influence the outcome
+of the election itself. Instead, outcome of the election must be
+based on cert, certain other criteria that are important to this system or
+are important to the application. So a little bit more formally,
+a run of the election algorithm must always guarantee two
+properties at the end. The properties are safety and liveness. Safety, once again just to remind you, is the property that
+nothing bad ever happens. And in this case of the election, safety
+says that for all non-faulty processes p. P's elected variable which stands for
+p's vision of who the current leader is. Should either be q, a particular non-faulty process
+with the best attribute value. I'll talk about attributes
+in a little bit, but essentially assume that each
+process in the group has an attribute. Say the IP address is the attribute. Right?
+We want to elect that process as the leader that has the best attribute
+value, say the highest IP address. So, safety says that p's
+elected variable must point to the that non-faulty process in the group
+that has the best attribute value. Or a p selected variable points to Null. In other words, p never makes a mistake
+and points its elected variable to a, a leader, a process that must not be
+leader according to the best attribute. Liveness property again,
+informally speaking, liveness says that something
+good eventually happens. And in this particular case
+the liveliness property says that for all runs of the election,
+the election run terminates, meaning that something you know,
+all the processes quiet to the end. And then for all non-faulty processes p at
+the end, p's elected is set to not Null. Okay?
+So, p's elected is not Null at the end if p is a non-faulty process. So the combined safety and
+liveliness essentially says that, at the end of the leader election run,
+which terminates, the that process where the best
+attribute value is elected as a leader. And all the other non-faulty
+processes in the system have their local elected variables pointing
+to this newly elected leader. So what do I mean by electing
+the process with the best or highest election attribute value? Well one of the most common
+attributes used is the highest id. So among all the ids in the group, you elect that process as
+the leader that has the highest id. You can also reverse this and elect the
+process with the lowest id in the group. That's fine too. Other attribute examples
+include IP address. They include fastest CPU. Or you could use the disk space. Or you could use in peer-to-peer
+like settings, you could use processes that have the most number of
+files or the least number of files. As long as this attribute is fixed in
+the beginning and all the processes know about it, you're going to get a consistent
+leader election specification and protocol as well. So in the next lecture, we're going to see
+a classical leader election algorithm. And then we'll follow that up by seeing
+a few more leader election algorithms. [MUSIC]

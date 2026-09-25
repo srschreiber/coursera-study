@@ -1,0 +1,79 @@
+In this, uh, lecture
+we'll see a little bit and just take a peek into some
+of the, uh, uh, implementations of gossip that exist out there. I'll give you a list and I'll give you a peek
+into one of them. So, uh, we have discussed a lot
+of theories so far for gossip, and I'm sure some of you are
+wondering, uh, is this all a bunch of equations or are there
+implementations yet. Well, there's a bunch of
+implementations out there starting from the 1980s when, um, Xerox used, uh, um, gossip in their, um, uh, email and
+database transactions systems. Uh, the Clearinghouse and
+Bayou projects, uh, had, um, gossip-based protocols
+running inside of them where essentially the servers, uh, would talk with ea- the e-mail servers would talk with each other and exchange
+gossip messages, uh, which then they would,
+uh, help, uh, to make sure that every one-every one of the servers received all the emails
+that had been sent out. Um, this is sort of similar
+to the NNTP protocol that I'll describe
+on the next slide. The refDBMS system
+also used gossip. Bimodal Multicast, uh, um, uh,
+which was published in the late '90s, uh, a-and has continued, uh,
+were from Cornell University, um, uh, brought back gossip, uh, to be used in fast
+multicast implementations. Sensor networks
+and wireless networks have also used,
+uh, uh, uh, gossip. Uh, the Amazon web services
+cloud infrastructure is rumored to use, uh, gossip,
+uh, to, uh, uh, uh, to exchange messages
+among the servers in both the EC2
+and the S3 cloud. Again, this is rumored: none of the, uh, none of the,
+uh, design details have actually been
+published at all, but this is rumored and actually if you look
+at the, um, uh, the postmortems from Amazon web
+services outages, you will, uh, see that
+some of the outages refer to gossip messages
+and the use, uh, thereof. Uh, key-value stores
+such as Cassandra, uh, also use gossip
+for maintaining membership lists among the, um, uh, knowns
+in the system. And the NNTP, the Network News
+Transport Protocol, which is used in news groups, uh, which have been fairly
+active for many, many decades, uh, which is a usenet NNTP
+protocol, also use gossip. Uh, so essentially
+in that NNTP protocol, each client uploads
+and downloads news posts from a news server, uh, then the servers talk
+with each other and exchange
+the latest news posts so that every server
+has all the posts. So, an upstream server might,
+uh, um, send a message to the downstream server saying
+"why don't we check these, uh, "message IDs that I
+have received recently." Downstream server checks
+the ones that, uh, it has not received and sends
+back, uh, a message saying: "Why don't you give me those missing messages." And upstream then server sends a
+"take this," uh, uh, message, followed by the action
+messages themselves. Then the downstream
+server acknowledges. And this is going on all the
+time among the servers, in NN-among NNTP servers,
+and so eventually, um, all the servers receive, uh,
+all the messages. Of course, messages
+always keep coming and so essentially the group
+of servers is always, uh, in a wave, and that wave
+is always, um, uh, lagging behind
+the actual wave of messages and is always trying
+to catch up. If the messages stop at any
+point of time, uh, then, uh, the servers catch up
+and they, um, uh, have the same set
+of messages as each other, um, and, uh, the servers
+and the NNTP implementation also, uh, uh, uh, um, delete
+the posts after a while, uh, so, after the, you know,
+the-the-after all the clients have in fact downloaded
+the posts themselves so the servers are not keeping
+the posts around forever. So that concludes our
+discussion of, uh, gossip. Uh, gossip is a solution
+to the multicast problem in, uh, uh, uh, large groups
+of nodes or processes. Um, there are many tree-based
+multicast protocols, and also some clients multicast
+protocols that are out there, but they don't scale
+as well as gossip, they're not as fault tolerant as, uh, gossip. Gossip is also known
+as epidemics, essentially this is using, uh, the phenomenon
+of rumor-spreading or, uh, disease-spreading or
+spreading of worms in internet, uh, for a good purpose here: uh, to spread,
+uh, multicast messages among large groups
+of processes fairly quickly, fairly, uh, fault tolerantly, fairly reliably, and in a very scalable
+and also topology-aware manner.

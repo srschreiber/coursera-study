@@ -1,0 +1,5 @@
+# raw API responses, downloaded JS bundles, partial downloads
+**/_debug/
+*.part
+__pycache__/
+.DS_Store

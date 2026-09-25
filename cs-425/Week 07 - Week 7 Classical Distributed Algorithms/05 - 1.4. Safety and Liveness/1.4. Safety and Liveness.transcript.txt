@@ -1,0 +1,141 @@
+Uh, in this lecture we'll see
+two very important properties that are, uh, desired
+in distributed systems; these properties are called
+safety and liveness, and along the way
+we'll also discuss the kinds of, um, properties that, uh, the global snapshot
+algorithm can be used to detect
+in a distributed system. So correctness in distributed
+systems is, uh, highly desired, and there are two properties
+that can be used to, uh, specify
+correctness requirements. These properties are known
+as liveness and safety. Uh, the definitions
+are distinct, uh, but they are often confused with each other, so its' very important for us
+to be able to distinguish one from the other. Let's look at liveness first. Uh, in a nutshell, liveness is
+a guarantee that something good will happen eventually, okay? Uh, eventually does not imply
+a time bound, but if you let the-the system run long enough, then it-it guarantees,
+uh, liveness. Uh, so examples of this, uh,
+are, in the real world, uh, the guarantee that
+in an Olympics 100 meter dash, at least one of the athletes will win the gold medal. This is a liveness
+guarantee, something good, which is winning the medal,
+happens eventually. Uh, a criminal
+will eventually be jailed is a liveness guarantee that legal systems in many
+countries, uh, try to guarantee. It's hard to guarantee it,
+but it-it is a desired property. In a distributed system, uh,
+the termination property is a liveness property. You want a distributed
+computation-computation to terminate, and, uh, this is the, uh,
+guarantee that something good, which is termination,
+will happen eventually. Completeness and
+failure detectors, uh, is a liveness property. This is a property
+that says that eventually, every failure will be detected by the other non-faulty
+processes in the system. In consensus, uh, liveness says that all processes eventually
+decide on a value. Safety, on the other hand, is
+a guarantee that something bad will never happen
+in the system, okay? So notice that there we are
+using "bad" instead of "good" earlier in the liveness, and we are saying
+will never happen, uh, because we desire that it
+never happens in the system. Again, in the real world, a
+peace treaty between two nations is an example
+of a safety property, uh, which guarantees that war will never happen
+between those two nations. Again, this is
+a desired property; this is not always what happens. Uh, wars have happened
+in spite of treaties, um, so treaties are clearly
+not safe all the time, but it's an example
+of a desired safety property. Uh, legal systems try
+to guarantee the safety property that an innocent person
+will never be jailed; that would be really bad. In a distributed system, uh, the fact that we
+do not want deadlocks in a distributed
+transaction system is an example of a safety
+property which we desire. The fact that we do not want
+objects to be orphaned, meaning they don't have any
+pointers pointing to them, is an example
+of a safety property. Accuracy and failure detectors
+is a safety property because it says that we do not
+want any mistaken detections of non-faulty processes
+being marked as failed. And in consensus, we do not
+want two different processes to decide
+on two different values, uh, because that would be bad and that would be unsafe. Uh, guaranteeing both liveness
+and safety is very hard. In failure detectors
+guaranteeing, um, uh, liveness and safety, which is
+completeness and accuracy, is, uh, impossible in an
+asynchronous distributed system, especially if you want these
+to be time-bounded. Uh, in c-in the consensus
+problem, uh, making decisions, uh, within a time bound and, uh,
+correct decisions, um, uh, making sure that the correct decisions
+are correct cannot both be guaranteed in an asynchronous
+distributed system. You can guarantee
+eventual liveness, which is what algorithms
+like Paxos, uh, guarantee, but time-bounded liveness
+cannot be guaranteed. And of course,
+as many of us know, it's very hard for legal systems to guarantee both, uh, liveness and safety, and in fact to guarantee
+either liveness or safety is very hard. Um, it's-it does happen that some criminals
+never serve any jail time, and it also does happen
+that innocents are jailed. So in the language
+of global states; remember that
+a distributed system moves from one global state
+to another via causal steps, um, which you saw
+in an earlier lecture in the snapshot series, uh, liveness with respect
+to a property Pr in a given state S
+essentially means that, uh, the state S satisfies Pr, and if this is,
+uh, not true, then there is some causal path that goes from
+the state S to another state S', global state S',
+where S' would satisfy Pr. Okay, so all you require here
+is that there is some way to get from the current state
+to another state, um, that, uh,
+satisfies liveness. If this is true for every state
+that you are in, that whate-whatever state
+you are in, you can reach another state that um, uh, that satisfies liveness uh, the liveness property Pr, then this system
+is said to be satisfying the liveness property. Notice that you do not require
+all the states, uh, reachable to satisfy this property Pr, just some causal path
+and some end state to satisfy the property Pr. Safety, on the other hand,
+with respect to property Pr, says that, um, in state S,
+S satisfies the property Pr, and all global states S'
+that are reachable from S via causal paths
+also satisfy Pr. If this is true, then
+the safety property is true. So how do we use
+a global snapshot algorithm to detect global properties? Well, the snapshot algorithm can be used to detect global properties that are stable. When I say stable,
+I mean properties that, once they are true, they st-they stay
+true forever afterwards. Uh, these could be either
+stable liveness properties or stable non-safety properties. A stable liveness property
+might be of the kind the computation has terminated. Once a computation
+has terminated, it stays terminated forever, and this is obviously
+an example of a good property that we want to be true, so it's a liveness property
+that is stable, and it can be u-and
+it can be detected using the global
+snapshot algorithm. Stable non-safety properties
+include, um, uh, the fact that
+there is a deadlock. Once a deadlock happens
+in the system, it will stay forever until
+you do something about it. Also, uh, once an object
+is orphaned, uh, that is, it has no pointers
+pointing to it, it will stay that way until you
+do something about it. Both these are examples
+of non-safety properties that are stable, and so the global snapshot, uh,
+algorithm which we discussed, the Chandy-Lamport algorithm, can be used to detect,
+uh, these stable properties. Uh, why can you use to dete- these to detect
+the sto-stable properties? Because Chandy-Lamport algorithm is guaranteed
+to be causally correct. Even though the Chandy-Lamport
+algorithm does not, uh, guarantee that the snapshot
+calculated by it holds at any physical point
+of time in the past, it does guarantee
+causal correctness, uh, which means
+that it does not violate our, uh, human being's understanding of what happens causally
+in the distributed system, and so it can be used to detect,
+uh, stable properties. Wrapping up our discussion
+of snapshots, the ability to calculate
+a global snapshot is really important
+in a distributed system, uh, but you
+want to calculate the snapshot, uh, concurrently and parallelly while allowing the application to continue proceeding and sending
+its application messages, and the Chandy-Lamport algorithm allows us to do exactly that. The output of a
+Chandy-Lamport algorithm is a, uh, global snapshot
+that obeys causality. In other words,
+it satisfies a consistent cut, it's equivalent
+to a consistent cut, and it can be used to detect
+stable global properties which are either, uh,
+liveness properties or non-safety properties. We've also discussed
+two very important definitions, liveness and safety, which, um, are
+relevant of course to the snapshot-
+snapshots discussion. These are properties
+that appear, uh, elsewhere and in other parts
+of this course, uh, because these
+are very important, uh, classes of properties that we desire
+in distributed systems.

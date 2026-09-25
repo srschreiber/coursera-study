@@ -1,0 +1,170 @@
+In this lecture, uh, we're going
+to see some examples of, uh, applications
+that use MapReduce. We'll work with, uh, fairly simple examples, but these will, these examples will hopefully show you, uh, the simplicity of programming in MapReduce, and yet, at the same time, how
+powerful the paradigm can be. So the first application
+is a distributed grep. You have a large set of files with a large amount
+of text in them, for instance, uh, these might
+be the works of Shakespeare, or in a production cluster these might be, uh, the logs
+of, uh, uh, applications that are running, and you want to grep for,
+uh, particular words, say of characters
+in Shakespeare's works, uh, or, uh,
+for error messages, uh, in, uh, your, uh,
+production cluster. So essentially,
+you may have a pattern which might be a regular,
+uh, expression pattern or just a-a word
+or a series of words, and you want to output all the
+lines that match that pattern. So here's what, uh,
+the Map would look like; um, here's how
+you would write the Map. The Map essentially would, uh,
+look at each line of text and, uh, check
+if that line of text matches the supplied pattern. It might use regular grep
+for this, and if it does, then it emits that line
+of text as the key, with the value being, say, one, it doesn't really matter. The Reduce in turn, uh, simply
+copies the intermediate data to the output. It does not do any processing, because each line, uh, essentially, uh,
+might be unique, and you don't want to really do any merging of lines
+in this case. And the output of, uh, this
+particular MapReduce uh, uh, implementation is essentially
+the set of lines that match your pattern. The advantage of doing
+distributed grep here is that since you have
+a very large data set, you could have multiple Map tasks and multiple Reduce tasks which speed up the processing
+of your, uh, distributed grep, instead of doing a lot
+of the grep on one machine, which might
+be very, very slow, uh, because you have to sequentially process all the data, and also you may need
+to transfer the data to that single machine. With MapReduce you could run
+your, uh, application MapReduce distributed grep application
+even though your data is distributed out over
+multiple servers. The next application is
+a reverse web-link graph. So you have a graph, uh, which is, say, a portion
+of the web graph, where you have, uh,
+edges (a, b) where a is a webpage
+and b is a webpage, and a has a link
+that points to b. This is represented, uh,
+in the input as tuples (a, b), and that's what your input consists of. It is just pairs
+of URLs, uh, (a, b) where ais a URL and b is a URL where the webpage at URL a
+points to the webpage at URL b. The output you want
+is the reverse. You want for each page, uh, all the list-the list of all
+the pages that point to it, okay, so you want to find out
+all the pages that point to, say, your homepage. So here's what the Map does. The Map processes the web log, and for each input pair
+(source, target), (a, b) that it receives,
+it just reverses it. It makes the target as the key
+and the source as the value. Why does it do this? Well it does this so that
+in the Reduce phase, all of, uh, the key/value pairs that share this target as the key will end up
+at the same Reduce task, and that Reduce task in turn can simply list
+the corresponding sources. It doesn't need to add them, because you can't
+really add URLs. Uh, it just lists them,
+makes a list out of the sources, and outputs that
+as the key/value pair, or the final key/value pair. So this, ah, is essentially
+the output where for each target and key/value pair the
+corresponding value is the list of all the URLs that, um,
+have pointed to it. Now you could take this a step
+further where, uh, instead of, um, uh, listing, you could simply
+add up the number of URLs. Okay, in this case, um,
+you would output, uh, the number of pages that, uh, point to the target. In that case, you could also
+optimize the map, uh, so that the, the, uh,
+output of it is (target, 1). So that kind of dovetails
+into our next, where, uh, you have, uh,
+our next application where you have
+a, um, uh, a say a log, which is a, uh,
+log of accessed URLs, say from a proxy server, and there you have, uh, one URL for, uh, for every webpage that was fetched
+by any client or user inside, for instance, your company
+or organization. And you want as output
+for each URL the percentage of total accesses for that URL, okay, so you want to say,
+for instance, CNN.com accounted
+for 13.5% of all accesses, uh, from this particular company, and so on and so forth
+for every URL. So here's how the Map and
+the Reduce would work. The Map processes the web log. Remember, the web log
+has a series of URLs, and for each URL
+that it encounters, it outputs
+the key/value pair (URL, 1). The Reducers essentially, uh,
+do the same thing as we did for the WordCount where each URL is
+assigned to exactly one Reducer, and, uh, for that URL it sums up
+the, uh, values that it, uh, receives as, um, values associated with that key. So at this point
+we have output from, uh,
+the MapReduce function, where for each URL
+you have a count of the number of times
+that URL was accessed. Okay, this is essentially
+the WordCount example, but this is not
+what we're looking for. We're looking for a percentage
+rather than a count. So what you do is you chain
+another, uh, MapReduce right after this. So you have the Map phase that
+leads to the Reduce phase, and then after the Reduce phase
+you chain another Map phase and another Reduce phase
+after that, which will do
+the percentage part. So the Map receives-receives
+as input the output
+of the previous Reduce phase, which is
+the (URL, URL_count) pairs, uh, and it outputs
+(1, the value) as its output. Why does it do this? Well, you just wanna have
+one key so that you have
+exactly one Reducer in that second
+MapReduce phase, and it simply takes, uh, all of these key value pairs
+it has received, it extracts the URL count,
+it sums them up. Once it has summed them up, it knows the total number
+of URL counts, uh, that are there
+across all the URLs, and it makes
+wa-one more pass, uh, through this, uh, uh, data set, and it divides the URL count
+by the overall count, then it is calculated
+and then it emits (URL, URL_count/overall_count) for each URL that is
+present in its inputs. So this second reducer, uh,
+second-phase Reducer, there is only one of it, because, um, you want
+to calculate the overall count, right? You can't calculate
+the overall count if there are multiple Reducers, and essentially
+the Reducers and the maps don't talk with each other, uh, in this particular case, and you won't have
+exactly one Reducer. And the Reducer does two passes; one pass to calculate the overall count by summing up all
+the URL counts, and the second pass
+to calculate the percentages by dividing all the counts
+by the overall count. The last example
+is, uh, one of sorting, and you might think sorting might be fairly complicated, um, but in fact, uh,
+the internal MapReduce, um, uh, technique, uh, internal MapReduce,
+uh, engine, uh, the Hadoop engine as well, uh, does some more
+of, uh, sorting already, and this helps us right sort very, very easily. Concretely, the output
+of the Map task, remember the output
+of each Map task is a set of,
+uh, key/value pairs, this set of key/value pairs
+is already sorted before it is sent out
+to the Reduces. This sorting is typically
+a quick sort implementation in the Apache Hadoop implementation. For instance, the keys might be
+integers or they might be words, and these are sorted uh, uh, based on increasing order
+of integers or lexicographically
+using the words. The Reduce task,
+a given Reduce task, also receives a-a lot of input for multiple key/value pairs. It also sorts all of this input
+before it starts its processing. This sorting
+is actually fairly important for, uh, the Reduce task, because, uh, then, uh,
+the Reduce task can decide, uh, basically once you sort the
+key/value pairs by key, uh, all the sorting here
+is done by key, uh, once you sort them by key, uh, essentially what happens is that all the key/value pairs associated with a given key are present contiguously
+in your sorted, uh, set, and so you can call, uh,
+the Reduce function once for that entire batch
+of, um, uh, inputs, Reduce inputs that share the same key. So, uh, in order to sort a fairly large data set
+in MapReduce, um, the input receives a series
+of key/value pairs, and for the output you want to, uh, output
+the set of sorted values. The Map function, uh,
+that we would write would take the key/value pairs and it would simply output
+value comma whatever as the key/value pair. We don't really care what the value here is
+for the output key/value pair. Essentially this is
+the identity function; it does not do any processing. Similarly, the Reduce
+also does no processing; it just outputs
+the same key/value pair. You might wonder
+"How does this work?" Well, it works because the Map
+output is already sorted using Quicksort, and the Reduce output
+is also sorted using Mergesort, and so the output of,
+uh, the Reducers, as long as the Reducers
+are also sorted with respect to each other and you assign the file names for each of the Reducer
+outputs appropriately, uh, you will get output
+that is also, uh, sorted, um, based on the values. The only concern here
+is one of partitioning. You cannot use hash-based
+partitioning over here. You want to make sure
+that the Reducers themselves are also ordered
+so that their output- corresponding output file names can be given increasing um, um, uh, file names, uh,
+in increasing order, and they can be
+collated appropriately. So, uh, you want to partition
+keys across Reducers based on ranges. In other words, you want
+to assign each Reducer a range of keys, say Reducer number one gets, uh,
+uh, keys 0 through 1,000, uh, Reducer number two gets, uh, keys 1,001 through 2,000, and Reducer number three gets keys 2,001 to-through 3,000 and so on and so forth. So, um, this again goes
+into the partitioning function. Ah, in addition, the, uh, values may be, uh,
+non-uniformly distributed, so there might be many more keys in, uh, the range say
+2,001 through 3,000, so you may want to assign more
+Reducers from that range. Okay, and so you want
+to-you may want to take the data distribution into account in order to assign, uh,
+while assigning ranges, uh, to the keys, uh,
+to the, uh, Reduce tasks.
