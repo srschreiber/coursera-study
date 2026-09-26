@@ -1,211 +1,508 @@
 # Week 2 Study Notes — 1. Clouds and Distributed Systems
 
-These notes are organized as a lecture rather than a transcript. The goal is to understand the concepts well enough to answer conceptual, calculation, and scenario-based midterm questions.
+This document covers the Week 2 material before MapReduce. It is organized as a lecture, but it intentionally preserves course-specific definitions and details that may appear on the midterm.
 
 ## 1. Why Clouds?
 
-Cloud computing lets users acquire computing resources when they need them rather than owning enough hardware to handle their maximum possible demand.
+Clouds provide compute and storage without requiring a customer to buy and operate all of the underlying hardware.
 
-Suppose a service normally needs 20 servers but needs 200 servers for a few hours during peak traffic. If the company owns its infrastructure and provisions for peak demand, most of those 200 servers sit idle most of the time. A cloud can instead let the company acquire additional resources during the peak and release them afterward.
+Important examples from the lecture include:
 
-This motivates two important ideas:
+- **EC2** — compute using virtual machines.
+- **S3** — storage, historically priced per GB-month.
+- **EBS** — block storage accessible by EC2 instances.
 
-- **Elasticity:** resources can be scaled up and down as demand changes.
-- **Pay-as-you-go:** users pay for resources they consume rather than making the same large up-front infrastructure investment.
+Two deployment categories:
 
-These properties help make clouds economically attractive when workloads vary over time.
+- **Public cloud:** resources are available to outside customers.
+- **Private cloud:** resources are restricted to an organization or privileged users.
 
-## 2. What Makes a Cloud Different?
+Clouds can save both provisioning time and money because customers can obtain resources quickly and pay according to usage rather than purchasing enough hardware up front.
 
-Cloud computing did not invent distributed computing.
+## 2. Course Working Definition of a Cloud
 
-Older distributed systems already had independent machines communicating and coordinating over networks. The defining similarity between clouds and earlier distributed systems is therefore:
+The course deliberately does not try to give a universal definition.
 
-> **Servers coordinate with other servers over a network.**
+Its working idea is:
 
-What distinguishes modern cloud computing is the combination of properties such as:
+> A cloud contains large amounts of storage with compute cycles located nearby.
 
-- very large scale,
-- elastic/on-demand resource provisioning,
-- resource sharing and virtualization,
-- pay-as-you-go economics,
-- infrastructure exposed as services.
+The direction matters. In a data-intensive system, moving enormous datasets is expensive, so a recurring principle is:
 
-So if an exam question asks what clouds and previous generations of distributed systems have in common, do not choose elasticity or cloud pricing. The basic shared property is **networked machines coordinating with one another**.
+> **Move computation toward the data rather than moving the data toward computation.**
 
-## 3. Public vs. Private Clouds
+This principle will reappear in Hadoop's locality-aware scheduling.
 
-A **public cloud** provides cloud resources to external customers.
+## 3. What a Datacenter Looks Like
 
-A **private cloud** uses cloud-style infrastructure for a restricted organization or set of users. For example, an internal company cluster accessible only to that company's employees is a private cloud.
+A **single-site cloud** is essentially a datacenter.
 
-"Private" does not mean that the machines stop being distributed or stop using cloud techniques. It describes who can access the infrastructure.
+The course identifies these major pieces:
 
-## 4. Datacenter Efficiency and PUE
+- compute nodes / servers,
+- servers grouped into **racks**,
+- **top-of-rack (ToR) switches**,
+- a network topology connecting racks,
+- storage/backend nodes,
+- front-end machines for client requests or job submission,
+- software services running across the infrastructure.
 
-A datacenter consumes power both for its useful IT equipment and for supporting infrastructure such as cooling and power delivery.
+### Rack topology
 
-The course uses **Power Usage Effectiveness (PUE)**:
+Conceptually:
 
 ```text
-PUE = Total datacenter power / IT equipment power
+                    Core switch
+                   /           \
+          Top-of-rack         Top-of-rack
+             switch              switch
+           /   |   \            /   |   \
+         S1   S2   S3          S4   S5   S6
+             Rack 1               Rack 2
 ```
 
-Because total datacenter power includes IT power, PUE is at least 1.
+Servers in the same rack connect through their **top-of-rack switch**.
 
-**Closer to 1 is better.**
+Traffic between racks travels upward through the network topology, such as through a **core switch** in a simple two-level hierarchy.
 
-### Example
+Switches have finite:
 
-A datacenter consumes 1,200 kW total, while servers, networking, and storage consume 800 kW:
+- bandwidth,
+- port counts.
+
+At sufficiently large scale, a two-level topology may therefore need to grow into a deeper hierarchy.
+
+This physical topology matters later in Hadoop because scheduling a Map task on the machine containing its input is better than transferring the block across the network; if that is impossible, using a machine in the **same rack** can still be preferable to crossing racks.
+
+### Backend and front-end nodes
+
+**Backend/storage nodes** emphasize storage capacity, such as SSDs or larger numbers of disks.
+
+**Front-end servers** receive client requests or job submissions.
+
+### Geo-distributed clouds
+
+A geographically distributed cloud contains **multiple datacenter sites** connected together. Sites can have similar or different internal structures and software stacks.
+
+## 4. History: Clouds Are Not the First Distributed Systems
+
+The course frames cloud computing as another generation in a long history of distributed computing.
+
+Rough progression:
+
+- 1940s–50s: very large early computers such as ENIAC/ORDVAC/ILLIAC.
+- 1960s–70s: timesharing and data-processing industry.
+- 1980s: PCs, networks of workstations, clusters, grids.
+- 1990s–2000s: large peer-to-peer systems such as Napster, Gnutella, BitTorrent.
+- Modern era: very large cloud/datacenter systems.
+
+The conceptual point is more important than memorizing every date:
+
+> Cloud computing builds on decades of distributed-systems ideas rather than replacing them.
+
+The lecture also describes the old vision of **computing as a utility**: obtaining computing resources in the way users obtain electricity or water.
+
+### Hardware trends
+
+The lecture discusses historical exponential improvements in:
+
+- compute capacity,
+- storage per dollar,
+- network bandwidth.
+
+It notes that CPU clock-frequency growth hit a power wall, so growth increasingly came from more cores/processors rather than ever-increasing clock speed.
+
+## 5. Four Characteristics of Modern Clouds
+
+The course explicitly identifies **four major characteristics** distinguishing modern clouds from earlier generations:
+
+1. **Massive scale**
+2. **On-demand access**
+3. **Data-intensive workloads**
+4. **New cloud programming paradigms**
+
+These four are worth memorizing.
+
+### 5.1 Massive scale
+
+Modern datacenters can contain tens or hundreds of thousands of machines.
+
+At this scale:
+
+- failures become routine,
+- algorithms must scale,
+- networking and storage architecture matter,
+- manual administration does not scale.
+
+### 5.2 On-demand access
+
+Users obtain resources without purchasing them permanently or making the same up-front hardware commitment.
+
+This leads to pay-as-you-go models such as:
+
+- CPU-hours,
+- GB-months of storage.
+
+Elasticity means the amount of provisioned resources can change as demand changes.
+
+### 5.3 Data-intensive computing
+
+Traditional high-performance computing can be **compute intensive**: relatively modest input data but heavy computation.
+
+Cloud workloads are often **data intensive**: enormous datasets must be stored, read, transferred, processed, and queried.
+
+Therefore:
+
+> **Bring computation to the data.**
+
+In data-intensive systems, **disk I/O and network I/O** can be more important bottlenecks than CPU utilization.
+
+### 5.4 New programming/storage paradigms
+
+Examples in the course include:
+
+- MapReduce,
+- Hadoop,
+- key-value stores,
+- NoSQL systems such as Cassandra and MongoDB.
+
+These abstractions make it easier to program and store data across large clusters.
+
+## 6. Cloud Service Models
+
+The lecture introduces the **aaS — "as a Service" — classification**.
+
+### HaaS — Hardware as a Service
+
+Access to bare hardware. Exposing raw hardware to untrusted users raises security concerns.
+
+### IaaS — Infrastructure as a Service
+
+Users obtain virtualized machines/infrastructure and can install their own operating systems and software.
+
+Virtualization provides isolation and is a major reason IaaS can safely expose infrastructure to many users.
+
+### PaaS — Platform as a Service
+
+Users write applications against a managed platform rather than directly provisioning/managing VMs.
+
+Tradeoff:
+
+> **Easier / more managed, but less flexible than IaaS.**
+
+### SaaS — Software as a Service
+
+Users consume the finished software service itself.
+
+The important progression is roughly:
 
 ```text
+hardware → virtual infrastructure → managed application platform → finished software
+ HaaS            IaaS                    PaaS                 SaaS
+```
+
+## 7. Datacenter Efficiency: PUE and WUE
+
+### Power Usage Effectiveness (PUE)
+
+```text
+PUE = total facility power / IT equipment power
+```
+
+IT equipment includes useful computing/network equipment such as servers, routers, and switches.
+
+Because total facility power includes IT power:
+
+```text
+PUE >= 1
+```
+
+**Lower is better; 1 is the theoretical ideal.**
+
+Example:
+
+```text
+Total power = 1200 kW
+IT power    = 800 kW
+
 PUE = 1200 / 800 = 1.5
 ```
 
-If a datacenter has PUE 1.2 and consumes 600 kW of IT power:
+Rearranging:
 
 ```text
-Total power = PUE × IT power
-            = 1.2 × 600
-            = 720 kW
+Total facility power = PUE × IT power
 ```
 
-For PUE 1.8 with the same IT load:
+Thus PUE 1.2 with 600 kW IT power gives:
 
 ```text
-Total power = 1.8 × 600 = 1080 kW
+1.2 × 600 = 720 kW total
 ```
 
-## 5. What Is a Distributed System?
+### Water Usage Efficiency (WUE)
 
-A useful definition for this course is:
+The lecture also mentions **WUE**:
 
-> **A distributed system is a collection of independent machines that communicate over a network and coordinate to accomplish a common task.**
+```text
+WUE = annual water usage / IT equipment energy
+```
 
-The word **independent** matters. Multiple CPU cores inside one computer can execute work in parallel, but this is not what we normally mean by a distributed system.
+The stated unit is liters per kWh.
 
-For example:
+Again, **lower is better**.
 
-- 64 CPU cores on one server processing an array: **parallel computation, not distributed computation under the usual definition**.
-- 64 independent servers communicating over a network to process a dataset: **distributed computation**.
+Cooling matters because servers and networking equipment generate heat, so datacenters consume resources beyond the electricity directly used by IT equipment.
 
-A distributed system may also hide this complexity from its users. A user may interact with what appears to be one service even though a request is handled by many cooperating machines.
+## 8. Economics: Own vs. Outsource
 
-### Distribution does not imply fault tolerance
+Public-cloud economics are not simply "cloud is always cheaper."
 
-Do not put fault tolerance into the definition itself.
+The lecture compares:
 
-A distributed system **may be fault tolerant**, and fault tolerance is extremely important in distributed systems, but a badly designed distributed system can fail as soon as one machine fails.
+- **outsourcing to a public cloud**, versus
+- **buying and operating a private cloud**.
 
-So keep these concepts separate:
+Public cloud costs scale with usage, such as CPU-hours and GB-months.
 
-- **Distributed:** independent networked machines coordinate.
-- **Parallel:** multiple computations happen simultaneously.
-- **Fault tolerant:** the system can continue operating despite some failures.
+Owning infrastructure includes costs such as:
 
-## 6. Why Distributed Systems Are Harder
+- hardware,
+- power,
+- networking,
+- system administration.
 
-A major complication is **partial failure**.
+The lecture performs a **break-even analysis**. Its historical example found different break-even points depending on what costs were considered; the important general idea is:
 
-In a single-machine program, a process may simply crash. In a distributed system, some machines can continue operating while another machine is dead, slow, disconnected, or partitioned from the network.
+> Short-lived or uncertain workloads often favor outsourcing because there is little up-front commitment. Long-running predictable workloads may eventually make owned infrastructure economically attractive.
 
-Suppose machines A and B can communicate but C becomes unreachable. A and B can continue changing their state while C misses those changes. If C later returns, the system must decide how to reconcile its stale state.
+The exact historical prices are old, but the method is testable: compare monthly outsourced cost against amortized ownership + operating cost and solve for the lifetime at which one becomes cheaper.
 
-This creates problems that do not appear in the same form inside a single process.
+The lecture also mentions an old rule of thumb for datacenter cost allocation:
 
-### Failure vs. slowness
+- 45 cents hardware,
+- 40 cents power,
+- 15 cents network,
 
-If machine A sends a request to B and receives no response, A cannot conclude merely from that observation that B has crashed.
+per dollar-like unit of infrastructure cost, amortized in its example over three years.
 
-Possible explanations include:
+## 9. A Cloud Is a Distributed System
 
-- B crashed,
-- B is overloaded,
-- the request packet was lost,
-- the response packet was lost,
+The course treats clouds as a **special class of distributed systems**.
+
+Earlier generations/classes include:
+
+- time-shared systems,
+- clusters,
+- grids,
+- peer-to-peer systems,
+- clouds.
+
+The names and architectures change, but core distributed-systems problems survive across generations.
+
+## 10. The Course's Working Definition of a Distributed System
+
+This is important: the course rejects several simpler textbook definitions.
+
+For example, it rejects the requirement that the entire system must **appear to the user as one local computer**. The Web is distributed even though users can observe that one website is available while another is unavailable.
+
+It also rejects requiring a client-server organization because peer-to-peer systems are distributed systems too.
+
+### Definition used by this course
+
+> **A distributed system is a collection of entities that are autonomous, programmable, asynchronous, and failure-prone, communicating through an unreliable communication medium.**
+
+The entities are generally **processes running on devices**.
+
+You should know every adjective.
+
+### Autonomous
+
+Each entity can operate independently.
+
+### Programmable
+
+The entities execute programs. This helps exclude things such as groups of humans or birds from the computer-science definition being used in the course.
+
+### Asynchronous
+
+Each process operates according to its own clock.
+
+The clocks are **not assumed to be synchronized**.
+
+This produces later problems involving:
+
+- clock skew,
+- clock drift,
+- ordering events across machines.
+
+### Failure-prone
+
+Processes can crash independently and at arbitrary times.
+
+### Unreliable communication medium
+
+Messages may:
+
+- be dropped,
+- be delayed for an arbitrarily/inordinately long time.
+
+For this course, the essential mental model is:
+
+```text
+Process P1 ---- messages ---- Process P2
+       \                       /
+        \---- unreliable -----/
+               network
+```
+
+Distributed algorithms therefore cannot treat communication as instantaneous or perfectly reliable.
+
+## 11. Distributed vs. Parallel Systems
+
+This distinction is more specific in the course than simply "one machine versus many machines."
+
+A **parallel system** such as a multiprocessor/supercomputer can have many processors executing simultaneously while being tightly coupled and sharing a synchronized clock.
+
+A distributed system is **asynchronous**: independent processes have unsynchronized clocks and communicate by messages over an unreliable medium.
+
+So:
+
+> **Parallelism is about simultaneous computation. Distribution adds autonomous asynchronous entities and unreliable communication.**
+
+A 64-core machine can perform massive parallel computation without satisfying the course's distributed-system model.
+
+## 12. Partial Failure and Failure Detection
+
+A distributed system can suffer **partial failure**.
+
+Suppose A and B can communicate but C becomes unreachable. A and B may continue changing state while C misses those changes.
+
+When C returns, its state may be stale.
+
+Worse, if A sends a message to C and hears nothing, A cannot determine from that observation alone whether:
+
+- C crashed,
+- C is overloaded,
+- the request was lost,
+- the response was lost,
 - the network is congested,
-- A and B are separated by a network partition,
-- the communication is simply taking a long time.
+- the network is partitioned,
+- the message is simply delayed.
 
-This uncertainty becomes important later when studying failure detectors and membership protocols.
+This uncertainty is central to later topics such as failure detectors and membership protocols.
 
-## 7. Scale Makes Failure Normal
+## 13. Scale Makes Failures Normal
 
-Even if individual machines are reliable, a sufficiently large distributed system experiences failures frequently.
-
-If each machine independently has probability `p` of failing during some period, then for `n` machines:
+If one machine has failure probability `p` during some interval and failures are independent, then with `n` machines:
 
 ```text
-P(no machines fail) = (1 - p)^n
+P(no failures) = (1 - p)^n
 
-P(at least one fails) = 1 - (1 - p)^n
+P(at least one failure) = 1 - (1 - p)^n
 ```
 
-### Example
-
-If each of 100 machines has a 1% chance of failure during a week:
+Example: 100 machines, each with a 1% weekly failure probability:
 
 ```text
 P(at least one failure)
-    = 1 - 0.99^100
-    ≈ 0.634
-    ≈ 63.4%
+= 1 - 0.99^100
+≈ 0.634
+≈ 63.4%
 ```
 
-So a failure that is rare for one machine becomes ordinary at cluster scale. Distributed systems therefore need to be designed with failures in mind.
+This illustrates a major course principle:
 
-## 8. More Machines Do Not Mean Linear Speedup
+> **At large scale, failures are the norm rather than the exception.**
 
-A system using 10,000 machines is not automatically 10,000 times faster than one machine.
+## 14. Other Core Challenges
 
-Reasons include:
+The distributed-system definition leads to several recurring challenges.
 
-### Communication overhead
+### Scalability
 
-Machines must exchange information over a network. Sending data, coordinating tasks, and combining results all consume time.
+Algorithms must continue working efficiently as machine count and data volume grow.
 
-### Network latency and bandwidth
+### Asynchrony
 
-Local memory access is very different from transferring data across a network. For a small workload, distributing the data can cost more than simply processing it locally.
+There is no perfectly synchronized global clock.
 
-### Work may not be perfectly parallelizable
+### Concurrency
 
-Some portions of an algorithm may depend on previous work and therefore cannot all execute simultaneously.
+Many processes may access or modify related state simultaneously, creating races and consistency problems.
 
-### Coordination overhead
+### Failure
 
-Scheduling, synchronization, metadata management, failure recovery, and aggregation all add work that a single-machine implementation may not need.
+Processes and communication can fail independently.
 
-This is why distributed processing is especially useful when the workload is large enough that the benefits of parallel work outweigh the cost of distribution.
+These ideas motivate later course topics such as gossip/membership, distributed hash tables, key-value stores, timestamps, consistency, and coordination.
+
+## 15. Why More Machines Do Not Guarantee Linear Speedup
+
+10,000 machines do not imply a 10,000× speedup.
+
+Costs include:
+
+- communication,
+- network latency,
+- limited network bandwidth,
+- synchronization,
+- scheduling,
+- aggregation,
+- failure recovery,
+- serial portions of the workload.
+
+For sufficiently small workloads, distributing the computation can cost more than doing it locally.
 
 ---
 
 # Midterm Checklist
 
-You should be able to:
+You should be able to explain or derive all of the following:
 
-- Define a distributed system.
-- Distinguish distributed computation from parallel computation.
-- Explain why fault tolerance is not part of the definition of a distributed system.
-- Explain elasticity and why it changes cloud economics.
-- Distinguish public and private clouds.
-- Calculate PUE and solve for total or IT power.
-- Explain partial failure.
-- Explain why a timeout does not prove that another machine has crashed.
-- Calculate the probability that at least one of many machines fails.
-- Explain why adding N machines does not generally produce an N-times speedup.
+- Public vs. private cloud.
+- Course working definition of a cloud.
+- Why computation is moved toward data.
+- Datacenter components: servers, racks, ToR switches, core/network topology, backend storage, front end.
+- Single-site vs. geo-distributed cloud.
+- Broad historical progression leading to clouds.
+- Four modern-cloud characteristics: massive scale, on-demand access, data intensive, new programming paradigms.
+- HaaS, IaaS, PaaS, SaaS and their differences.
+- Compute-intensive vs. data-intensive workloads.
+- PUE, including rearranging the equation.
+- WUE and why lower is better.
+- Own-vs.-outsource break-even reasoning.
+- Why a cloud is a distributed system.
+- Why "appears as one computer" is not required.
+- Why client-server architecture is not required.
+- Course definition: autonomous, programmable, asynchronous, failure-prone entities + unreliable communication.
+- Distributed vs. parallel systems, especially asynchronous clocks.
+- Partial failures and why silence does not prove a crash.
+- Failure probability at scale.
+- Scalability, asynchrony, concurrency, and failures as core challenges.
 
 # Practice Problems
 
-1. A datacenter consumes 900 kW total and 600 kW powers IT equipment. Calculate its PUE. Is a PUE of 1.25 more or less efficient?
+1. Draw a simple two-rack datacenter topology containing servers, two top-of-rack switches, and a core switch. Trace traffic from a server in rack 1 to a server in rack 2.
 
-2. A service needs 50 machines normally and 500 machines for two hours each day. Explain why elasticity can improve resource utilization.
+2. Why does Hadoop later prefer a node containing the input data, then a node in the same rack, over an arbitrary node elsewhere?
 
-3. A program uses 32 cores on one physical server. Is it necessarily a distributed system? Explain.
+3. Name the four characteristics the course gives for modern clouds.
 
-4. Machines A and B can communicate, but neither can reach C. List at least three possible explanations other than C having crashed.
+4. A customer wants full control over a VM's operating system. Which aaS layer best matches this? How does that differ from PaaS?
 
-5. Each machine in a 200-machine cluster has a 0.5% probability of failure during a day. Write the expression for the probability that at least one machine fails.
+5. A datacenter consumes 900 kW total and 600 kW powers IT equipment. Calculate its PUE.
 
-6. Explain why a 1,000-machine distributed implementation of an algorithm might be slower than a single-machine implementation for a tiny input.
+6. A datacenter has PUE 1.25 and IT equipment consumes 800 kW. Calculate total facility power.
+
+7. Explain why "all machines appear as one computer" is not a requirement in the course's definition of distributed systems.
+
+8. State the course's working definition of a distributed system and explain each adjective.
+
+9. Why does the course use asynchrony to distinguish distributed systems from tightly coupled parallel systems?
+
+10. Machines A and B can communicate, but neither can reach C. Give at least three explanations other than C having crashed.
+
+11. Each machine in a 200-machine cluster has an independent 0.5% probability of failure during a day. Write the expression for the probability that at least one machine fails.
+
+12. A startup expects to run for an uncertain amount of time and does not know its future traffic. Explain why public-cloud economics may initially be attractive even if owning hardware could eventually have a lower monthly cost.
